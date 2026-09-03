@@ -158,21 +158,40 @@ function ppcart_is_subscription_post_type($slug)
 }
 
 /**
- * Live capability string.
+ * Map a family key or canonical cap to the leftover capabilities-map key.
  *
- * @param string $legacy_or_key Legacy cap or short key manager_option|manage_orders.
+ * @param string $family_or_key Family key, leftover cap, or canonical cap.
  * @return string
  */
-function ppcart_live_cap($legacy_or_key)
+function ppcart_cpt_slug_migration_legacy_cap_key($family_or_key)
+{
+    $maps = ppcart_cpt_slug_migration_maps();
+
+    if ('manager_option' === $family_or_key) {
+        return 'sc_manager_option';
+    }
+    if ('manage_orders' === $family_or_key) {
+        return 'sc_manage_orders';
+    }
+    if (isset($maps['capabilities'][ $family_or_key ])) {
+        return $family_or_key;
+    }
+
+    $from_canonical = array_search($family_or_key, $maps['capabilities'], true);
+
+    return false !== $from_canonical ? $from_canonical : $family_or_key;
+}
+
+/**
+ * Live capability string.
+ *
+ * @param string $family_or_key Family key, leftover cap, or canonical cap.
+ * @return string
+ */
+function ppcart_live_cap($family_or_key)
 {
     $maps   = ppcart_cpt_slug_migration_maps();
-    $legacy = $legacy_or_key;
-
-    if ('manager_option' === $legacy_or_key) {
-        $legacy = 'sc_manager_option';
-    } elseif ('manage_orders' === $legacy_or_key) {
-        $legacy = 'sc_manage_orders';
-    }
+    $legacy = ppcart_cpt_slug_migration_legacy_cap_key($family_or_key);
 
     if (! isset($maps['capabilities'][ $legacy ])) {
         return $legacy;
@@ -186,27 +205,22 @@ function ppcart_live_cap($legacy_or_key)
 }
 
 /**
- * @param string $legacy_or_key Legacy cap or short key.
+ * @param string $family_or_key Family key, leftover cap, or canonical cap.
  * @return bool
  */
-function ppcart_user_can($legacy_or_key)
+function ppcart_user_can($family_or_key)
 {
     if (! function_exists('current_user_can')) {
         return false;
     }
 
-    $live = ppcart_live_cap($legacy_or_key);
+    $live = ppcart_live_cap($family_or_key);
     if (current_user_can($live)) {
         return true;
     }
 
     $maps   = ppcart_cpt_slug_migration_maps();
-    $legacy = $legacy_or_key;
-    if ('manager_option' === $legacy_or_key) {
-        $legacy = 'sc_manager_option';
-    } elseif ('manage_orders' === $legacy_or_key) {
-        $legacy = 'sc_manage_orders';
-    }
+    $legacy = ppcart_cpt_slug_migration_legacy_cap_key($family_or_key);
 
     if (! isset($maps['capabilities'][ $legacy ])) {
         return false;
@@ -221,21 +235,33 @@ function ppcart_user_can($legacy_or_key)
 /**
  * Live role slug.
  *
- * @param string $legacy_role Legacy role.
+ * @param string $family_or_role Family key, leftover role, or canonical role.
  * @return string
  */
-function ppcart_live_role($legacy_role)
+function ppcart_live_role($family_or_role)
 {
     $maps = ppcart_cpt_slug_migration_maps();
-    if (! isset($maps['roles'][ $legacy_role ])) {
-        return $legacy_role;
+
+    if ('cart_manager' === $family_or_role) {
+        $family_or_role = 'sc_cart_manager';
+    } elseif ('cart_administrator' === $family_or_role) {
+        $family_or_role = 'sc_cart_administrator';
+    } elseif (! isset($maps['roles'][ $family_or_role ])) {
+        $from_canonical = array_search($family_or_role, $maps['roles'], true);
+        if (false !== $from_canonical) {
+            $family_or_role = $from_canonical;
+        }
+    }
+
+    if (! isset($maps['roles'][ $family_or_role ])) {
+        return $family_or_role;
     }
 
     if (ppcart_cpt_slug_migration_step2_complete()) {
-        return $maps['roles'][ $legacy_role ];
+        return $maps['roles'][ $family_or_role ];
     }
 
-    return $legacy_role;
+    return $family_or_role;
 }
 
 /**
