@@ -1,0 +1,44 @@
+{
+    "name": "publishpress/publishpress-cart-compat",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "description": "StudioCart shims and data migration for PublishPress Cart",
+    "authors": [
+        {
+            "name": "PublishPress",
+            "email": "help@publishpress.com",
+            "homepage": "https://publishpress.com/",
+            "role": "Developer"
+        }
+    ],
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "allow-plugins": {
+            "publishpress/dev-workspace": true,
+            "composer/installers": true,
+            "php-http/discovery": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
+        },
+        "process-timeout": 0
+    },
+    "prefer-stable": true,
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "publishpress/dev-workspace": "^1.8"
+    },
+    "extra": {
+        "plugin-name": "publishpress-cart-compat",
+        "plugin-slug": "publishpress-cart-compat",
+        "plugin-folder": "publishpress-cart-compat",
+        "version-constant": "PPCARTCOMP_VERSION",
+        "plugin-lang-domain": "publishpress-cart-compat",
+        "plugin-github-repo": "publishpress/publishpress-cart-compat",
+        "plugin-composer-package": "publishpress/publishpress-cart-compat"
+    }
+}
