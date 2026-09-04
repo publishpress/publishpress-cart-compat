@@ -195,6 +195,60 @@ class GlobalsTest extends WPTestCase
         $this->assertSame($restored, $GLOBALS['ppcart_public']);
     }
 
+    /**
+     * @test-id IT-333
+     */
+    public function test_IT_333_leftover_files_product_fields_and_admin_screen_globals_stay_unaliased_while_compatibility_mode_is_off(): void
+    {
+        $this->assertFalse(PPCartComp_Studiocart_Compatibility_Mode::is_enabled());
+        $this->assertFalse(array_key_exists('scFiles', $GLOBALS));
+        $this->assertFalse(array_key_exists('sc_product_fields', $GLOBALS));
+        $this->assertFalse(array_key_exists('sc_is_studiocart_admin_screen', $GLOBALS));
+
+        if (array_key_exists('ppcart_files', $GLOBALS) && $GLOBALS['ppcart_files'] !== null) {
+            $this->assertInstanceOf(\PPCart_Files::class, $GLOBALS['ppcart_files']);
+        }
+
+        if (array_key_exists('ppcart_product_fields', $GLOBALS) && $GLOBALS['ppcart_product_fields'] !== null) {
+            $this->assertInstanceOf(\PPCart_Product_Metaboxes::class, $GLOBALS['ppcart_product_fields']);
+        }
+    }
+
+    /**
+     * @test-id IT-333
+     * @depends test_IT_333_leftover_files_product_fields_and_admin_screen_globals_stay_unaliased_while_compatibility_mode_is_off
+     */
+    public function test_IT_333_compatibility_mode_aliases_leftover_files_product_fields_and_admin_screen_globals(): void
+    {
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+        PPCartComp_Studiocart_Compatibility_Mode::maybe_register_globals();
+
+        $this->assertTrue(PPCartComp_Studiocart_Compatibility_Mode::legacy_globals_registered());
+
+        $this->assertTrue(array_key_exists('scFiles', $GLOBALS));
+        $this->assertSame($GLOBALS['ppcart_files'], $GLOBALS['scFiles']);
+        $filesProbe = (object) [ 'slice' => 31 ];
+        $GLOBALS['ppcart_files'] = $filesProbe;
+        $this->assertSame($filesProbe, $GLOBALS['scFiles']);
+        $restoredFiles = $this->previousCanonical['ppcart_files'] ?? $filesProbe;
+        $GLOBALS['scFiles'] = $restoredFiles;
+        $this->assertSame($restoredFiles, $GLOBALS['ppcart_files']);
+
+        $this->assertTrue(array_key_exists('sc_product_fields', $GLOBALS));
+        $this->assertSame($GLOBALS['ppcart_product_fields'], $GLOBALS['sc_product_fields']);
+        $fieldsProbe = (object) [ 'slice' => 31 ];
+        $GLOBALS['ppcart_product_fields'] = $fieldsProbe;
+        $this->assertSame($fieldsProbe, $GLOBALS['sc_product_fields']);
+        $restoredFields = $this->previousCanonical['ppcart_product_fields'] ?? $fieldsProbe;
+        $GLOBALS['sc_product_fields'] = $restoredFields;
+        $this->assertSame($restoredFields, $GLOBALS['ppcart_product_fields']);
+
+        $GLOBALS['ppcart_is_admin_screen'] = true;
+        $this->assertTrue($GLOBALS['sc_is_studiocart_admin_screen']);
+        $GLOBALS['sc_is_studiocart_admin_screen'] = false;
+        $this->assertFalse($GLOBALS['ppcart_is_admin_screen']);
+    }
+
     private function ensureCheckoutCoreFunctions(): void
     {
         if (! function_exists('ppcart_checkout_get_arrangement_context')) {

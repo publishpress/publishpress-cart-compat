@@ -32,6 +32,9 @@ if (! function_exists('ncs_cart_get_legacy_global_map')) {
             'ppcart_checkout_request_rendered'     => [ 'sc_checkout_request_rendered' ],
             'ppcart_checkout_block_arrangement'    => [ 'sc_checkout_block_arrangement' ],
             'ppcart_public'                        => [ 'studiocart' ],
+            'ppcart_files'                         => [ 'scFiles' ],
+            'ppcart_product_fields'                => [ 'sc_product_fields' ],
+            'ppcart_is_admin_screen'               => [ 'sc_is_studiocart_admin_screen' ],
         ];
     }
 }

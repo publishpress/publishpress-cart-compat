@@ -284,33 +284,33 @@ class PublicQueryVarsTest extends WPTestCase
      */
     public function test_IT_267_download_slug_option_hooks_use_the_live_canonical_option_name(): void
     {
-        global $scFiles;
+        global $ppcart_files;
 
-        $this->assertInstanceOf(PPCart_Files::class, $scFiles);
+        $this->assertInstanceOf(PPCart_Files::class, $ppcart_files);
         $this->assertSame(
             10,
             has_action(
                 'add_option_ppcart_download_slug',
-                [ $scFiles, 'flush_permalinks' ]
+                [ $ppcart_files, 'flush_permalinks' ]
             )
         );
         $this->assertSame(
             10,
             has_action(
                 'update_option_ppcart_download_slug',
-                [ $scFiles, 'flush_permalinks' ]
+                [ $ppcart_files, 'flush_permalinks' ]
             )
         );
         $this->assertFalse(
             has_action(
                 'add_option_sc_download_slug',
-                [ $scFiles, 'flush_permalinks' ]
+                [ $ppcart_files, 'flush_permalinks' ]
             )
         );
         $this->assertFalse(
             has_action(
                 'update_option_sc_download_slug',
-                [ $scFiles, 'flush_permalinks' ]
+                [ $ppcart_files, 'flush_permalinks' ]
             )
         );
     }

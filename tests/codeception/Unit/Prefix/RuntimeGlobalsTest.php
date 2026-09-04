@@ -40,4 +40,23 @@ class RuntimeGlobalsTest extends Unit
         $this->assertArrayHasKey('ppcart_public', $map);
         $this->assertSame([ 'studiocart' ], $map['ppcart_public']);
     }
+
+    /**
+     * @test-id UT-250
+     */
+    public function test_UT_250_compatibility_mode_maps_leftover_files_product_fields_and_admin_screen_globals(): void
+    {
+        if (! function_exists('ncs_cart_get_legacy_global_map')) {
+            require_once PPCARTCOMP_PLUGIN_ROOT . 'includes/compat/studiocart-compatibility-mode/globals.php';
+        }
+
+        $this->assertTrue(function_exists('ncs_cart_get_legacy_global_map'));
+        $map = ncs_cart_get_legacy_global_map();
+        $this->assertArrayHasKey('ppcart_files', $map);
+        $this->assertSame([ 'scFiles' ], $map['ppcart_files']);
+        $this->assertArrayHasKey('ppcart_product_fields', $map);
+        $this->assertSame([ 'sc_product_fields' ], $map['ppcart_product_fields']);
+        $this->assertArrayHasKey('ppcart_is_admin_screen', $map);
+        $this->assertSame([ 'sc_is_studiocart_admin_screen' ], $map['ppcart_is_admin_screen']);
+    }
 }
