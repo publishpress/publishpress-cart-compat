@@ -1,0 +1,215 @@
+version: 1
+
+plugin:
+  id: publishpress-cart-compat
+  name: PublishPress Cart Compatibility
+  display_name: PublishPress Cart Compatibility QA
+  edition: free
+
+catalog:
+  cases: docs/testing/cases
+
+modules:
+  - id: legacy-compat
+    name: StudioCart Compatibility Mode
+    suites: [unit, integration]
+    test_range: UT-022–UT-031, UT-179–UT-196, UT-201, IT-161–IT-169, IT-170–IT-178, IT-256–IT-262, IT-275
+    features: [studiocart-compatibility-mode]
+    notes: Compatibility Mode package, leftover class/function/constant/hook helpers, and the merchant toggle.
+
+  - id: prefix-options
+    name: Option name prefix bridges
+    suites: [unit, integration]
+    test_range: UT-188, UT-202, IT-258, IT-280
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-meta-keys
+    name: Post-meta and user-meta leftover lookup
+    suites: [unit, integration]
+    test_range: UT-203, IT-281
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-functions
+    name: Leftover global function wrappers
+    suites: [unit, integration]
+    test_range: UT-187, IT-256–IT-257
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-hooks
+    name: Leftover hook bridges
+    suites: [unit, integration]
+    test_range: UT-189, IT-259, IT-265
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-constants
+    name: Leftover constant aliases
+    suites: [unit, integration]
+    test_range: UT-190–UT-194, IT-260–IT-261
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-compat-class
+    name: Compatibility Mode class
+    suites: [unit, integration]
+    test_range: UT-195–UT-196, IT-262
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-runtime-globals
+    name: Leftover runtime global aliases
+    suites: [unit, integration]
+    test_range: UT-227, IT-263–IT-264, IT-314
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-transients
+    name: Leftover transient copy
+    suites: [unit, integration]
+    test_range: UT-229, IT-316
+    features: []
+
+  - id: prefix-public-query-vars
+    name: Leftover public query-var redirects
+    suites: [unit, integration]
+    test_range: UT-198, IT-267
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-ajax-actions
+    name: Leftover AJAX and nonce bridges
+    suites: [unit, integration]
+    test_range: UT-199, UT-238, IT-268, IT-330
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-request-fields
+    name: Leftover request-field copy
+    suites: [unit, integration]
+    test_range: UT-231–UT-232, IT-317–IT-318
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-stripe-metadata
+    name: Leftover Stripe metadata lookup
+    suites: [unit]
+    test_range: UT-235
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-cpt-taxonomy-strings
+    name: Leftover CPT/FSE maps
+    suites: [integration]
+    test_range: IT-328
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-shortcode-tags
+    name: Leftover shortcode dual-register
+    suites: [unit, integration]
+    test_range: UT-204, IT-282
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-shortcode-usage
+    name: Leftover shortcode enqueue and email replace
+    suites: [integration]
+    test_range: IT-283
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-shortcode-tag-migration
+    name: Shortcode tag Data migration
+    suites: [unit, integration]
+    test_range: UT-206, IT-284
+    features: []
+
+  - id: prefix-cpt-slugs
+    name: CPT, taxonomy, and capability slug migration
+    suites: [unit, integration]
+    test_range: UT-200, IT-269–IT-274
+    features: []
+
+  - id: prefix-public
+    name: Public class leftover aliases
+    suites: [integration]
+    test_range: IT-179–IT-188
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-helpers
+    name: Helper class leftover aliases
+    suites: [integration]
+    test_range: IT-189–IT-192
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-admin
+    name: Admin class leftover aliases
+    suites: [integration]
+    test_range: IT-193–IT-207
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-admin-controllers
+    name: Admin controller leftover aliases
+    suites: [integration]
+    test_range: IT-208–IT-219
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-stripe-logging
+    name: Stripe/logging/files leftover aliases
+    suites: [integration]
+    test_range: IT-220–IT-227
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-bootstrap
+    name: Bootstrap class leftover aliases
+    suites: [integration]
+    test_range: IT-228–IT-244
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-fixtures
+    name: Fixture class leftover aliases
+    suites: [integration]
+    test_range: IT-245–IT-255
+    features: [studiocart-compatibility-mode]
+
+  - id: prefix-custom-tables
+    name: Custom table prefix migration
+    suites: [unit, integration]
+    test_range: UT-220, IT-300–IT-305
+    features: []
+
+  - id: prefix-data-migration-wizard
+    name: Data migration wizard
+    suites: [unit]
+    test_range: UT-239–UT-242
+    features: []
+
+  - id: store-fixtures
+    name: Leftover StudioCart store seed (tests only)
+    suites: [unit]
+    test_range: UT-243
+    features: []
+
+suites:
+  unit:
+    label: Unit tests
+    description: PHP unit tests without WordPress bootstrap
+    prefix: UT
+    id_format: '{prefix}-{number:03d}'
+    runner: codeception
+    suite: Unit
+    roots:
+      - tests/codeception/Unit
+    file_glob: '**/*Test.php'
+    id_pattern: 'UT-\\d{3}'
+    discovery:
+      docblock: true
+      group: true
+    run:
+      composer: test:unit
+
+  integration:
+    label: Integration tests
+    description: PHP tests with WordPress + WPLoader (Cart sibling + this plugin)
+    prefix: IT
+    id_format: '{prefix}-{number:03d}'
+    runner: codeception
+    suite: Integration
+    roots:
+      - tests/codeception/Integration
+    file_glob: '**/*Test.php'
+    id_pattern: 'IT-\\d{3}'
+    discovery:
+      docblock: true
+      group: true
+    run:
+      composer: test:integration

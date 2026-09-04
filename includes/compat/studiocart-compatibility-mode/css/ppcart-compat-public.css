@@ -1,0 +1,141 @@
+/**
+ * Leftover StudioCart CSS selectors for storefront markup.
+ */
+
+/* --- ppcart-public.css --- */
+.ppcart-my-account .sc_invoice-period {
+  margin-top: 15px;
+  text-align: left;
+}
+#sc_update_subscription {
+  display: none;
+}
+.single-sc_collection .ppcart-page .container .products,
+.single-sc_product .ppcart-page .container .products {
+  position: relative;
+}
+.single-sc_collection .ppcart-page .container #ppcart-payment-form.signup-form .ppcart-order-summary:last-child,
+.single-sc_product .ppcart-page .container #ppcart-payment-form.signup-form .ppcart-order-summary:last-child {
+  padding-bottom: 15px;
+}
+.single-sc_collection .ppcart-page .container .address-info .row .form-group.ppcart-address-1.col-sm-12 input,
+.single-sc_product .ppcart-page .container .address-info .row .form-group.ppcart-address-1.col-sm-12 input {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+.single-sc_collection .ppcart-page .container .address-info .row .form-group.ppcart-address-1.col-sm-12 input:focus,
+.single-sc_product .ppcart-page .container .address-info .row .form-group.ppcart-address-1.col-sm-12 input:focus {
+  z-index: 1;
+  position: relative;
+}
+.single-sc_collection .ppcart-page .container .address-info .row .form-group.ppcart-address-2.col-sm-12,
+.single-sc_product .ppcart-page .container .address-info .row .form-group.ppcart-address-2.col-sm-12 {
+  margin-top: -1rem;
+}
+.single-sc_collection .ppcart-page .container .address-info .row .form-group.ppcart-address-2.col-sm-12 input,
+.single-sc_product .ppcart-page .container .address-info .row .form-group.ppcart-address-2.col-sm-12 input {
+  border-top: 0;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+.single-sc_collection .ppcart-page .container .address-info .row .form-group.ppcart-address-2.col-sm-12 input:focus,
+.single-sc_product .ppcart-page .container .address-info .row .form-group.ppcart-address-2.col-sm-12 input:focus {
+  z-index: 1;
+  position: relative;
+}
+.single-sc_collection .ppcart-page .container .ppcart-embed-checkout-form-nav,
+.single-sc_product .ppcart-page .container .ppcart-embed-checkout-form-nav {
+  background: #fff;
+  padding: 10px;
+  margin-bottom: -28px;
+  position: relative;
+  z-index: 1;
+}
+.single-sc_collection .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps,
+.single-sc_product .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps {
+  border-top: 0;
+  background: transparent;
+}
+.single-sc_collection .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps a,
+.single-sc_product .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps a {
+  background: #f4f4f4;
+  color: #bbb;
+  padding: 15px 20px;
+  text-decoration: none;
+  transition: all 0.25s ease-out;
+}
+.single-sc_collection .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps a .step-number,
+.single-sc_product .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps a .step-number {
+  background: #bbb;
+  border-radius: 50%;
+  color: #f4f4f4;
+  font-weight: bold;
+  font-size: 15px;
+  height: 26px;
+  line-height: 25px;
+  transition: all 0.25s ease-out;
+  margin-right: 10px;
+  text-align: center;
+  min-width: 26px;
+  width: 26px;
+}
+@media (max-width: 479px) {
+  .single-sc_collection .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps a .step-number,
+  .single-sc_product .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps a .step-number {
+    font-size: 11px;
+    height: 18px;
+    line-height: 17px;
+    min-width: 18px;
+    width: 18px;
+  }
+}
+.single-sc_collection .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps a:hover,
+.single-sc_product .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps a:hover {
+  text-decoration: none;
+}
+.single-sc_collection .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps.ppcart-current a,
+.single-sc_product .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps.ppcart-current a {
+  background: #fff;
+  color: #333;
+}
+.single-sc_collection .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps.ppcart-current a .step-number,
+.single-sc_product .ppcart-page .container .ppcart-embed-checkout-form-nav .ppcart-checkout-form-steps .steps.ppcart-current a .step-number {
+  background: #333;
+  color: #fff;
+}
+.single-sc_collection .ppcart-page .container #ppcart-payment-form.ppcart-2step-wrapper,
+.single-sc_product .ppcart-page .container #ppcart-payment-form.ppcart-2step-wrapper {
+  padding: 0;
+}
+.single-sc_collection .ppcart-page .container #ppcart-payment-form.ppcart-2step-wrapper .ppcart-checkout-step > div,
+.single-sc_product .ppcart-page .container #ppcart-payment-form.ppcart-2step-wrapper .ppcart-checkout-step > div {
+  margin-bottom: 40px;
+}
+.single-sc_collection .ppcart-page .container #ppcart-payment-form.ppcart-2step-wrapper .ppcart-checkout-step > div.row, .single-sc_collection .ppcart-page .container #ppcart-payment-form.ppcart-2step-wrapper .ppcart-checkout-step > div.ppcart-order-summary,
+.single-sc_product .ppcart-page .container #ppcart-payment-form.ppcart-2step-wrapper .ppcart-checkout-step > div.row,
+.single-sc_product .ppcart-page .container #ppcart-payment-form.ppcart-2step-wrapper .ppcart-checkout-step > div.ppcart-order-summary {
+  margin-bottom: 0;
+}
+.single-sc_collection .ppcart-page .container #ppcart-payment-form.ppcart-2step-wrapper.step-1 .ppcart-checkout-step > div,
+.single-sc_product .ppcart-page .container #ppcart-payment-form.ppcart-2step-wrapper.step-1 .ppcart-checkout-step > div {
+  margin-bottom: 0;
+}
+.single-sc_collection .ppcart-page .total,
+.single-sc_product .ppcart-page .total {
+  background: transparent;
+  color: #232323;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  margin: 0 0 0.8em;
+  padding: 0;
+  padding-bottom: 8px;
+  text-transform: uppercase;
+}
+.single-sc_collection .ppcart-page .total .price,
+.single-sc_product .ppcart-page .total .price {
+  letter-spacing: normal;
+  font-size: 20px;
+  vertical-align: middle;
+  margin-top: -8px;
+}

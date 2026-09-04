@@ -40,5 +40,15 @@
         "plugin-lang-domain": "publishpress-cart-compat",
         "plugin-github-repo": "publishpress/publishpress-cart-compat",
         "plugin-composer-package": "publishpress/publishpress-cart-compat"
+    },
+    "scripts": {
+        "test:unit": "vendor/bin/codecept run Unit",
+        "test:integration": "bash tests/bin/run-integration-tests.sh",
+        "test:all": [
+            "@test:unit",
+            "@test:integration"
+        ],
+        "seed:migration": "bash bin/seed-migration",
+        "seed:store": "bash bin/seed-store"
     }
 }

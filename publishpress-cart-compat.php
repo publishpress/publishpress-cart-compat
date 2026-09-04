@@ -60,3 +60,98 @@ if (! defined('PPCARTCOMP_BASE_URL')) {
 if (! defined('PPCARTCOMP_BASE_FILE')) {
     define('PPCARTCOMP_BASE_FILE', __FILE__);
 }
+
+if (! function_exists('ppcartcomp_cart_is_loaded')) {
+    /**
+     * Whether PublishPress Cart Free (or Pro-vendored Free) is present.
+     *
+     * Do not use Requires Plugins: publishpress-cart — Pro vendors Free and
+     * that slug is not active on Pro-only sites.
+     *
+     * @return bool
+     */
+    function ppcartcomp_cart_is_loaded()
+    {
+        return defined('PPCART_FREE_LOADED') || defined('PPCART_VERSION');
+    }
+}
+
+if (! function_exists('ppcartcomp_missing_cart_notice')) {
+    /**
+     * @return void
+     */
+    function ppcartcomp_missing_cart_notice()
+    {
+        if (! current_user_can('activate_plugins')) {
+            return;
+        }
+
+        echo '<div class="notice notice-error"><p>';
+        echo esc_html__(
+            'PublishPress Cart Compatibility requires PublishPress Cart. Activate Cart Free or Cart Pro, then activate this plugin.',
+            'publishpress-cart-compat'
+        );
+        echo '</p></div>';
+    }
+}
+
+if (! function_exists('ppcartcomp_load_textdomain')) {
+    /**
+     * @return void
+     */
+    function ppcartcomp_load_textdomain()
+    {
+        load_plugin_textdomain(
+            'publishpress-cart-compat',
+            false,
+            dirname(plugin_basename(PPCARTCOMP_BASE_FILE)) . '/languages'
+        );
+    }
+}
+
+if (! function_exists('ppcartcomp_register_cli')) {
+    /**
+     * Register WP-CLI commands when WP-CLI is present.
+     *
+     * @return void
+     */
+    function ppcartcomp_register_cli()
+    {
+        if (! defined('WP_CLI') || ! WP_CLI) {
+            return;
+        }
+
+        require_once PPCARTCOMP_BASE_DIR . 'includes/cli/class-ppcartcomp-cli-seed-migration.php';
+    }
+}
+
+if (! function_exists('ppcartcomp_run')) {
+    /**
+     * Companion admin only. Packages are loaded by Cart from this plugin directory.
+     *
+     * @return void
+     */
+    function ppcartcomp_run()
+    {
+        if (! ppcartcomp_cart_is_loaded()) {
+            add_action('admin_notices', 'ppcartcomp_missing_cart_notice');
+
+            return;
+        }
+
+        require_once PPCARTCOMP_BASE_DIR . 'includes/admin/class-ppcartcomp-studiocart-admin.php';
+        require_once PPCARTCOMP_BASE_DIR . 'includes/admin/class-ppcartcomp-data-migration-wizard.php';
+
+        if (class_exists('PPCartComp_Studiocart_Admin', false)) {
+            PPCartComp_Studiocart_Admin::init();
+        }
+        if (class_exists('PPCartComp_Data_Migration_Wizard', false)) {
+            PPCartComp_Data_Migration_Wizard::init();
+        }
+    }
+}
+
+add_action('init', 'ppcartcomp_load_textdomain', 0);
+add_action('plugins_loaded', 'ppcartcomp_run', 5);
+add_action('cli_init', 'ppcartcomp_register_cli');
+

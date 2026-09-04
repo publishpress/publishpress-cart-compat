@@ -1,0 +1,21 @@
+<?php
+
+if (! defined('ABSPATH')) {
+    exit;
+}
+
+require_once __DIR__ . '/aliases.php';
+require_once __DIR__ . '/options.php';
+require_once dirname(__DIR__) . '/option-key-migration/index.php';
+require_once __DIR__ . '/hooks.php';
+require_once __DIR__ . '/ajax.php';
+require_once __DIR__ . '/request-fields.php';
+require_once __DIR__ . '/stripe-metadata.php';
+require_once __DIR__ . '/cpt-taxonomy.php';
+require_once __DIR__ . '/shortcodes.php';
+require_once __DIR__ . '/constants.php';
+require_once __DIR__ . '/globals.php';
+require_once __DIR__ . '/class-ppcartcomp-studiocart-public-query-compatibility.php';
+require_once __DIR__ . '/class-ppcartcomp-studiocart-compatibility-mode.php';
+
+PPCartComp_Studiocart_Compatibility_Mode::init();
