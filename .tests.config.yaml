@@ -83,6 +83,12 @@ modules:
     test_range: UT-231–UT-232, IT-317–IT-318
     features: [studiocart-compatibility-mode]
 
+  - id: prefix-log-request-fields
+    name: Leftover debug / Stripe log request-field copy
+    suites: [unit, integration]
+    test_range: UT-254, IT-335
+    features: [studiocart-compatibility-mode]
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]
