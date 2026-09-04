@@ -43,3 +43,16 @@ WP_PATH=/path/to/wordpress composer seed:migration
 ```
 
 Optional: `ddev seed-migration` (same underlying WP-CLI command).
+
+### Seed a leftover StudioCart store (tests only)
+
+Dummy catalog, checkout pages, customers, and COD for local QA. Lives under `tests/store-fixtures/` and is loaded with WP-CLI `--require` — it is not shipped as plugin code.
+
+```bash
+composer seed:store
+./bin/seed-store --reset
+ddev seed-store
+wp --path=.web --require=tests/store-fixtures/cli.php ppcartcomp seed-store
+```
+
+Seed customers log in as `sc_seed_customer_001` (password `studiocart`). `--clean` removes the previous seed. Default volume is a leftover month of store activity (14 products, 40 customers, 96 orders, 20 subscriptions). Use `--reset` when replacing an older seed.

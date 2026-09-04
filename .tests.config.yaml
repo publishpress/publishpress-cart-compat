@@ -173,6 +173,12 @@ modules:
     test_range: UT-239–UT-242
     features: []
 
+  - id: store-fixtures
+    name: Leftover StudioCart store seed (tests only)
+    suites: [unit]
+    test_range: UT-243
+    features: []
+
 suites:
   unit:
     label: Unit tests

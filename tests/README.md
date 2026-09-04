@@ -32,3 +32,15 @@ Cart must be checked out next to this repo as `../publishpress-cart`.
 
 Catalog cases live in `docs/testing/cases/` (config: `.tests.config.yaml`).
 Keep the same IT/UT ids as Cart when a leftover assertion moved here.
+
+## Leftover StudioCart store seed
+
+`tests/store-fixtures/` plants a working leftover store (`sc_product`, `_sc_*`, `[studiocart-form]`) on the cart-compat site. Not loaded by the plugin.
+
+```bash
+composer seed:store
+./bin/seed-store --reset
+ddev seed-store --reset
+```
+
+Default seed is ~one month of leftover store activity (14 products, 40 customers, 96 dated orders, 20 subscriptions plus renewals).

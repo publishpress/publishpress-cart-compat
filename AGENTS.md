@@ -57,6 +57,8 @@ Do not search `lib/vendor/`, `vendor/`, or `node_modules/` (see `.cursorignore`)
 
 Dev seed for Data migration leftovers: `wp ppcartcomp seed-migration` (also `composer seed:migration` / `./bin/seed-migration`).
 
+Test-only leftover StudioCart store: `composer seed:store` / `./bin/seed-store` / `ddev seed-store` (loads `tests/store-fixtures/`, not plugin `includes/`).
+
 ## Conventions
 
 - Prefixes: `PPCartComp_`, `ppcartcomp_`, `PPCARTCOMP_`. Files: `class-ppcartcomp-*.php`.

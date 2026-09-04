@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# Test-only leftover StudioCart store seed. Not part of the shipped plugin.
+# Requires: WP-CLI. StudioCart and/or Cart + Compat on the target site.
+#
+#   composer seed:store
+#   ./bin/seed-store --reset
+#   wp --path=.web --require=tests/store-fixtures/cli.php ppcartcomp seed-store
+#   ddev seed-store
+#
+# Env:
+#   WP_CLI_BIN   path to wp (default: wp on PATH)
+#   WP_PATH      WordPress root for --path= (overrides auto-detect)
+#   PPCARTCOMP_SEED_USE_DDEV=0  disable auto ddev when .ddev/ is present
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+WP_BIN="${WP_CLI_BIN:-wp}"
+REQUIRE="$ROOT/tests/store-fixtures/cli.php"
+CMD=(ppcartcomp seed-store)
+
+run_via_ddev() {
+  # Already inside the DDEV web container (ddev seed-store → bin/seed-store).
+  [[ -z "${DDEV_PROJECT:-}" ]] || return 1
+  command -v ddev >/dev/null 2>&1 || return 1
+  [[ -d "$ROOT/.ddev" ]] || return 1
+  [[ "${PPCARTCOMP_SEED_USE_DDEV:-1}" != "0" ]] || return 1
+  ddev describe >/dev/null 2>&1 || return 1
+  exec ddev exec --dir=/var/www/html wp --path=.web --require=/var/www/html/tests/store-fixtures/cli.php "${CMD[@]}" "$@"
+}
+
+if [[ -n "${WP_PATH:-}" ]]; then
+  if ! command -v "$WP_BIN" >/dev/null 2>&1; then
+    echo "WP-CLI not found (looked for: $WP_BIN). Install WP-CLI or set WP_CLI_BIN." >&2
+    exit 1
+  fi
+  exec "$WP_BIN" --path="$WP_PATH" --require="$REQUIRE" "${CMD[@]}" "$@"
+fi
+
+if run_via_ddev "$@"; then
+  exit 0
+fi
+
+if ! command -v "$WP_BIN" >/dev/null 2>&1; then
+  echo "WP-CLI not found (looked for: $WP_BIN)." >&2
+  echo "Install WP-CLI, or run: wp --path=/path/to/wordpress --require=$REQUIRE ppcartcomp seed-store" >&2
+  if [[ -d "$ROOT/.ddev" ]]; then
+    echo "Or with ddev: ddev seed-store" >&2
+  fi
+  exit 1
+fi
+
+WP_PATH_ARGS=()
+if [[ -f "$ROOT/.web/wp-load.php" ]]; then
+  WP_PATH_ARGS=(--path="$ROOT/.web")
+elif [[ -f "$ROOT/wp-load.php" ]]; then
+  WP_PATH_ARGS=(--path="$ROOT")
+elif [[ -f ./wp-load.php ]]; then
+  WP_PATH_ARGS=(--path=.)
+fi
+
+if [[ ${#WP_PATH_ARGS[@]} -eq 0 ]]; then
+  echo "Could not find WordPress. Set WP_PATH=/path/to/wordpress or run:" >&2
+  echo "  wp --path=/path/to/wordpress --require=$REQUIRE ppcartcomp seed-store" >&2
+  exit 1
+fi
+
+exec "$WP_BIN" "${WP_PATH_ARGS[@]}" --require="$REQUIRE" "${CMD[@]}" "$@"
