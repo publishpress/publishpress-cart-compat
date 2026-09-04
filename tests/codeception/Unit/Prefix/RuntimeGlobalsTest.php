@@ -25,4 +25,19 @@ class RuntimeGlobalsTest extends Unit
         $this->assertStringContainsString("'ppcart_checkout_block_arrangement'", $source);
         $this->assertStringContainsString("'sc_checkout_block_arrangement'", $source);
     }
+
+    /**
+     * @test-id UT-248
+     */
+    public function test_UT_248_compatibility_mode_maps_leftover_studiocart_runtime_global(): void
+    {
+        if (! function_exists('ncs_cart_get_legacy_global_map')) {
+            require_once PPCARTCOMP_PLUGIN_ROOT . 'includes/compat/studiocart-compatibility-mode/globals.php';
+        }
+
+        $this->assertTrue(function_exists('ncs_cart_get_legacy_global_map'));
+        $map = ncs_cart_get_legacy_global_map();
+        $this->assertArrayHasKey('ppcart_public', $map);
+        $this->assertSame([ 'studiocart' ], $map['ppcart_public']);
+    }
 }

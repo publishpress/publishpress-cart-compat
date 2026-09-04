@@ -55,7 +55,7 @@ class GlobalsTest extends WPTestCase
                 );
             }
 
-            if (in_array($canonical, [ 'ppcart_debug_logger', 'ppcart_currency', 'ppcart_stripe' ], true)) {
+            if (in_array($canonical, [ 'ppcart_debug_logger', 'ppcart_currency', 'ppcart_stripe', 'ppcart_public' ], true)) {
                 $this->assertTrue(
                     array_key_exists($canonical, $GLOBALS),
                     sprintf('$%s should exist after bootstrap.', $canonical)
@@ -159,6 +159,40 @@ class GlobalsTest extends WPTestCase
         $GLOBALS['sc_checkout_block_arrangement']['contentOrder'] = [ 'contact_info' ];
         $this->assertSame([ 'contact_info' ], $GLOBALS['ppcart_checkout_block_arrangement']['contentOrder']);
         $this->assertSame([ 'contact_info' ], ppcart_checkout_get_arrangement_context()['contentOrder']);
+    }
+
+    /**
+     * @test-id IT-332
+     */
+    public function test_IT_332_studiocart_global_stays_unaliased_while_compatibility_mode_is_off(): void
+    {
+        $this->assertFalse(PPCartComp_Studiocart_Compatibility_Mode::is_enabled());
+        $this->assertFalse(array_key_exists('studiocart', $GLOBALS));
+        $this->assertTrue(array_key_exists('ppcart_public', $GLOBALS));
+        $this->assertInstanceOf(\PPCart_Public::class, $GLOBALS['ppcart_public']);
+    }
+
+    /**
+     * @test-id IT-332
+     * @depends test_IT_332_studiocart_global_stays_unaliased_while_compatibility_mode_is_off
+     */
+    public function test_IT_332_compatibility_mode_aliases_studiocart_onto_ppcart_public(): void
+    {
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+        PPCartComp_Studiocart_Compatibility_Mode::maybe_register_globals();
+
+        $this->assertTrue(PPCartComp_Studiocart_Compatibility_Mode::legacy_globals_registered());
+        $this->assertTrue(array_key_exists('studiocart', $GLOBALS));
+        $this->assertSame($GLOBALS['ppcart_public'], $GLOBALS['studiocart']);
+        $this->assertInstanceOf(\PPCart_Public::class, $GLOBALS['studiocart']);
+
+        $probe = (object) [ 'slice' => 31 ];
+        $GLOBALS['ppcart_public'] = $probe;
+        $this->assertSame($probe, $GLOBALS['studiocart']);
+
+        $restored = $this->previousCanonical['ppcart_public'] ?? $probe;
+        $GLOBALS['studiocart'] = $restored;
+        $this->assertSame($restored, $GLOBALS['ppcart_public']);
     }
 
     private function ensureCheckoutCoreFunctions(): void

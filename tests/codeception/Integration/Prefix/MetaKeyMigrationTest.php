@@ -186,10 +186,10 @@ class MetaKeyMigrationTest extends WPTestCase
      */
     public function test_IT_281_get_prefix_is_ppcart(): void
     {
-        global $studiocart;
+        global $ppcart_public;
 
-        $this->assertIsObject($studiocart);
-        $this->assertSame('ppcart_', $studiocart->prefix);
+        $this->assertIsObject($ppcart_public);
+        $this->assertSame('ppcart_', $ppcart_public->prefix);
     }
 
     /**
