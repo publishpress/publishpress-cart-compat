@@ -6,7 +6,8 @@ description: >-
   publishpress-cart-compat after Cart first-party is renamed. Use when the
   user asks to run a leftover prefix slice, prefix-leftovers-remaining.md,
   sc-webhook, sc-api, before_sc_order_refund, or Compatibility
-  Mode bridges for a leftover family.
+  Mode bridges for a leftover family, including leftover has_shortcode
+  detectors.
 ---
 
 # Leftover prefix slice (Compat)
@@ -16,17 +17,16 @@ Canonical playbook: sibling
 Read that file and [slices.md](../../../publishpress-cart/.cursor/skills/prefix-leftover-slice/slices.md)
 when the Cart checkout is available.
 
-This repo owns leftover **names** (maps, wrappers, gated redirects) and
-Compat-on tests. Cart owns first-party canonical code, the leftover inventory,
-and the Pro contract.
+This repo owns leftover **names** (maps, wrappers, gated redirects, leftover
+shortcode/asset detectors) and Compat-on tests. Cart owns first-party
+canonical code, the leftover inventory, and the Pro contract.
 
 ## Unbreakable: leftover read/write lives here
 
-Cart first-party never dual-reads, dual-writes, or falls back to leftover
-names. Any secondary or compatibility read/write of leftover keys, values,
-GET/POST, hooks, or URLs belongs **only** in this plugin (Compatibility Mode
-package, or Data migration when the merchant opts in). Do not add leftover
-fallbacks to `publishpress-cart`.
+Cart first-party never dual-reads, dual-writes, falls back to, *or detects*
+leftover names (`has_shortcode` leftover tags, asset detectors). Any leftover
+or backward-compat path belongs **only** in this plugin. Do not add leftover
+fallbacks or leftover-tag detectors to `publishpress-cart`.
 
 ## This repo
 
