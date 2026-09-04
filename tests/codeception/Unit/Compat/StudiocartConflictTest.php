@@ -25,6 +25,20 @@ class StudiocartConflictTest extends Unit
                 return array_key_exists($option, $options) ? $options[$option] : $default;
             }
         );
+        WordPressStubContext::set(
+            'wp_die',
+            static function () {
+                WordPressStubContext::setState('wp_die_called', true);
+            }
+        );
+        WordPressStubContext::set(
+            'current_user_can',
+            static function ($capability) {
+                $caps = WordPressStubContext::getState('caps', []);
+
+                return in_array($capability, $caps, true);
+            }
+        );
 
         if (! class_exists('PPCartComp_Studiocart_Conflict', false)) {
             require_once PPCARTCOMP_PLUGIN_ROOT . 'includes/class-ppcartcomp-studiocart-conflict.php';
@@ -101,5 +115,42 @@ class StudiocartConflictTest extends Unit
             ]
         );
         $this->assertTrue(PPCartComp_Studiocart_Conflict::is_active());
+    }
+
+    /**
+     * @test-id UT-249
+     */
+    public function test_UT_249_conflicted_activation_does_not_die(): void
+    {
+        WordPressStubContext::setState(
+            'options',
+            [
+                'active_plugins' => [ 'Studiocart-main/studiocart.php' ],
+            ]
+        );
+        WordPressStubContext::setState('wp_die_called', false);
+
+        PPCartComp_Studiocart_Conflict::on_activate('/tmp/publishpress-cart-compat.php');
+
+        $this->assertFalse(WordPressStubContext::getState('wp_die_called', false));
+    }
+
+    /**
+     * @test-id UT-249
+     */
+    public function test_UT_249_conflict_notice_is_admin_only(): void
+    {
+        WordPressStubContext::setState('caps', []);
+        ob_start();
+        PPCartComp_Studiocart_Conflict::render_notice();
+        $this->assertSame('', ob_get_clean());
+
+        WordPressStubContext::setState('caps', [ 'activate_plugins' ]);
+        ob_start();
+        PPCartComp_Studiocart_Conflict::render_notice();
+        $output = ob_get_clean();
+        $this->assertStringContainsString('notice notice-error', $output);
+        $this->assertStringContainsString('cannot run while Studiocart is active', $output);
+        $this->assertStringContainsString('Deactivate Studiocart to start those plugins', $output);
     }
 }

@@ -108,6 +108,7 @@ class PPCartComp_Studiocart_Conflict
 
         define('PPCART_STUDIOCART_CONFLICT_NOTICED', true);
         add_action('admin_notices', [ self::class, 'render_notice' ]);
+        add_action('network_admin_notices', [ self::class, 'render_notice' ]);
     }
 
     /**
@@ -121,37 +122,23 @@ class PPCartComp_Studiocart_Conflict
 
         echo '<div class="notice notice-error"><p>';
         echo esc_html__(
-            'PublishPress Cart and PublishPress Cart Compatibility cannot run while Studiocart is active. Deactivate Studiocart first, then activate those plugins.',
+            'PublishPress Cart and PublishPress Cart Compatibility cannot run while Studiocart is active. Deactivate Studiocart to start those plugins.',
             'publishpress-cart-compat'
         );
         echo '</p></div>';
     }
 
     /**
+     * Soft-stop activation: stay listed as active. Bootstrap aborts the load.
+     *
      * @param string $plugin_file Absolute path to this plugin's bootstrap file.
      * @return void
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public static function on_activate($plugin_file)
     {
         if (! self::is_active()) {
             return;
-        }
-
-        if (function_exists('deactivate_plugins') && function_exists('plugin_basename')) {
-            deactivate_plugins(plugin_basename($plugin_file));
-        }
-
-        $message = __(
-            'PublishPress Cart Compatibility cannot run while Studiocart is active. Deactivate Studiocart first, then activate PublishPress Cart and this plugin.',
-            'publishpress-cart-compat'
-        );
-
-        if (function_exists('wp_die')) {
-            wp_die(
-                esc_html($message),
-                esc_html__('Studiocart must be deactivated', 'publishpress-cart-compat'),
-                [ 'back_link' => true ]
-            );
         }
     }
 }

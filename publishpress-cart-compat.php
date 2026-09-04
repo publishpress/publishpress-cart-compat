@@ -51,10 +51,19 @@ if (! defined('PPCARTCOMP_BASE_DIR')) {
     define('PPCARTCOMP_BASE_DIR', plugin_dir_path(__FILE__));
 }
 
+/**
+ * Compatibility shims collide with a live Studiocart install. Detect Studiocart
+ * by plugin basename before any package load so the load can abort without wp_die.
+ */
 require_once PPCARTCOMP_BASE_DIR . 'includes/class-ppcartcomp-studiocart-conflict.php';
 
 if (! function_exists('ppcartcomp_refuse_studiocart_activation')) {
     /**
+     * Soft-stop when activated beside Studiocart.
+     *
+     * Stay listed as Active. Do not wp_die or deactivate — that would hide the
+     * admin notice. The load abort below keeps shims unloaded.
+     *
      * @return void
      */
     function ppcartcomp_refuse_studiocart_activation()
@@ -65,6 +74,11 @@ if (! function_exists('ppcartcomp_refuse_studiocart_activation')) {
 
 register_activation_hook(PPCARTCOMP_BASE_FILE, 'ppcartcomp_refuse_studiocart_activation');
 
+/**
+ * Stay in active_plugins so an admin-only notice can persist. Return before
+ * shims, migration, or admin UI. Studiocart keeps serving the storefront until
+ * it is deactivated.
+ */
 if (PPCartComp_Studiocart_Conflict::is_active()) {
     PPCartComp_Studiocart_Conflict::register_notice();
 
