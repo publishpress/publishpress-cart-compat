@@ -96,6 +96,13 @@ modules:
     features: [studiocart-compatibility-mode]
     notes: Mechanical sc_ → ppcart_ hook bridge for sc_order_* / sc_subscription_* / sc_renewal_*. Leftover listeners run only while Compatibility Mode is on.
 
+  - id: prefix-checkout
+    name: Leftover checkout request-field copy
+    suites: [unit, integration]
+    test_range: UT-258, IT-337
+    features: [studiocart-compatibility-mode]
+    notes: Compatibility Mode copies leftover POST sc_qty onto ppcart_qty. First-party checkout leftovers are a Free hard cutover except this request field.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]
