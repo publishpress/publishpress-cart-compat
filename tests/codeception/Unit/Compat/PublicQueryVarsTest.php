@@ -42,11 +42,12 @@ class PublicQueryVarsTest extends Unit
     {
         $this->assertSame(
             [
-                'sc-preview'  => 'ppcart-preview',
-                'sc-order'    => 'ppcart-order',
-                'sc-plan'     => 'ppcart-plan',
-                'sc-manage'   => 'ppcart-manage',
-                'sc-download' => 'ppcart-download',
+                'sc-preview'     => 'ppcart-preview',
+                'sc-order'       => 'ppcart-order',
+                'sc-plan'        => 'ppcart-plan',
+                'sc-manage'      => 'ppcart-manage',
+                'sc-download'    => 'ppcart-download',
+                'sc-csv-export'  => 'ppcart-csv-export',
             ],
             PPCartComp_Studiocart_Public_Query_Compatibility::legacy_query_var_map()
         );
@@ -80,6 +81,7 @@ class PublicQueryVarsTest extends Unit
                 'sc-plan',
                 'sc-manage',
                 'sc-download',
+                'sc-csv-export',
             ],
             $registered
         );
@@ -174,5 +176,16 @@ class PublicQueryVarsTest extends Unit
         $this->assertFalse(
             PPCartComp_Studiocart_Public_Query_Compatibility::is_safe_public_request('GET', false, false, true)
         );
+    }
+
+    /**
+     * @test-id UT-260
+     */
+    public function test_UT_260_query_var_map_covers_leftover_csv_export(): void
+    {
+        $map = PPCartComp_Studiocart_Public_Query_Compatibility::legacy_query_var_map();
+
+        $this->assertSame('ppcart-csv-export', $map['sc-csv-export']);
+        $this->assertSame(302, PPCartComp_Studiocart_Public_Query_Compatibility::REDIRECT_STATUS);
     }
 }

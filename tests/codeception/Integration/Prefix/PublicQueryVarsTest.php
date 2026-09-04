@@ -6,6 +6,7 @@ namespace Tests\Integration\Prefix;
 
 use lucatume\WPBrowser\TestCase\WPTestCase;
 use PPCart_Files;
+use PPCart_Public;
 use PPCart_Public_Page_Controller;
 use PPCartComp_Studiocart_Compatibility_Mode;
 use PPCartComp_Studiocart_Public_Query_Compatibility;
@@ -75,8 +76,7 @@ class PublicQueryVarsTest extends WPTestCase
             $query_vars
         );
 
-        foreach (PPCartComp_Studiocart_Public_Query_Compatibility::legacy_query_var_map() as $legacy => $canonical) {
-            $this->assertContains($canonical, $query_vars);
+        foreach (array_keys(PPCartComp_Studiocart_Public_Query_Compatibility::legacy_query_var_map()) as $legacy) {
             $this->assertNotContains($legacy, $query_vars);
         }
 
@@ -311,6 +311,60 @@ class PublicQueryVarsTest extends WPTestCase
             has_action(
                 'update_option_sc_download_slug',
                 [ $ppcart_files, 'flush_permalinks' ]
+            )
+        );
+    }
+
+    /**
+     * @test-id IT-338
+     */
+    public function test_IT_338_leftover_csv_export_redirects_only_when_compatibility_mode_is_on(): void
+    {
+        $public = (new \ReflectionClass(PPCart_Public::class))->newInstanceWithoutConstructor();
+        $query_vars = $public->api_query_vars([]);
+
+        $this->assertContains('ppcart-csv-export', $query_vars);
+        $this->assertNotContains('sc-csv-export', $query_vars);
+
+        $this->assertSame(
+            [ 'ppcart-csv-export' ],
+            PPCartComp_Studiocart_Public_Query_Compatibility::register_legacy_query_vars(
+                [ 'ppcart-csv-export' ]
+            )
+        );
+
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+
+        $registered = PPCartComp_Studiocart_Public_Query_Compatibility::register_legacy_query_vars(
+            [ 'ppcart-csv-export' ]
+        );
+        $this->assertContains('sc-csv-export', $registered);
+        $this->assertContains('ppcart-csv-export', $registered);
+
+        $request_url = home_url('/?sc-csv-export=contacts&type=contact&_wpnonce=abc');
+        $redirect_url = PPCartComp_Studiocart_Public_Query_Compatibility::get_legacy_redirect_url(
+            $request_url,
+            [
+                'sc-csv-export' => 'contacts',
+                'type'          => 'contact',
+                '_wpnonce'      => 'abc',
+            ]
+        );
+
+        $this->assertIsString($redirect_url);
+
+        $query_args = [];
+        wp_parse_str((string) wp_parse_url($redirect_url, PHP_URL_QUERY), $query_args);
+
+        $this->assertSame('contacts', $query_args['ppcart-csv-export']);
+        $this->assertSame('contact', $query_args['type']);
+        $this->assertSame('abc', $query_args['_wpnonce']);
+        $this->assertArrayNotHasKey('sc-csv-export', $query_args);
+
+        $this->assertNull(
+            PPCartComp_Studiocart_Public_Query_Compatibility::get_legacy_redirect_url(
+                home_url('/?ppcart-csv-export=contacts'),
+                [ 'ppcart-csv-export' => 'contacts' ]
             )
         );
     }

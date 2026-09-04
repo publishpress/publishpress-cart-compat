@@ -43,11 +43,12 @@ final class PPCartComp_Studiocart_Public_Query_Compatibility
     public static function legacy_query_var_map()
     {
         return [
-            'sc-preview'  => 'ppcart-preview',
-            'sc-order'    => 'ppcart-order',
-            'sc-plan'     => 'ppcart-plan',
-            'sc-manage'   => 'ppcart-manage',
-            'sc-download' => 'ppcart-download',
+            'sc-preview'     => 'ppcart-preview',
+            'sc-order'       => 'ppcart-order',
+            'sc-plan'        => 'ppcart-plan',
+            'sc-manage'      => 'ppcart-manage',
+            'sc-download'    => 'ppcart-download',
+            'sc-csv-export'  => 'ppcart-csv-export',
         ];
     }
 

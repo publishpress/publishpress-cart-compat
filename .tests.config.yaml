@@ -103,6 +103,13 @@ modules:
     features: [studiocart-compatibility-mode]
     notes: Compatibility Mode copies leftover POST sc_qty onto ppcart_qty. First-party checkout leftovers are a Free hard cutover except this request field.
 
+  - id: prefix-csv-export
+    name: Leftover CSV export query-var redirect
+    suites: [unit, integration]
+    test_range: UT-260, IT-338
+    features: [studiocart-compatibility-mode]
+    notes: Compatibility Mode 302s leftover sc-csv-export onto ppcart-csv-export. First-party CSV export is canonical only.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]
