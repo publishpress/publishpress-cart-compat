@@ -1,6 +1,6 @@
 ---
 id: studiocart-compatibility-mode
-plugin: publishpress-cart
+plugin: publishpress-cart-compat
 name: StudioCart Compatibility Mode
 status: active
 description: Optional layer that keeps StudioCart legacy options, functions, hooks, class names, PHP constants, runtime globals, and public URL redirects working for third-party plugins and apps after the fork.
@@ -8,6 +8,8 @@ edition: free
 tags: [compatibility, studiocart, developer]
 source_areas:
   - includes/compat/studiocart-compatibility-mode/
+  - includes/compat/studiocart-compatibility-mode/functions/
+  - includes/compat/studiocart-compatibility-mode/hooks/
 ---
 
 # StudioCart Compatibility Mode
@@ -20,9 +22,9 @@ contract — option keys, functions, hooks, class names, PHP constants, and
 runtime globals, plus redirects from legacy public URLs.
 
 PublishPress Cart does not run alongside StudioCart. This is not a live
-integration with another product. When the mode is on, Cart exposes the
-legacy StudioCart surface so existing extensions keep working while core
-moves to the canonical `PPCart_*` / `ppcart_*` API. When it is off, only
+integration with another product. When the mode is on, this companion exposes
+the legacy StudioCart surface so existing extensions keep working while Cart
+core uses the canonical `PPCart_*` / `ppcart_*` API. When it is off, only
 the canonical Cart API is available.
 
 Stored leftover rows (CPT slugs, leftover shortcode tags in post/email HTML,
@@ -50,7 +52,7 @@ template slug `single-sc_product` and leftover taxonomy rewrite
 `ppcart_*`; live helpers stay row-state-based until Data migration.
 
 Canonical Cart code must not depend on this mode. Gate runtime with
-`sc_cart_supports( 'studiocart-compatibility-mode' )`.
+`ppcart_cart_supports( 'studiocart-compatibility-mode' )`.
 
 Merchants toggle it under **Cart → StudioCart** (`admin.php?page=ppcart-studiocart`, option
 `_ppcart_studiocart_compatibility_mode`, default off). Class aliases from
@@ -158,9 +160,14 @@ See [prefix-standardization.md](../dev/prefix-standardization.md#publishpress-ca
 
 ## Runtime global aliases
 
-Canonical checkout globals are `$ppcart_stripe`, `$ppcart_currency`,
-`$ppcart_currency_symbol`, `$ppcart_debug_logger`, and `$ppcart_product`.
+Canonical runtime globals are `$ppcart_stripe`, `$ppcart_currency`,
+`$ppcart_currency_symbol`, `$ppcart_debug_logger`, `$ppcart_product`,
+`$ppcart_checkout_request_rendered`, `$ppcart_checkout_block_arrangement`,
+`$ppcart_public`, `$ppcart_files`, `$ppcart_product_fields`, and
+`$ppcart_is_admin_screen`.
 When this mode is on, the shipped StudioCart names (`$sc_stripe`,
-`$sc_currency`, `$sc_currency_symbol`, `$sc_debug_logger`, `$scp`) are
+`$sc_currency`, `$sc_currency_symbol`, `$sc_debug_logger`, `$scp`, leftover
+`$GLOBALS['sc_checkout_*']`, leftover `$studiocart`, leftover `$scFiles`,
+leftover `$sc_product_fields`, leftover `$sc_is_studiocart_admin_screen`) are
 references to those values so third-party reads and writes stay in sync.
 `NCS_CART_LEGACY_COMPAT` suppresses the aliases.

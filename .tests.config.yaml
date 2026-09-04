@@ -63,7 +63,7 @@ modules:
     name: Leftover transient copy
     suites: [unit, integration]
     test_range: UT-229, IT-316
-    features: []
+    features: [data-migration]
 
   - id: prefix-public-query-vars
     name: Leftover public query-var redirects
@@ -138,13 +138,13 @@ modules:
     name: Shortcode tag Data migration
     suites: [unit, integration]
     test_range: UT-206, IT-284
-    features: []
+    features: [data-migration]
 
   - id: prefix-cpt-slugs
     name: CPT, taxonomy, and capability slug migration
     suites: [unit, integration]
     test_range: UT-200, IT-269–IT-274
-    features: []
+    features: [data-migration]
 
   - id: prefix-public
     name: Public class leftover aliases
@@ -192,13 +192,13 @@ modules:
     name: Custom table prefix migration
     suites: [unit, integration]
     test_range: UT-220, IT-300–IT-305
-    features: []
+    features: [data-migration]
 
   - id: prefix-data-migration-wizard
     name: Data migration wizard
     suites: [unit, integration]
     test_range: UT-239–UT-242, UT-246, IT-331
-    features: []
+    features: [data-migration]
 
   - id: store-fixtures
     name: Leftover StudioCart store seed (tests only)
@@ -209,7 +209,7 @@ modules:
   - id: studiocart-conflict
     name: Refuse to load beside leftover Studiocart
     suites: [unit]
-    test_range: UT-244–UT-245
+    test_range: UT-244–UT-245, UT-249
     features: []
 
 suites:
