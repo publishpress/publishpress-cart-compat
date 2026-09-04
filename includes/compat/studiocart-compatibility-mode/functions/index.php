@@ -5,7 +5,19 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Loads StudioCart function wrapper shards when Compatibility Mode is on.
+ * StudioCart function wrapper catalog.
+ *
+ * Loaded only when Compatibility Mode is on
+ * (`PPCartComp_Studiocart_Compatibility_Mode::maybe_register_functions()`).
+ *
+ * Prefixes: `ncs_*`, `sc_*` (plus a few `ncs_cart_*` / `studiocart_*` names in
+ * the shards). Each wrapper is a one-line delegate to the matching `ppcart_*`
+ * helper. Do not add PHPDoc or logic on individual wrappers — change the
+ * canonical function instead.
+ *
+ * Shards: ncs.php, sc-integrations.php, sc-cart.php, sc-checkout.php,
+ * sc-do.php, sc-email.php, sc-format.php, sc-get.php, sc-is.php,
+ * sc-order.php, sc-misc-a.php, sc-misc-b.php.
  */
 
 require_once __DIR__ . '/ncs.php';

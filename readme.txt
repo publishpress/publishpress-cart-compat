@@ -29,4 +29,5 @@ This plugin does not replace PublishPress Cart and is not a live StudioCart inte
 == Changelog ==
 
 = 1.0.0 =
-* Initial plugin skeleton.
+* StudioCart Compatibility Mode: optional PHP shims for leftover functions, hooks, classes, constants, and public URLs.
+* Data migration wizard: merchant-run rewrite of leftover CPT slugs, meta keys, shortcode content, option keys, and custom tables.

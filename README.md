@@ -10,11 +10,25 @@ This repository is the companion plugin (`publishpress-cart-compat`). It does no
 - WordPress 6.7+
 - [PublishPress Cart](https://github.com/publishpress/publishpress-cart) (`publishpress-cart`)
 
+## Docs
+
+- [Architecture](docs/dev/architecture.md) — bootstrap, Cart load-from-companion contract, Compatibility Mode, Data migration packages
+- [Features](docs/features/) — Compatibility Mode and Data migration
+- [Extract from Cart](docs/dev/extract-from-cart.md) — cutover that already landed
+
 ## Layout
 
 | Path | What lives here |
 |------|-----------------|
-| `publishpress-cart-compat.php` | Bootstrap, constants |
+| `publishpress-cart-compat.php` | Bootstrap, `PPCARTCOMP_*` constants, admin/CLI entry |
+| `includes/compat/studiocart-compatibility-mode/` | Compatibility Mode PHP shims (`functions/`, `hooks/`, maps) |
+| `includes/compat/cpt-slug-migration/` | CPT / taxonomy / role Data migration |
+| `includes/compat/meta-key-migration/` | Post/user meta Data migration |
+| `includes/compat/shortcode-tag-migration/` | Stored shortcode-tag Data migration |
+| `includes/compat/option-key-migration/` | Option/transient key Data migration |
+| `includes/compat/custom-table-migration/` | Custom table rename + live table helpers |
+| `includes/admin/` | StudioCart submenu + Data migration wizard |
+| `assets/admin/migration-wizard/` | Wizard React source and build |
 
 ## Development
 
