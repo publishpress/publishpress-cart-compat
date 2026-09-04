@@ -55,6 +55,8 @@ Do not search `lib/vendor/`, `vendor/`, or `node_modules/` (see `.cursorignore`)
 | Admin e2e | `tests/playwright/admin/` | `composer test:admin` |
 | Smoke | `tests/playwright/smoke/` | see `tests/README.md` |
 
+Dev seed for Data migration leftovers: `wp ppcartcomp seed-migration` (also `composer seed:migration` / `./bin/seed-migration`).
+
 ## Conventions
 
 - Prefixes: `PPCartComp_`, `ppcartcomp_`, `PPCARTCOMP_`. Files: `class-ppcartcomp-*.php`.

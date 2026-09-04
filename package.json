@@ -1,0 +1,15 @@
+{
+  "name": "publishpress-cart-compat",
+  "private": true,
+  "description": "StudioCart shims and data migration for PublishPress Cart",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build:admin": "wp-scripts build assets/admin/migration-wizard/src/index.js --output-path=assets/admin/migration-wizard/build && rm -f assets/admin/migration-wizard/build/*.map",
+    "start:admin": "wp-scripts start assets/admin/migration-wizard/src/index.js --output-path=assets/admin/migration-wizard/build"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^32.1.0"
+  }
+}

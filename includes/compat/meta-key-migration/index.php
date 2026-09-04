@@ -20,7 +20,7 @@ function ppcart_meta_key_migration_init()
     PPCartComp_Meta_Key_Migration_Admin::init();
 }
 
-add_action('plugins_loaded', 'ppcart_meta_key_migration_maybe_seed_state', 4);
+add_action('init', 'ppcart_meta_key_migration_maybe_seed_state', -1);
 add_action('plugins_loaded', 'ppcart_meta_key_migration_init', 5);
 add_action('pre_get_posts', 'ppcart_expand_wp_query_meta_keys', 9);
 

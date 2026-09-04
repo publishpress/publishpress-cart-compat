@@ -505,3 +505,71 @@ if (! function_exists('get_edit_post_link')) {
         return WordPressStubContext::invoke('get_edit_post_link', func_get_args());
     }
 }
+
+if (! function_exists('wp_create_nonce')) {
+    function wp_create_nonce($action = -1)
+    {
+        if (WordPressStubContext::has('wp_create_nonce')) {
+            return WordPressStubContext::invoke('wp_create_nonce', func_get_args());
+        }
+
+        return 'nonce-' . (string) $action;
+    }
+}
+
+if (! function_exists('add_query_arg')) {
+    function add_query_arg($args, $url = '')
+    {
+        if (! is_array($args) || '' === $url) {
+            return $url;
+        }
+
+        $sep = false !== strpos($url, '?') ? '&' : '?';
+
+        return $url . $sep . http_build_query($args);
+    }
+}
+
+if (! function_exists('plugins_url')) {
+    function plugins_url($path = '', $plugin = '')
+    {
+        unset($plugin);
+
+        return 'https://example.test/wp-content/plugins/' . ltrim((string) $path, '/');
+    }
+}
+
+if (! function_exists('wp_enqueue_script')) {
+    function wp_enqueue_script()
+    {
+        return true;
+    }
+}
+
+if (! function_exists('wp_enqueue_style')) {
+    function wp_enqueue_style()
+    {
+        return true;
+    }
+}
+
+if (! function_exists('wp_style_add_data')) {
+    function wp_style_add_data()
+    {
+        return true;
+    }
+}
+
+if (! function_exists('wp_localize_script')) {
+    function wp_localize_script()
+    {
+        return true;
+    }
+}
+
+if (! function_exists('wp_set_script_translations')) {
+    function wp_set_script_translations()
+    {
+        return true;
+    }
+}

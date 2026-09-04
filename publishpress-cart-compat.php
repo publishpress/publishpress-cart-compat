@@ -109,6 +109,22 @@ if (! function_exists('ppcartcomp_load_textdomain')) {
     }
 }
 
+if (! function_exists('ppcartcomp_register_cli')) {
+    /**
+     * Register WP-CLI commands when WP-CLI is present.
+     *
+     * @return void
+     */
+    function ppcartcomp_register_cli()
+    {
+        if (! defined('WP_CLI') || ! WP_CLI) {
+            return;
+        }
+
+        require_once PPCARTCOMP_BASE_DIR . 'includes/cli/class-ppcartcomp-cli-seed-migration.php';
+    }
+}
+
 if (! function_exists('ppcartcomp_run')) {
     /**
      * Companion admin only. Packages are loaded by Cart from this plugin directory.
@@ -124,12 +140,18 @@ if (! function_exists('ppcartcomp_run')) {
         }
 
         require_once PPCARTCOMP_BASE_DIR . 'includes/admin/class-ppcartcomp-studiocart-admin.php';
+        require_once PPCARTCOMP_BASE_DIR . 'includes/admin/class-ppcartcomp-data-migration-wizard.php';
 
         if (class_exists('PPCartComp_Studiocart_Admin', false)) {
             PPCartComp_Studiocart_Admin::init();
         }
+        if (class_exists('PPCartComp_Data_Migration_Wizard', false)) {
+            PPCartComp_Data_Migration_Wizard::init();
+        }
     }
 }
 
-add_action('plugins_loaded', 'ppcartcomp_load_textdomain', 1);
+add_action('init', 'ppcartcomp_load_textdomain', 0);
 add_action('plugins_loaded', 'ppcartcomp_run', 5);
+add_action('cli_init', 'ppcartcomp_register_cli');
+

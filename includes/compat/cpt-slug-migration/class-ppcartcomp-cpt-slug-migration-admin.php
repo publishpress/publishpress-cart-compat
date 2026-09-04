@@ -214,40 +214,28 @@ class PPCartComp_Cpt_Slug_Migration_Admin
      */
     public static function enqueue_assets($hook_suffix)
     {
-        $on_page = class_exists('PPCartComp_Studiocart_Admin', false)
-            && PPCartComp_Studiocart_Admin::is_screen(is_string($hook_suffix) ? $hook_suffix : '');
-        $notice  = self::should_show_notice();
-        if (! $on_page && ! $notice) {
+        unset($hook_suffix);
+
+        if (! self::should_show_notice()) {
             return;
         }
 
+        $version = defined('PPCARTCOMP_VERSION') ? PPCARTCOMP_VERSION : ( defined('PPCART_VERSION') ? PPCART_VERSION : '1.0.0' );
+
         wp_enqueue_script(
-            'ppcart-cpt-slug-migration',
-            plugins_url('admin.js', __FILE__),
-            [ 'jquery' ],
-            defined('PPCARTCOMP_VERSION') ? PPCARTCOMP_VERSION : ( defined('PPCART_VERSION') ? PPCART_VERSION : '1.0.0' ),
+            'ppcartcomp-cpt-slug-migration-notice-ack',
+            plugins_url('notice-ack.js', __FILE__),
+            [],
+            $version,
             true
         );
         wp_localize_script(
-            'ppcart-cpt-slug-migration',
-            'ppcartCptSlugMigration',
+            'ppcartcomp-cpt-slug-migration-notice-ack',
+            'ppcartcompCptMigrationNotice',
             [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce'   => wp_create_nonce(self::NONCE_ACTION),
-                'actions' => [
-                    'run'     => self::AJAX_RUN,
-                    'stop'    => self::AJAX_STOP,
-                    'ack'     => self::AJAX_ACK,
-                    'restore' => self::AJAX_RESTORE,
-                    'delete'  => self::AJAX_DELETE,
-                ],
-                'i18n'    => [
-                    'running' => __('Running…', 'publishpress-cart'),
-                    'paused'  => __('Paused. Remaining rows can be restarted.', 'publishpress-cart'),
-                    'done'    => __('This step is complete.', 'publishpress-cart'),
-                    'deleted' => __('Backup deleted.', 'publishpress-cart'),
-                    'error'   => __('The migration request failed.', 'publishpress-cart'),
-                ],
+                'action'  => self::AJAX_ACK,
             ]
         );
     }

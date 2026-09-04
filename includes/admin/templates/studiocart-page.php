@@ -50,10 +50,12 @@ $option_name  = $compat_ready ? $compat_class::OPTION_NAME : '_ppcart_studiocart
         </form>
     <?php endif; ?>
 
-    <?php if (class_exists('PPCartComp_Cpt_Slug_Migration_Admin', false)) : ?>
-        <div class="card ppcart-cpt-slug-migration">
-            <h2><?php esc_html_e('Data migration', 'publishpress-cart-compat'); ?></h2>
-            <?php PPCartComp_Cpt_Slug_Migration_Admin::render_page(); ?>
-        </div>
-    <?php endif; ?>
+    <div class="card ppcartcomp-migration-wizard-card">
+        <?php if (class_exists('PPCartComp_Data_Migration_Wizard', false) && ! PPCartComp_Data_Migration_Wizard::assets_ready()) : ?>
+            <div class="notice notice-error inline">
+                <p><?php esc_html_e('Migration wizard assets are missing. Run npm run build:admin in the PublishPress Cart Compatibility plugin.', 'publishpress-cart-compat'); ?></p>
+            </div>
+        <?php endif; ?>
+        <div id="ppcartcomp-migration-wizard-root"></div>
+    </div>
 </div>

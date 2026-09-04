@@ -167,6 +167,12 @@ modules:
     test_range: UT-220, IT-300–IT-305
     features: []
 
+  - id: prefix-data-migration-wizard
+    name: Data migration wizard
+    suites: [unit]
+    test_range: UT-239–UT-242
+    features: []
+
 suites:
   unit:
     label: Unit tests

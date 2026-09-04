@@ -20,7 +20,6 @@ class PPCartComp_Studiocart_Admin
     {
         add_action('admin_menu', [ self::class, 'register_submenu' ], 20);
         add_action('admin_init', [ self::class, 'register_setting' ]);
-        add_action('admin_enqueue_scripts', [ self::class, 'enqueue_assets' ]);
     }
 
     /**
@@ -112,37 +111,6 @@ class PPCartComp_Studiocart_Admin
         }
 
         return '1' === (string) $value ? '1' : '0';
-    }
-
-    /**
-     * @param string $hook_suffix Hook.
-     * @return void
-     */
-    public static function enqueue_assets($hook_suffix)
-    {
-        if (! self::is_screen(is_string($hook_suffix) ? $hook_suffix : '')) {
-            return;
-        }
-
-        $version = defined('PPCARTCOMP_VERSION') ? PPCARTCOMP_VERSION : '1.0.0';
-
-        wp_enqueue_script(
-            'ppcartcomp-custom-table-migration',
-            plugins_url('includes/compat/custom-table-migration/admin.js', PPCARTCOMP_BASE_FILE),
-            [ 'jquery' ],
-            $version,
-            true
-        );
-        wp_localize_script(
-            'ppcartcomp-custom-table-migration',
-            'ppcartcompCustomTableMigration',
-            [
-                'confirm' => __(
-                    'Rename leftover custom tables to ppcart_* names? Take a backup first and run this during a maintenance window.',
-                    'publishpress-cart-compat'
-                ),
-            ]
-        );
     }
 
     /**

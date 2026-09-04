@@ -47,6 +47,7 @@
         "test:all": [
             "@test:unit",
             "@test:integration"
-        ]
+        ],
+        "seed:migration": "bash bin/seed-migration"
     }
 }
