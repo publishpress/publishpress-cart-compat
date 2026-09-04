@@ -169,8 +169,8 @@ modules:
 
   - id: prefix-data-migration-wizard
     name: Data migration wizard
-    suites: [unit]
-    test_range: UT-239–UT-242
+    suites: [unit, integration]
+    test_range: UT-239–UT-242, UT-246, IT-331
     features: []
 
   - id: store-fixtures

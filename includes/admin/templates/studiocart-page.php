@@ -4,11 +4,13 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-$compat_class = 'PPCartComp_Studiocart_Compatibility_Mode';
-$compat_ready = class_exists($compat_class, false);
-$forced       = $compat_ready && $compat_class::is_wp_config_forced();
-$enabled      = $compat_ready && $compat_class::is_user_enabled();
-$option_name  = $compat_ready ? $compat_class::OPTION_NAME : '_ppcart_studiocart_compatibility_mode';
+$compat_class        = 'PPCartComp_Studiocart_Compatibility_Mode';
+$compat_ready        = class_exists($compat_class, false);
+$forced              = $compat_ready && $compat_class::is_wp_config_forced();
+$enabled             = $compat_ready && $compat_class::is_user_enabled();
+$option_name         = $compat_ready ? $compat_class::OPTION_NAME : '_ppcart_studiocart_compatibility_mode';
+$drop_backups_option = PPCartComp_Studiocart_Admin::DROP_BACKUPS_OPTION;
+$drop_backups        = '1' === (string) get_option($drop_backups_option, '0');
 ?>
 <div class="wrap ppcartcomp-studiocart-page">
     <h1><?php esc_html_e('StudioCart', 'publishpress-cart-compat'); ?></h1>
@@ -45,8 +47,26 @@ $option_name  = $compat_ready ? $compat_class::OPTION_NAME : '_ppcart_studiocart
                         <?php esc_html_e('This setting is controlled by PPCART_STUDIOCART_COMPATIBILITY_MODE in wp-config.php.', 'publishpress-cart-compat'); ?>
                     </p>
                 <?php endif; ?>
-                <?php submit_button(); ?>
             </div>
+            <div class="card">
+                <h2><?php esc_html_e('Migration backups', 'publishpress-cart-compat'); ?></h2>
+                <p>
+                    <label>
+                        <input type="hidden" name="<?php echo esc_attr($drop_backups_option); ?>" value="0" />
+                        <input
+                            type="checkbox"
+                            name="<?php echo esc_attr($drop_backups_option); ?>"
+                            value="1"
+                            <?php checked($drop_backups); ?>
+                        />
+                        <?php esc_html_e('Drop CPT, meta, and shortcode reverse-map backup tables when this plugin is deleted.', 'publishpress-cart-compat'); ?>
+                    </label>
+                </p>
+                <p class="description">
+                    <?php esc_html_e('Cart store tables and leftover StudioCart rows stay. Restore from those reverse-map backups will no longer be available. This setting is off by default.', 'publishpress-cart-compat'); ?>
+                </p>
+            </div>
+            <?php submit_button(); ?>
         </form>
     <?php endif; ?>
 

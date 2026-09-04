@@ -58,6 +58,17 @@ Merchants toggle it under **Cart → StudioCart** (`admin.php?page=ppcart-studio
 when the mode is on. `NCS_CART_LEGACY_COMPAT` / `ncs_cart_legacy_compat_enabled()`
 can still suppress individual shims in CI.
 
+## Screen
+
+Cart → StudioCart (`page=ppcart-studiocart`) also has a **Migration backups**
+checkbox (`ppcartcomp_drop_migration_backups_on_uninstall`, default off). When
+it is on, deleting this plugin drops only the three reverse-map backup tables
+(`ppcart_cpt_migration_backup`, `ppcart_meta_key_migration_backup`,
+`ppcart_shortcode_tag_migration_backup`). Cart store tables, leftover
+StudioCart rows, Compatibility Mode, and wizard migration-state options stay.
+That is uninstall cleanup for Data migration backups, not a Compatibility Mode
+shim. Restore from those backups is unavailable after they are dropped.
+
 ## Hook bridges
 
 First-party Cart fires `ppcart_*` / `_ppcart_*` hooks and plugin-identity

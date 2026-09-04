@@ -212,6 +212,17 @@ if (! function_exists('add_settings_section')) {
     }
 }
 
+if (! function_exists('register_setting')) {
+    function register_setting($option_group, $option_name, $args = array())
+    {
+        if (! WordPressStubContext::has('register_setting')) {
+            return;
+        }
+
+        return WordPressStubContext::invoke('register_setting', func_get_args());
+    }
+}
+
 if (! function_exists('apply_filters')) {
     function apply_filters($hook_name, $value)
     {
