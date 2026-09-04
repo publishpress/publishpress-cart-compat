@@ -56,3 +56,12 @@ wp --path=.web --require=tests/store-fixtures/cli.php ppcartcomp seed-store
 ```
 
 Seed customers log in as `sc_seed_customer_001` (password `studiocart`). `--clean` removes the previous seed. Default volume is a leftover month of store activity (14 products, 40 customers, 96 orders, 20 subscriptions). Use `--reset` when replacing an older seed.
+
+### Snapshot the local WordPress database
+
+Saves the DDEV database to `tmp/site-backup/`. Restore imports that dump as-is.
+
+```bash
+composer site:backup
+composer site:restore
+```

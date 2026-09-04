@@ -49,6 +49,8 @@
             "@test:integration"
         ],
         "seed:migration": "bash bin/seed-migration",
-        "seed:store": "bash bin/seed-store"
+        "seed:store": "bash bin/seed-store",
+        "site:backup": "bash bin/site-snapshot backup",
+        "site:restore": "bash bin/site-snapshot restore"
     }
 }

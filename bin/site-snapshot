@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Snapshot or restore the local WordPress database (no URL rewriting).
+#
+#   composer site:backup
+#   composer site:restore
+#   ./bin/site-snapshot backup
+#   ./bin/site-snapshot restore
+#
+# Dump: tmp/site-backup/db.sql.gz (override directory with SITE_BACKUP_DIR).
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+usage() {
+  echo "Usage: $0 backup|restore" >&2
+  echo "Dump: tmp/site-backup/db.sql.gz (or SITE_BACKUP_DIR)." >&2
+}
+
+require_ddev() {
+  if ! command -v ddev >/dev/null 2>&1; then
+    echo "ddev not found on PATH." >&2
+    exit 1
+  fi
+  if [[ ! -d "$ROOT/.ddev" ]]; then
+    echo "No .ddev/ directory in $ROOT." >&2
+    exit 1
+  fi
+  if ! ddev describe >/dev/null 2>&1; then
+    echo "DDEV project is not running. Start it with: ddev start" >&2
+    exit 1
+  fi
+}
+
+backup_dir() {
+  printf '%s' "${SITE_BACKUP_DIR:-$ROOT/tmp/site-backup}"
+}
+
+cmd_backup() {
+  require_ddev
+
+  local dest
+  dest="$(backup_dir)"
+  mkdir -p "$dest"
+
+  echo "Backing up DDEV database → $dest/db.sql.gz"
+
+  ddev export-db --gzip=true --file="$dest/db.sql.gz"
+  ddev wp option get siteurl | tr -d '\r\n' > "$dest/siteurl.txt"
+  date -Iseconds > "$dest/created.txt"
+
+  echo "Backup complete."
+  echo "  db:      $dest/db.sql.gz"
+  echo "  siteurl: $(cat "$dest/siteurl.txt")"
+}
+
+cmd_restore() {
+  require_ddev
+
+  local dest
+  dest="$(backup_dir)"
+
+  if [[ ! -f "$dest/db.sql.gz" ]]; then
+    echo "No dump at $dest/db.sql.gz. Run: composer site:backup" >&2
+    exit 1
+  fi
+
+  echo "Restoring $dest/db.sql.gz → this DDEV site"
+  if [[ -f "$dest/siteurl.txt" ]]; then
+    echo "  dump siteurl: $(tr -d '\r\n' < "$dest/siteurl.txt")"
+  fi
+
+  ddev import-db --file="$dest/db.sql.gz"
+
+  echo "Restore complete. siteurl=$(ddev wp option get siteurl | tr -d '\r\n')"
+}
+
+[[ $# -ge 1 ]] || { usage; exit 1; }
+
+case "$1" in
+  backup) cmd_backup ;;
+  restore) cmd_restore ;;
+  -h|--help|help) usage ;;
+  *) usage; exit 1 ;;
+esac

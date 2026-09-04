@@ -59,6 +59,8 @@ Dev seed for Data migration leftovers: `wp ppcartcomp seed-migration` (also `com
 
 Test-only leftover StudioCart store: `composer seed:store` / `./bin/seed-store` / `ddev seed-store` (loads `tests/store-fixtures/`, not plugin `includes/`).
 
+Local DDEV database dump: `composer site:backup` / `composer site:restore`.
+
 ## Conventions
 
 - Prefixes: `PPCartComp_`, `ppcartcomp_`, `PPCARTCOMP_`. Files: `class-ppcartcomp-*.php`.

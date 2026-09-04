@@ -44,3 +44,12 @@ ddev seed-store --reset
 ```
 
 Default seed is ~one month of leftover store activity (14 products, 40 customers, 96 dated orders, 20 subscriptions plus renewals).
+
+## Local database dump
+
+```bash
+composer site:backup
+composer site:restore
+```
+
+Writes `tmp/site-backup/db.sql.gz`. Restore imports that dump as-is.
