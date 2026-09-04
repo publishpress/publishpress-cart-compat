@@ -9,6 +9,8 @@ require_once __DIR__ . '/state.php';
 require_once __DIR__ . '/metadata-bridges.php';
 require_once __DIR__ . '/class-ppcartcomp-meta-key-migrator.php';
 require_once __DIR__ . '/class-ppcartcomp-meta-key-migration-admin.php';
+require_once __DIR__ . '/product-duplicate.php';
+require_once __DIR__ . '/setup-from-meta.php';
 
 /**
  * Boot the meta-key migration package. Does not run a migrate.

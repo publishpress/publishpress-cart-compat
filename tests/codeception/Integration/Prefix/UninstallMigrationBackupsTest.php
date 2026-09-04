@@ -38,6 +38,11 @@ class UninstallMigrationBackupsTest extends NoTransactionWPTestCase
      */
     private $createdMigrationState = false;
 
+    /**
+     * @var bool
+     */
+    private $createdTaxRateStub = false;
+
     public function set_up()
     {
         parent::set_up();
@@ -47,10 +52,13 @@ class UninstallMigrationBackupsTest extends NoTransactionWPTestCase
         $this->originalCompat         = get_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, false);
         $this->originalMigrationState = get_option('ppcart_cpt_slug_migration', false);
         $this->createdMigrationState  = false;
+        $this->createdTaxRateStub     = false;
     }
 
     public function tear_down()
     {
+        global $wpdb;
+
         if ($this->leftoverPostId > 0) {
             wp_delete_post($this->leftoverPostId, true);
             $this->leftoverPostId = 0;
@@ -71,6 +79,13 @@ class UninstallMigrationBackupsTest extends NoTransactionWPTestCase
             } else {
                 update_option('ppcart_cpt_slug_migration', $this->originalMigrationState);
             }
+        }
+
+        if ($this->createdTaxRateStub) {
+            $taxTable = $wpdb->prefix . 'ppcart_tax_rate';
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Test isolation for stub store table.
+            $wpdb->query('DROP TABLE IF EXISTS `' . str_replace('`', '', $taxTable) . '`');
+            $this->createdTaxRateStub = false;
         }
 
         parent::tear_down();
@@ -99,6 +114,18 @@ class UninstallMigrationBackupsTest extends NoTransactionWPTestCase
         }
 
         $taxTable = $wpdb->prefix . 'ppcart_tax_rate';
+        if (! $this->tableExists($taxTable)) {
+            $charset   = $wpdb->get_charset_collate();
+            $safeTable = str_replace('`', '', $taxTable);
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Stub Cart store table when Cart has not created it yet.
+            $wpdb->query(
+                "CREATE TABLE `{$safeTable}` (
+					id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+					PRIMARY KEY  (id)
+				) {$charset}"
+            );
+            $this->createdTaxRateStub = true;
+        }
         $this->assertTrue($this->tableExists($taxTable), 'Cart store table ppcart_tax_rate must exist');
 
         update_option('_sc_it331_marker', 'keep');

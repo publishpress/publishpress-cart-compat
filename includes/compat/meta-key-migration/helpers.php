@@ -115,7 +115,9 @@ function ppcart_is_meta_field_id($id, $name)
 {
     $id = (string) $id;
 
-    return $id === ppcart_meta_key($name) || $id === ppcart_legacy_meta_key($name);
+    return $id === ppcart_meta_key($name)
+        || $id === ppcart_legacy_meta_key($name)
+        || $id === ppcart_meta_key_suffix($name);
 }
 
 /**

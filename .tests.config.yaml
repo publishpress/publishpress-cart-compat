@@ -26,7 +26,7 @@ modules:
   - id: prefix-meta-keys
     name: Post-meta and user-meta leftover lookup
     suites: [unit, integration]
-    test_range: UT-203, IT-281
+    test_range: UT-203, UT-247, IT-281
     features: [studiocart-compatibility-mode]
 
   - id: prefix-functions

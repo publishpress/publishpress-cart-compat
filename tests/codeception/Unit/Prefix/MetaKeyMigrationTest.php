@@ -76,6 +76,7 @@ class MetaKeyMigrationTest extends Unit
         $this->assertSame('_sc_pay_options', ppcart_legacy_meta_key('_ppcart_pay_options'));
         $this->assertTrue(ppcart_is_meta_field_id('_ppcart_hide_plans', 'hide_plans'));
         $this->assertTrue(ppcart_is_meta_field_id('_sc_hide_plans', 'hide_plans'));
+        $this->assertTrue(ppcart_is_meta_field_id('hide_plans', 'hide_plans'));
     }
 
     /**
@@ -179,5 +180,88 @@ class MetaKeyMigrationTest extends Unit
             $this->assertSame('_ppcart_amount', $expanded[1][0]['key']);
             $this->assertSame('_sc_amount', $expanded[1][1]['key']);
         }
+    }
+
+    /**
+     * @test-id UT-247
+     */
+    public function test_UT_247_product_duplicate_rewrites_leftover_meta_to_canonical(): void
+    {
+        if (! function_exists('ppcartcomp_product_duplicate_meta_key')) {
+            require_once PPCARTCOMP_PLUGIN_ROOT . 'includes/compat/meta-key-migration/product-duplicate.php';
+        }
+
+        $leftover_only = [ '_sc_pay_options' => [ 'serialized' ] ];
+        $this->assertSame(
+            '_ppcart_pay_options',
+            ppcartcomp_product_duplicate_meta_key('_sc_pay_options', $leftover_only)
+        );
+
+        $with_canonical_twin = [
+            '_sc_pay_options'     => [ 'leftover' ],
+            '_ppcart_pay_options' => [ 'canonical' ],
+        ];
+        $this->assertNull(
+            ppcartcomp_product_duplicate_meta_key('_sc_pay_options', $with_canonical_twin)
+        );
+
+        $this->assertSame(
+            '_ppcart_pay_options',
+            ppcartcomp_product_duplicate_meta_key('_ppcart_pay_options', $leftover_only)
+        );
+    }
+
+    /**
+     * @test-id UT-247
+     */
+    public function test_UT_247_product_duplicate_excludes_leftover_stripe_prod_id(): void
+    {
+        if (! function_exists('ppcartcomp_product_duplicate_excluded_meta_keys')) {
+            require_once PPCARTCOMP_PLUGIN_ROOT . 'includes/compat/meta-key-migration/product-duplicate.php';
+        }
+
+        $excluded = ppcartcomp_product_duplicate_excluded_meta_keys(
+            [ ppcart_meta_key('stripe_prod_id') ]
+        );
+
+        $this->assertContains(ppcart_legacy_meta_key('stripe_prod_id'), $excluded);
+        $this->assertContains(ppcart_meta_key('stripe_prod_id'), $excluded);
+    }
+
+    /**
+     * @test-id UT-247
+     */
+    public function test_UT_247_setup_from_meta_hydrates_leftover_product_and_order_keys(): void
+    {
+        if (! function_exists('ppcartcomp_setup_product_from_leftover_meta')) {
+            require_once PPCARTCOMP_PLUGIN_ROOT . 'includes/compat/meta-key-migration/setup-from-meta.php';
+        }
+
+        $product = ppcartcomp_setup_product_from_leftover_meta(
+            [ 'ID' => 11 ],
+            [
+                '_sc_pay_options' => [ serialize([ [ 'option_id' => 'plan_one' ] ]) ],
+                '_ppcart_ignored' => [ 'canonical-not-read-here' ],
+            ],
+            11
+        );
+
+        $this->assertSame(
+            [ [ 'option_id' => 'plan_one' ] ],
+            $product['pay_options']
+        );
+        $this->assertArrayNotHasKey('ignored', $product);
+
+        $order = ppcartcomp_setup_order_from_leftover_meta(
+            [ 'ID' => 22, 'invoice_total' => 0 ],
+            [
+                '_sc_amount' => [ '12.50' ],
+                '_sc_email'  => [ 'buyer@example.test' ],
+            ],
+            22
+        );
+
+        $this->assertSame('12.50', $order['amount']);
+        $this->assertSame('buyer@example.test', $order['email']);
     }
 }

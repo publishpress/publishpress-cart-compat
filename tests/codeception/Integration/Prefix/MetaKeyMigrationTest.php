@@ -215,6 +215,48 @@ class MetaKeyMigrationTest extends WPTestCase
     }
 
     /**
+     * @test-id IT-281
+     */
+    public function test_IT_281_migrator_renames_product_and_profile_leftover_keys(): void
+    {
+        $productId = $this->insertProductPost();
+        $userId    = (int) self::factory()->user->create();
+        $this->userIds[] = $userId;
+
+        update_post_meta($productId, '_sc_pay_options', [ [ 'option_id' => 'plan_one' ] ]);
+        update_post_meta($productId, '_sc_shipping_single', '9.99');
+        update_user_meta($userId, '_sc_address_1', '123 Main');
+        update_user_meta($userId, '_sc_phone', '555-0100');
+
+        $this->saveLegacyIdleMetaState();
+
+        $result = [ 'ok' => false ];
+        for ($i = 0; $i < 50; $i++) {
+            $result = PPCartComp_Meta_Key_Migrator::run_chunk();
+            $this->assertTrue(! empty($result['ok']), wp_json_encode($result));
+            if (! empty($result['done']) || ! empty($result['paused'])) {
+                break;
+            }
+        }
+
+        wp_cache_delete($productId, 'post_meta');
+        wp_cache_delete($userId, 'user_meta');
+
+        $this->assertSame(
+            [ [ 'option_id' => 'plan_one' ] ],
+            get_post_meta($productId, '_ppcart_pay_options', true)
+        );
+        $this->assertSame('9.99', get_post_meta($productId, '_ppcart_shipping_single', true));
+        $this->assertSame('', get_post_meta($productId, '_sc_pay_options', true));
+        $this->assertSame('', get_post_meta($productId, '_sc_shipping_single', true));
+
+        $this->assertSame('123 Main', get_user_meta($userId, '_ppcart_address_1', true));
+        $this->assertSame('555-0100', get_user_meta($userId, '_ppcart_phone', true));
+        $this->assertSame('', get_user_meta($userId, '_sc_address_1', true));
+        $this->assertSame('', get_user_meta($userId, '_sc_phone', true));
+    }
+
+    /**
      * @return int
      */
     private function insertOrderPost(): int
@@ -224,6 +266,25 @@ class MetaKeyMigrationTest extends WPTestCase
                 'post_title'  => 'Meta key order',
                 'post_type'   => ppcart_live_post_type('order'),
                 'post_status' => 'paid',
+            ]
+        );
+
+        $this->assertGreaterThan(0, $id);
+        $this->postIds[] = $id;
+
+        return $id;
+    }
+
+    /**
+     * @return int
+     */
+    private function insertProductPost(): int
+    {
+        $id = (int) wp_insert_post(
+            [
+                'post_title'  => 'Meta key product',
+                'post_type'   => ppcart_live_post_type('product'),
+                'post_status' => 'publish',
             ]
         );
 
