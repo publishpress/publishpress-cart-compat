@@ -131,6 +131,13 @@ modules:
     features: [studiocart-compatibility-mode]
     notes: Compatibility Mode copies leftover _sc_tax_rate_title / _sc_tax_rate_slug / _sc_tax_rate onto _ppcart_tax_rate_* via ppcart_tax_rates. Stored option rows are not rewritten.
 
+  - id: prefix-theme-overrides
+    name: Leftover theme override directory
+    suites: [unit, integration]
+    test_range: UT-270, IT-342
+    features: [studiocart-compatibility-mode]
+    notes: Compatibility Mode substitutes leftover yourtheme/studiocart/ copies via ppcart_theme_template_path. Canonical yourtheme/publishpress-cart/ wins. Theme files are not copied or renamed.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]
