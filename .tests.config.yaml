@@ -124,6 +124,13 @@ modules:
     features: [studiocart-compatibility-mode]
     notes: Compatibility Mode maps leftover sc_pns / sc_pn / sc_ns / sc_n onto ppcart_* via ppcart_invoice_format. Stored option rows are not rewritten.
 
+  - id: prefix-tax-rates
+    name: Leftover tax-rate inner-key copy
+    suites: [unit, integration]
+    test_range: UT-267, IT-341
+    features: [studiocart-compatibility-mode]
+    notes: Compatibility Mode copies leftover _sc_tax_rate_title / _sc_tax_rate_slug / _sc_tax_rate onto _ppcart_tax_rate_* via ppcart_tax_rates. Stored option rows are not rewritten.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]
