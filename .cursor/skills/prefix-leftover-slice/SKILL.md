@@ -35,6 +35,8 @@ fallbacks to `publishpress-cart`.
 3. No silent row copy/rename/delete (AGENTS.md hard rule 8).
 4. Catalog IDs are shared with Cart — next unused `UT-` / `IT-` across both repos.
 5. One family per session. Stop for review. Do not commit unless asked.
+6. After Cart `composer test:all:mocked`, run `composer test:all` in this
+   repo when Compat maps or tests changed.
 
 ## Package
 
