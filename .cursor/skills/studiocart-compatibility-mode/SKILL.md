@@ -37,6 +37,7 @@ Feature record: [docs/features/studiocart-compatibility-mode.md](../../../docs/f
 | Canonical Cart never calls shims | Core uses `PPCart_*` / `ppcart_*` only (after #629) |
 | Leave Pro `includes/compat/legacy.php` alone | Affiliate class aliases in **cart-pro**, unrelated |
 | Runtime plugin identity | `ppcart`; text domain/public slug stay `publishpress-cart`; wp-admin slugs use the canonical `ppcart` family only |
+| **No silent data migration** | Leftover option keys, post meta, CPT slugs, shortcode **content**, custom tables, roles, and related stored rows must not be copied, renamed, or deleted on plugin activate, boot, Compatibility Mode toggle, or read-through. Only merchant Data migration (explicit UI click) may mutate those rows. PHP shims and read-through bridges leave leftover storage in place. |
 
 `docs/dev/prefix-standardization.md` is the official #629 map, leftover
 tracker, and Pro contract (`PPCart_` / `ppcart_` / `ppcart-`). An earlier
@@ -78,7 +79,7 @@ Three layers (outer to inner):
 
 1. **wp-config** (highest): `PPCART_STUDIOCART_COMPATIBILITY_MODE` — if defined,
    `(bool)` value overrides the Settings checkbox.
-2. **Merchant**: option `_ppcart_studiocart_compatibility_mode` (`1`/`0`), default `0`. Leftover `_sc_studiocart_compatibility_mode` is dual-read and copied onto the canonical key.
+2. **Merchant**: option `_ppcart_studiocart_compatibility_mode` (`1`/`0`), default `0`. Leftover `_sc_studiocart_compatibility_mode` is dual-read and copied onto the canonical key (only exception to the no-silent-migration rule; store option keys are never auto-copied).
 3. **Developer/CI**: `ncs_cart_legacy_compat_enabled()` / `NCS_CART_LEGACY_COMPAT` /
    filter `ncs_cart_legacy_compat_enabled`. Suppresses individual `class_alias`
    calls and outbound constant aliases after the feature is on.
@@ -95,20 +96,27 @@ classes loaded after bootstrap).
 
 ### What this feature owns vs what stays in core
 
-| Owns (PHP shims, only when on) | Stays in core until an explicit data migration |
-|--------------------------------|------------------------------------------------|
+| Owns (PHP shims, only when on) | Stays until an explicit Data migration (merchant UI) |
+|--------------------------------|-----------------------------------------------------|
 | Class names (`NCS_Cart_*`, `ScrtOrder`, `SC_*`, bare `NCS_*`, …) | CPT slugs (`sc_product`, `sc_order`, …) |
-| Function names (`studiocart_*`, shipped `sc_*`) | — |
-| Shortcode **tags** (`studiocart-form`, `sc_product`, …) dual-register when on | Stored leftover shortcode **content** (posts, email HTML) — merchant Data migration in `includes/compat/shortcode-tag-migration/` |
-| Hook names third-party PHP listens to | Post meta / existing option **keys** in customer DBs |
-| PHP constants (`NCS_CART_*`, `SC_STRIPE_CONNECT_*`) | — |
+| Function names (`studiocart_*`, shipped `sc_*`) | Option keys (`_sc_*`, `sc_*`, `ncs_*`, transients) — read-through only; wizard **Option keys** step via `option-key-migration/` |
+| Shortcode **tags** (`studiocart-form`, `sc_product`, …) dual-register when on | Stored leftover shortcode **content** (posts, email HTML) — `shortcode-tag-migration/` |
+| Hook names third-party PHP listens to | Post meta keys — `meta-key-migration/` |
+| PHP constants (`NCS_CART_*`, `SC_STRIPE_CONNECT_*`) | Custom tables, roles/caps, `{prefix}ncs_tax_rate`, on-disk log directory names |
 | Legacy public `sc-*` query vars and redirects | Canonical `ppcart-*` query vars and rewrite |
 | Legacy AJAX `sc_*` / `ncs_*` POST actions and nonce strings | Canonical `wp_ajax_ppcart_*` routes and `ppcart_*` nonce actions |
-| | Roles/caps, `{prefix}ncs_tax_rate`, on-disk log directory names |
+
+**Hard rule:** never copy, rename, or delete leftover DB rows from boot,
+Compatibility Mode registration, or option/meta read-through. Call migration
+helpers only from the Data migration UI (or tests that exercise that path).
 
 Persisted strings cannot be “aliased” with `class_alias`. If #629 or WP.org
 forces a stored-key rename, that is a **migration**, not a silent shim. Stop
 and confirm with the user.
+
+Exception: the Compatibility Mode toggle itself may dual-read leftover
+`_sc_studiocart_compatibility_mode` onto `_ppcart_studiocart_compatibility_mode`
+(UT-201 / IT-275). That is plugin settings for this feature, not store data.
 
 Admin menu/page slugs are an approved exception: slice 9 made a hard cutover
 to `ppcart` / `ppcart-*` and `ppcart_page_*`, with no redirects, dual

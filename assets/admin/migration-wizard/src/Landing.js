@@ -19,7 +19,7 @@ export default function Landing({ status, onStart, onBackup }) {
             <h2>{__('Data migration', 'publishpress-cart-compat')}</h2>
             <p>
                 {__(
-                    'Start runs every incomplete migration step in order (post types → roles → meta → shortcodes → custom tables when needed). You can stop after a chunk and continue later. Restore and delete backups are on Backup & restore.',
+                    'Start runs every incomplete migration step in order (post types → roles → meta → shortcodes → option keys when needed → custom tables when needed). You can stop after a chunk and continue later. Restore and delete backups are on Backup & restore.',
                     'publishpress-cart-compat'
                 )}
             </p>
@@ -62,7 +62,9 @@ function sprintfProgress(complete, total) {
  */
 function StepSummary({ status }) {
     const statuses = status.statuses || {};
+    const options = status.options || {};
     const tables = status.tables || {};
+    const includeOptions = !!(options.needsMigration || options.completedAt);
     const includeTables = !!(tables.needsMigration || tables.completedAt);
     const rows = [
         { slug: 'cpt', label: __('Post types, taxonomies, capabilities', 'publishpress-cart-compat') },
@@ -70,20 +72,30 @@ function StepSummary({ status }) {
         { slug: 'meta', label: __('Meta keys', 'publishpress-cart-compat') },
         { slug: 'shortcodes', label: __('Shortcode tags', 'publishpress-cart-compat') },
     ];
+    if (includeOptions) {
+        rows.push({ slug: 'options', label: __('Option keys', 'publishpress-cart-compat') });
+    }
     if (includeTables) {
         rows.push({ slug: 'tables', label: __('Custom tables', 'publishpress-cart-compat') });
     }
 
     return (
         <ul className="ppcartcomp-migration-landing__steps">
-            {rows.map((row) => (
-                <li key={row.slug} data-status={statuses[row.slug] || 'idle'}>
-                    <span className="ppcartcomp-migration-mark" aria-hidden="true">
-                        {markFor(statuses[row.slug])}
-                    </span>
-                    {row.label}
-                </li>
-            ))}
+            {rows.map((row) => {
+                const mark = statuses[row.slug] || 'idle';
+
+                return (
+                    <li key={row.slug} data-status={mark}>
+                        <span className="ppcartcomp-migration-mark" aria-hidden="true">
+                            {markFor(mark)}
+                        </span>
+                        <span className="ppcartcomp-migration-landing__step-label">{row.label}</span>
+                        <span className="ppcartcomp-migration-landing__step-status">
+                            {statusLabel(mark)}
+                        </span>
+                    </li>
+                );
+            })}
         </ul>
     );
 }
@@ -106,4 +118,24 @@ function markFor(mark) {
         return '…';
     }
     return '○';
+}
+
+/**
+ * @param {string} mark
+ * @return {string}
+ */
+function statusLabel(mark) {
+    if (mark === 'done' || mark === 'skipped') {
+        return __('Completed', 'publishpress-cart-compat');
+    }
+    if (mark === 'running') {
+        return __('Running', 'publishpress-cart-compat');
+    }
+    if (mark === 'paused') {
+        return __('Paused', 'publishpress-cart-compat');
+    }
+    if (mark === 'failed') {
+        return __('Failed', 'publishpress-cart-compat');
+    }
+    return __('Pending', 'publishpress-cart-compat');
 }

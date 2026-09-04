@@ -34,9 +34,13 @@ class TransientsTest extends WPTestCase
     /**
      * @test-id IT-316
      */
-    public function test_IT_316_leftover_transient_rows_copy_onto_canonical_keys(): void
+    public function test_IT_316_leftover_transient_rows_read_without_mutating_then_explicit_copy(): void
     {
         $this->seedLeftoverTransient('sc_stripe_evt_evt_copy_slice24', '1');
+
+        $this->assertSame('1', get_transient('ppcart_stripe_evt_evt_copy_slice24'));
+        $this->assertNotNull(ppcart_get_option_storage_row('_transient_sc_stripe_evt_evt_copy_slice24'));
+        $this->assertNull(ppcart_get_option_storage_row('_transient_ppcart_stripe_evt_evt_copy_slice24'));
 
         $copied = ppcart_maybe_copy_leftover_option_rows(true);
 

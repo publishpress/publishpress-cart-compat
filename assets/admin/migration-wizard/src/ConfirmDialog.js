@@ -120,3 +120,20 @@ export function renameTablesConfirmOptions() {
         isDestructive: true,
     };
 }
+
+/**
+ * General confirm before Start / Continue runs the migration pipeline.
+ *
+ * @return {{ title: string, message: string, confirmText: string, isDestructive: boolean }}
+ */
+export function startMigrationConfirmOptions() {
+    return {
+        title: __('Run data migration', 'publishpress-cart-compat'),
+        message: __(
+            'Run every incomplete migration step now? Take a site backup first and prefer a maintenance window. Leftover StudioCart data will be renamed to PublishPress Cart names.',
+            'publishpress-cart-compat'
+        ),
+        confirmText: __('Run migration', 'publishpress-cart-compat'),
+        isDestructive: true,
+    };
+}

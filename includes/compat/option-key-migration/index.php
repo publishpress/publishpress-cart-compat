@@ -7,9 +7,13 @@ if (! defined('ABSPATH')) {
 /**
  * Copy leftover StudioCart option rows onto canonical ppcart keys.
  *
- * Writes already use canonical names. This package copies leftover rows and
- * deletes them. It does not run a merchant Data-migration walk.
+ * Call only from merchant Data migration (explicit UI). Never from boot,
+ * Compatibility Mode registration, or option read-through. Storage bridges
+ * read leftover rows in place; they must not invoke these helpers.
  */
+
+require_once __DIR__ . '/state.php';
+require_once __DIR__ . '/admin.php';
 
 /**
  * @return array{bulk_ran: bool}
@@ -135,13 +139,14 @@ function ppcart_copy_leftover_option_row($legacy, $canonical)
 /**
  * Copy every leftover mapped option row onto its canonical key.
  *
- * @param bool $force Re-run in this request (tests).
+ * Low-level helper. Prefer ppcart_migrate_option_keys() from Data migration.
+ * Do not call from boot or shims.
+ *
+ * @param bool $force Re-run in this request (tests / explicit migration).
  * @return int Number of leftover rows processed.
  */
 function ppcart_maybe_copy_leftover_option_rows($force = false)
 {
-    global $wpdb;
-
     $state = &ppcart_option_key_migration_runtime();
 
     if ($state['bulk_ran'] && ! $force) {
@@ -150,46 +155,19 @@ function ppcart_maybe_copy_leftover_option_rows($force = false)
 
     $state['bulk_ran'] = true;
 
-    if (! isset($wpdb->options) || ! function_exists('ncs_cart_legacy_to_canonical_option_name')) {
+    if (! function_exists('ncs_cart_legacy_to_canonical_option_name')) {
         return 0;
     }
 
-    if (! is_object($wpdb) || ! method_exists($wpdb, 'get_col') || ! method_exists($wpdb, 'esc_like')) {
-        return 0;
-    }
-
-    $like_underscore_sc          = $wpdb->esc_like('_sc_') . '%';
-    $like_sc                     = $wpdb->esc_like('sc_') . '%';
-    $like_ncs                    = $wpdb->esc_like('ncs_') . '%';
-    $like_transient_sc           = $wpdb->esc_like('_transient_sc_') . '%';
-    $like_transient_timeout_sc   = $wpdb->esc_like('_transient_timeout_sc_') . '%';
-
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One leftover-prefix scan per request until the copier has run.
-    $names = $wpdb->get_col(
-        $wpdb->prepare(
-            "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name IN (%s, %s)",
-            $like_underscore_sc,
-            $like_sc,
-            $like_ncs,
-            $like_transient_sc,
-            $like_transient_timeout_sc,
-            'current_schedule_val',
-            '_my_account'
-        )
-    );
-
-    if (! is_array($names)) {
-        return 0;
-    }
-
+    $names = ppcart_option_key_migration_pending_names();
     $copied = 0;
 
     foreach ($names as $legacy) {
-        if (! ppcart_legacy_option_name_is_copyable($legacy)) {
+        $canonical = ncs_cart_legacy_to_canonical_option_name($legacy);
+
+        if (! is_string($canonical) || '' === $canonical || $canonical === $legacy) {
             continue;
         }
-
-        $canonical = ncs_cart_legacy_to_canonical_option_name($legacy);
 
         if (ppcart_copy_leftover_option_row($legacy, $canonical)) {
             ++$copied;
@@ -197,4 +175,31 @@ function ppcart_maybe_copy_leftover_option_rows($force = false)
     }
 
     return $copied;
+}
+
+/**
+ * Opt-in leftover → canonical option-key migration for Data migration UI.
+ *
+ * Never called from activate, boot, or Compatibility Mode.
+ *
+ * @return array{copied: int, completed_at: int, pending_before: int}
+ */
+function ppcart_migrate_option_keys()
+{
+    $pending_before = count(ppcart_option_key_migration_pending_names());
+    $copied         = ppcart_maybe_copy_leftover_option_rows(true);
+    $completed_at   = time();
+
+    $state = [
+        'completed_at'   => $completed_at,
+        'copied'         => $copied,
+        'pending_before' => $pending_before,
+    ];
+    ppcart_option_key_migration_save_state($state);
+
+    return $state;
+}
+
+if (function_exists('ppcart_option_key_migration_admin_init')) {
+    ppcart_option_key_migration_admin_init();
 }

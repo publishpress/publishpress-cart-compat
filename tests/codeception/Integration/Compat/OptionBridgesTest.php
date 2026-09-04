@@ -27,6 +27,7 @@ class OptionBridgesTest extends WPTestCase
         $this->deleteOptionRow(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME);
         $this->deleteOptionRow('_sc_stripe_test_sk');
         $this->deleteOptionRow('_ppcart_stripe_test_sk');
+        $this->deleteOptionRow(ppcart_option_key_migration_option());
         $this->resetCompatibilityModeFlags();
         PPCartComp_Studiocart_Compatibility_Mode::maybe_register_option_storage_bridges();
     }
@@ -39,6 +40,7 @@ class OptionBridgesTest extends WPTestCase
         $this->deleteOptionRow(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME);
         $this->deleteOptionRow('_sc_stripe_test_sk');
         $this->deleteOptionRow('_ppcart_stripe_test_sk');
+        $this->deleteOptionRow(ppcart_option_key_migration_option());
         parent::tearDown();
     }
 
@@ -72,13 +74,29 @@ class OptionBridgesTest extends WPTestCase
     /**
      * @test-id IT-280
      */
-    public function test_IT_280_leftover_only_option_row_copies_onto_canonical(): void
+    public function test_IT_280_leftover_only_option_row_reads_without_mutating(): void
     {
         $this->seedLegacyOption(self::LEGACY_OPTION, 'leftover-admin@example.test');
 
         $this->assertSame('leftover-admin@example.test', get_option(self::CANONICAL_OPTION));
-        $this->assertTrue($this->optionRowExists(self::CANONICAL_OPTION));
-        $this->assertFalse($this->optionRowExists(self::LEGACY_OPTION));
+        $this->assertFalse($this->optionRowExists(self::CANONICAL_OPTION));
+        $this->assertTrue($this->optionRowExists(self::LEGACY_OPTION));
+    }
+
+    /**
+     * @test-id IT-280
+     */
+    public function test_IT_280_boot_does_not_copy_leftover_option_rows(): void
+    {
+        $this->seedLegacyOption(self::LEGACY_OPTION, 'leftover-admin@example.test');
+
+        $this->resetCompatibilityModeFlags();
+        PPCartComp_Studiocart_Compatibility_Mode::maybe_register_option_storage_bridges();
+
+        $this->assertFalse($this->optionRowExists(self::CANONICAL_OPTION));
+        $this->assertTrue($this->optionRowExists(self::LEGACY_OPTION));
+        $this->assertSame('leftover-admin@example.test', get_option(self::CANONICAL_OPTION));
+        $this->assertTrue($this->optionRowExists(self::LEGACY_OPTION));
     }
 
     /**
@@ -88,6 +106,9 @@ class OptionBridgesTest extends WPTestCase
     {
         $this->seedLegacyOption(self::CANONICAL_OPTION, 'canonical-admin@example.test');
         $this->seedLegacyOption(self::LEGACY_OPTION, 'leftover-admin@example.test');
+
+        $this->assertSame('canonical-admin@example.test', get_option(self::CANONICAL_OPTION));
+        $this->assertTrue($this->optionRowExists(self::LEGACY_OPTION));
 
         $copied = ppcart_maybe_copy_leftover_option_rows(true);
 
@@ -100,7 +121,7 @@ class OptionBridgesTest extends WPTestCase
     /**
      * @test-id IT-280
      */
-    public function test_IT_280_compat_mode_reads_canonical_after_leftover_row_is_gone(): void
+    public function test_IT_280_compat_mode_reads_canonical_after_explicit_option_migration(): void
     {
         $this->seedLegacyOption(self::LEGACY_OPTION, 'leftover-admin@example.test');
         $copied = ppcart_maybe_copy_leftover_option_rows(true);
@@ -133,18 +154,39 @@ class OptionBridgesTest extends WPTestCase
     /**
      * @test-id IT-280
      */
-    public function test_IT_280_secret_ciphertext_round_trips_onto_the_canonical_row(): void
+    public function test_IT_280_secret_ciphertext_reads_then_migrates_without_reencrypt(): void
     {
         $blob = 'PPCARTENC:unit-test-ciphertext-blob';
         $this->seedLegacyOption('_sc_stripe_test_sk', $blob);
 
         $this->assertSame($blob, PPCart_Secrets::get_raw_option_value('_ppcart_stripe_test_sk'));
+        $this->assertFalse($this->optionRowExists('_ppcart_stripe_test_sk'));
+        $this->assertTrue($this->optionRowExists('_sc_stripe_test_sk'));
 
         ppcart_maybe_copy_leftover_option_rows(true);
 
         $this->assertTrue($this->optionRowExists('_ppcart_stripe_test_sk'));
         $this->assertFalse($this->optionRowExists('_sc_stripe_test_sk'));
         $this->assertSame($blob, PPCart_Secrets::get_raw_option_value('_ppcart_stripe_test_sk'));
+    }
+
+    /**
+     * @test-id IT-280
+     */
+    public function test_IT_280_explicit_option_key_migration_persists_completion_state(): void
+    {
+        $this->seedLegacyOption(self::LEGACY_OPTION, 'leftover-admin@example.test');
+
+        $result = ppcart_migrate_option_keys();
+
+        $this->assertGreaterThan(0, $result['copied']);
+        $this->assertTrue($this->optionRowExists(self::CANONICAL_OPTION));
+        $this->assertFalse($this->optionRowExists(self::LEGACY_OPTION));
+        $this->assertFalse(ppcart_option_key_needs_migration());
+
+        $state = ppcart_option_key_migration_state();
+        $this->assertArrayHasKey('completed_at', $state);
+        $this->assertGreaterThan(0, (int) $state['completed_at']);
     }
 
     private function seedLegacyOption(string $option_name, string $value): void

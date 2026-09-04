@@ -339,7 +339,9 @@ if (! function_exists('ppcart_delete_option_from_db')) {
 
 if (! function_exists('ppcart_register_option_storage_bridges')) {
     /**
-     * Always-on leftover option copy-on-read. Writes use canonical wp_options rows.
+     * Always-on leftover option read-through. Does not copy or delete rows.
+     *
+     * Writes use canonical wp_options rows. Key renames are Data migration only.
      *
      * @return void
      */
@@ -387,7 +389,7 @@ if (! function_exists('ppcart_register_legacy_option_api_bridges')) {
 
 if (! function_exists('ppcart_option_storage_bridge_pre_option')) {
     /**
-     * Copy a leftover row onto the canonical key, then let WordPress load it.
+     * Read a leftover row for a canonical key without copying or deleting it.
      *
      * @param mixed  $pre_option Pre-filtered value.
      * @param string $option     Option name.
@@ -407,18 +409,6 @@ if (! function_exists('ppcart_option_storage_bridge_pre_option')) {
         }
 
         if (function_exists('ppcart_get_option_storage_row') && null !== ppcart_get_option_storage_row($option)) {
-            return $pre_option;
-        }
-
-        $copied = false;
-
-        if (function_exists('ppcart_copy_leftover_option_row')) {
-            ncs_cart_option_bridge_enter();
-            $copied = ppcart_copy_leftover_option_row($legacy, $option);
-            ncs_cart_option_bridge_leave();
-        }
-
-        if ($copied) {
             return $pre_option;
         }
 

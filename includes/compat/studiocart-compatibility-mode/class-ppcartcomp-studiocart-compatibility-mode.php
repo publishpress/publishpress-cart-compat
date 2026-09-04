@@ -24,7 +24,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
     private static $legacy_options_registered = false;
 
     /**
-     * Whether leftover option copy-on-read was registered this request.
+     * Whether leftover option read-through was registered this request.
      *
      * @var bool
      */
@@ -236,7 +236,9 @@ class PPCartComp_Studiocart_Compatibility_Mode
     }
 
     /**
-     * Register leftover option copy-on-read and copy leftover rows onto canonical keys.
+     * Register leftover option read-through (no row copy or delete).
+     *
+     * Option key renames run only via merchant Data migration.
      *
      * @return void
      */
@@ -247,10 +249,6 @@ class PPCartComp_Studiocart_Compatibility_Mode
         }
 
         ppcart_register_option_storage_bridges();
-
-        if (function_exists('ppcart_maybe_copy_leftover_option_rows')) {
-            ppcart_maybe_copy_leftover_option_rows();
-        }
 
         self::$option_storage_bridges_registered = true;
     }
@@ -305,7 +303,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
     }
 
     /**
-     * Whether leftover option copy-on-read was registered for this request.
+     * Whether leftover option read-through was registered for this request.
      *
      * @return bool
      */

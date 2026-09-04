@@ -26,10 +26,14 @@ moves to the canonical `PPCart_*` / `ppcart_*` API. When it is off, only
 the canonical Cart API is available.
 
 Stored leftover rows (CPT slugs, leftover shortcode tags in post/email HTML,
-`_sc_*` post meta) stay in the database until an explicit Data migration.
-Shortcode **tags** dual-register here when the mode is on; stored leftover
-shortcode **content** rewrites on the Data migration card
-(`includes/compat/shortcode-tag-migration/`). First-party PHP already saves and
+`_sc_*` post meta, `_sc_*` / `sc_*` option keys and transient option rows) stay
+in the database until an explicit Data migration. Compatibility Mode and boot
+must not copy, rename, or delete those rows. Shortcode **tags** dual-register
+here when the mode is on; stored leftover shortcode **content** rewrites on the
+Data migration card (`includes/compat/shortcode-tag-migration/`). Option key
+renames are the **Option keys** wizard step
+(`includes/compat/option-key-migration/`, AJAX `ppcart_migrate_option_keys`).
+First-party PHP already saves and
 reads canonical `_ppcart_*` post-meta keys; leftover `_sc_*` **names** are
 Compatibility Mode metadata bridges, not a first-party dual-read. This feature
 owns PHP-level shims:

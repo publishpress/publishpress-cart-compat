@@ -153,7 +153,8 @@ class PPCartComp_Data_Migration_Wizard
     {
         $statuses  = self::status_map();
         $tables    = self::tables_payload();
-        $progress  = self::progress_from_status($statuses, $tables);
+        $options   = self::options_payload();
+        $progress  = self::progress_from_status($statuses, $tables, $options);
         $view      = self::requested_view();
         $step      = self::requested_step($progress['firstIncomplete']);
 
@@ -166,6 +167,7 @@ class PPCartComp_Data_Migration_Wizard
             'remaining'    => self::remaining_map(),
             'backupExists' => self::backup_exists_map(),
             'tables'       => $tables,
+            'options'      => $options,
             'progress'     => $progress,
             'urls'         => [
                 'landing' => class_exists('PPCartComp_Studiocart_Admin', false)
@@ -182,11 +184,15 @@ class PPCartComp_Data_Migration_Wizard
     /**
      * @param array<string, string> $statuses Step status map.
      * @param array<string, mixed>  $tables   Tables payload.
+     * @param array<string, mixed>  $options  Options payload.
      * @return array{complete: int, total: int, firstIncomplete: string|null}
      */
-    public static function progress_from_status(array $statuses, array $tables)
+    public static function progress_from_status(array $statuses, array $tables, array $options = [])
     {
         $slugs = [ 'cpt', 'roles', 'meta', 'shortcodes' ];
+        if (self::options_counts_toward_progress($options)) {
+            $slugs[] = 'options';
+        }
         if (self::tables_counts_toward_progress($tables)) {
             $slugs[] = 'tables';
         }
@@ -216,6 +222,15 @@ class PPCartComp_Data_Migration_Wizard
     public static function tables_counts_toward_progress(array $tables)
     {
         return ! empty($tables['needsMigration']) || ! empty($tables['completedAt']);
+    }
+
+    /**
+     * @param array<string, mixed> $options Options payload.
+     * @return bool
+     */
+    public static function options_counts_toward_progress(array $options)
+    {
+        return ! empty($options['needsMigration']) || ! empty($options['completedAt']);
     }
 
     /**
@@ -304,6 +319,10 @@ class PPCartComp_Data_Migration_Wizard
                 'run'   => 'ppcart_migrate_custom_tables',
                 'nonce' => function_exists('wp_create_nonce') ? wp_create_nonce('ppcart_migrate_custom_tables') : '',
             ],
+            'options'   => [
+                'run'   => 'ppcart_migrate_option_keys',
+                'nonce' => function_exists('wp_create_nonce') ? wp_create_nonce('ppcart_migrate_option_keys') : '',
+            ],
         ];
     }
 
@@ -327,13 +346,15 @@ class PPCartComp_Data_Migration_Wizard
         $meta_done = function_exists('ppcart_meta_key_migration_complete') && ppcart_meta_key_migration_complete();
         $sc_done   = function_exists('ppcart_shortcode_tag_migration_complete') && ppcart_shortcode_tag_migration_complete();
 
-        $tables = self::tables_payload();
+        $tables  = self::tables_payload();
+        $options = self::options_payload();
 
         return [
             'cpt'        => self::map_state_status(isset($cpt_state['step1']) ? $cpt_state['step1'] : 'idle', $cpt_done),
             'roles'      => self::map_state_status(isset($cpt_state['step2']) ? $cpt_state['step2'] : 'idle', $role_done),
             'meta'       => self::map_state_status(isset($meta_state['step1']) ? $meta_state['step1'] : 'idle', $meta_done),
             'shortcodes' => self::map_state_status(isset($sc_state['step1']) ? $sc_state['step1'] : 'idle', $sc_done),
+            'options'    => self::options_status($options),
             'tables'     => self::tables_status($tables),
             'backup'     => 'idle',
         ];
@@ -346,7 +367,7 @@ class PPCartComp_Data_Migration_Wizard
     private static function completion_map(array $statuses)
     {
         $out = [];
-        foreach ([ 'cpt', 'roles', 'meta', 'shortcodes', 'tables' ] as $slug) {
+        foreach ([ 'cpt', 'roles', 'meta', 'shortcodes', 'options', 'tables' ] as $slug) {
             $mark         = isset($statuses[ $slug ]) ? $statuses[ $slug ] : 'idle';
             $out[ $slug ] = in_array($mark, [ 'done', 'skipped' ], true);
         }
@@ -374,8 +395,11 @@ class PPCartComp_Data_Migration_Wizard
             $shortcodes = PPCartComp_Shortcode_Tag_Migrator::count_remaining();
         }
 
-        $pending = function_exists('ppcart_custom_table_pending_families')
+        $pending_tables = function_exists('ppcart_custom_table_pending_families')
             ? ppcart_custom_table_pending_families()
+            : [];
+        $pending_options = function_exists('ppcart_option_key_migration_pending_names')
+            ? ppcart_option_key_migration_pending_names()
             : [];
 
         return [
@@ -383,7 +407,8 @@ class PPCartComp_Data_Migration_Wizard
             'roles'      => [],
             'meta'       => $meta,
             'shortcodes' => $shortcodes,
-            'tables'     => [ 'families' => is_array($pending) ? $pending : [] ],
+            'options'    => [ 'rows' => is_array($pending_options) ? count($pending_options) : 0 ],
+            'tables'     => [ 'families' => is_array($pending_tables) ? $pending_tables : [] ],
         ];
     }
 
@@ -412,6 +437,30 @@ class PPCartComp_Data_Migration_Wizard
     }
 
     /**
+     * @return array{needsMigration: bool, completedAt: int|null, pendingCount: int}
+     */
+    private static function options_payload()
+    {
+        $pending = function_exists('ppcart_option_key_migration_pending_names')
+            ? ppcart_option_key_migration_pending_names()
+            : [];
+        $needs = function_exists('ppcart_option_key_needs_migration')
+            ? (bool) ppcart_option_key_needs_migration()
+            : ( is_array($pending) && [] !== $pending );
+        $state = function_exists('ppcart_option_key_migration_state')
+            ? ppcart_option_key_migration_state()
+            : [];
+
+        $completed = isset($state['completed_at']) ? absint($state['completed_at']) : 0;
+
+        return [
+            'needsMigration' => $needs,
+            'completedAt'    => $completed > 0 ? $completed : null,
+            'pendingCount'   => is_array($pending) ? count($pending) : 0,
+        ];
+    }
+
+    /**
      * @param array<string, mixed> $tables Tables payload.
      * @return string
      */
@@ -421,6 +470,22 @@ class PPCartComp_Data_Migration_Wizard
             return 'done';
         }
         if (empty($tables['needsMigration'])) {
+            return 'skipped';
+        }
+
+        return 'idle';
+    }
+
+    /**
+     * @param array<string, mixed> $options Options payload.
+     * @return string
+     */
+    private static function options_status(array $options)
+    {
+        if (! empty($options['completedAt'])) {
+            return 'done';
+        }
+        if (empty($options['needsMigration'])) {
             return 'skipped';
         }
 
@@ -486,7 +551,7 @@ class PPCartComp_Data_Migration_Wizard
      */
     private static function requested_step($fallback)
     {
-        $allowed = [ 'cpt', 'roles', 'meta', 'shortcodes', 'tables', 'backup' ];
+        $allowed = [ 'cpt', 'roles', 'meta', 'shortcodes', 'options', 'tables', 'backup' ];
         if (isset($_GET[ self::STEP_QUERY ]) && is_string($_GET[ self::STEP_QUERY ])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only step key.
             $step = sanitize_key(wp_unslash($_GET[ self::STEP_QUERY ])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only step key.
             if (in_array($step, $allowed, true)) {

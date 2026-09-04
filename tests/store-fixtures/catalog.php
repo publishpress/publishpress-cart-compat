@@ -338,10 +338,11 @@ class Catalog
         $last  = [ 'Rivera', 'Kim', 'Brooks', 'Nguyen', 'Patel', 'Chen', 'Johnson', 'Martinez', 'Wilson', 'Thompson', 'Lopez', 'Adams', 'Singh', 'Garcia', 'Khan', 'Okafor' ];
         $out   = $base;
         for ($i = count($base); $i < $count; $i++) {
-            $out[] = [
-                'first_name' => $first[ $i % count($first) ],
-                'last_name'  => $last[ (int) floor($i / count($first)) % count($last) ] . ' ' . ( $i + 1 ),
-            ];
+            $out[] = self::customer_profile_with_address(
+                $first[ $i % count($first) ],
+                $last[ (int) floor($i / count($first)) % count($last) ] . ' ' . ( $i + 1 ),
+                $i
+            );
         }
 
         return $out;
@@ -352,19 +353,88 @@ class Catalog
      */
     public static function customer_profiles()
     {
+        $names = [
+            [ 'Alex', 'Rivera' ],
+            [ 'Jordan', 'Kim' ],
+            [ 'Taylor', 'Brooks' ],
+            [ 'Casey', 'Nguyen' ],
+            [ 'Riley', 'Patel' ],
+            [ 'Morgan', 'Chen' ],
+            [ 'Avery', 'Johnson' ],
+            [ 'Quinn', 'Martinez' ],
+            [ 'Jamie', 'Wilson' ],
+            [ 'Drew', 'Thompson' ],
+            [ 'Skyler', 'Lopez' ],
+            [ 'Reese', 'Adams' ],
+        ];
+
+        $out = [];
+        foreach ($names as $i => $pair) {
+            $out[] = self::customer_profile_with_address($pair[0], $pair[1], $i);
+        }
+
+        return $out;
+    }
+
+    /**
+     * Leftover StudioCart account-profile fields for one seeded customer.
+     *
+     * @param string $first_name First name.
+     * @param string $last_name  Last name.
+     * @param int    $index      Profile index (varies street / phone).
+     * @return array<string, string>
+     */
+    public static function customer_profile_with_address($first_name, $last_name, $index)
+    {
+        $index   = max(0, (int) $index);
+        $streets = [ 'Market St', 'Mission St', 'Howard St', 'Folsom St', 'Bryant St', 'Brannan St' ];
+        $cities  = [
+            [ 'San Francisco', 'CA', '94105' ],
+            [ 'Oakland', 'CA', '94607' ],
+            [ 'Berkeley', 'CA', '94704' ],
+            [ 'San Jose', 'CA', '95113' ],
+            [ 'Austin', 'TX', '78701' ],
+            [ 'Denver', 'CO', '80202' ],
+        ];
+        $city = $cities[ $index % count($cities) ];
+
+        $profile = [
+            'first_name' => (string) $first_name,
+            'last_name'  => (string) $last_name,
+            'phone'      => sprintf('555-%04d', 100 + ( $index % 9000 )),
+            'address_1'  => sprintf('%d %s', 100 + ( $index * 17 ) % 800, $streets[ $index % count($streets) ]),
+            'city'       => $city[0],
+            'state'      => $city[1],
+            'zip'        => $city[2],
+            'country'    => 'US',
+        ];
+
+        // Every third profile gets a second address line (apartment / suite).
+        if (0 === $index % 3) {
+            $profile['address_2'] = sprintf('Suite %d', 100 + ( $index % 40 ));
+        }
+
+        return $profile;
+    }
+
+    /**
+     * Leftover `_sc_*` user-meta keys written onto seeded customers.
+     *
+     * @return array<int, string>
+     */
+    public static function leftover_user_meta_key_list()
+    {
         return [
-            [ 'first_name' => 'Alex', 'last_name' => 'Rivera' ],
-            [ 'first_name' => 'Jordan', 'last_name' => 'Kim' ],
-            [ 'first_name' => 'Taylor', 'last_name' => 'Brooks' ],
-            [ 'first_name' => 'Casey', 'last_name' => 'Nguyen' ],
-            [ 'first_name' => 'Riley', 'last_name' => 'Patel' ],
-            [ 'first_name' => 'Morgan', 'last_name' => 'Chen' ],
-            [ 'first_name' => 'Avery', 'last_name' => 'Johnson' ],
-            [ 'first_name' => 'Quinn', 'last_name' => 'Martinez' ],
-            [ 'first_name' => 'Jamie', 'last_name' => 'Wilson' ],
-            [ 'first_name' => 'Drew', 'last_name' => 'Thompson' ],
-            [ 'first_name' => 'Skyler', 'last_name' => 'Lopez' ],
-            [ 'first_name' => 'Reese', 'last_name' => 'Adams' ],
+            '_sc_customer_id',
+            '_sc_stripe_customer_id',
+            '_sc_phone',
+            '_sc_address',
+            '_sc_address_1',
+            '_sc_address_2',
+            '_sc_city',
+            '_sc_state',
+            '_sc_zip',
+            '_sc_country',
         ];
     }
 
@@ -504,6 +574,7 @@ class Catalog
         $keys[] = '_sc_tax_amount';
         $keys[] = '_sc_quantity';
         $keys[] = '_sc_renewal_order';
+        $keys   = array_merge($keys, self::leftover_user_meta_key_list());
 
         return array_values(array_unique($keys));
     }

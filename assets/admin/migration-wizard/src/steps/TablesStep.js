@@ -29,7 +29,7 @@ export default function TablesStep({ status, busy }) {
             )}
             <p className="description">
                 {done
-                    ? __('This step is complete.', 'publishpress-cart-compat')
+                    ? __('Completed', 'publishpress-cart-compat')
                     : busy
                         ? __('Waiting for confirmation, then renaming…', 'publishpress-cart-compat')
                         : needs

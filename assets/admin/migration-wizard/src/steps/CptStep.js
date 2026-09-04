@@ -25,7 +25,7 @@ export default function CptStep({ status, busy }) {
             </p>
             <p className="description">
                 {done
-                    ? __('This step is complete.', 'publishpress-cart-compat')
+                    ? __('Completed', 'publishpress-cart-compat')
                     : busy
                         ? __('Running as part of the continuous migration…', 'publishpress-cart-compat')
                         : __(

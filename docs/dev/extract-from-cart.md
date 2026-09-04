@@ -240,7 +240,8 @@ companion shims.
   `prefix-fixtures`
 - `prefix-shortcode-tag-migration`, `prefix-cpt-slugs` (UT-200, IT-269–274),
   custom-table migration (UT-220, IT-300–305)
-- `prefix-transients` leftover `_transient_sc_*` copy (option-key-migration);
+- `prefix-transients` leftover `_transient_sc_*` read-through + explicit
+  Data migration copy (`option-key-migration/`; never boot-copy);
   Cart canonical transient tests stay
 - `CptSlugMigrationTestCase.php`, `Unit/Compat/*`, `Integration/Compat/*`,
   migration Prefix/CustomTables PHP

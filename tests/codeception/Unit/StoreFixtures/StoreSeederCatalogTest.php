@@ -42,6 +42,22 @@ class StoreSeederCatalogTest extends Unit
             $this->assertStringStartsWith('_sc_', $key);
         }
 
+        foreach (Catalog::leftover_user_meta_key_list() as $key) {
+            $this->assertStringStartsWith('_sc_', $key);
+            $this->assertContains($key, Catalog::leftover_meta_key_list());
+        }
+
+        $profile = Catalog::customer_profiles()[0];
+        $this->assertArrayHasKey('phone', $profile);
+        $this->assertArrayHasKey('address_1', $profile);
+        $this->assertArrayHasKey('city', $profile);
+        $this->assertArrayHasKey('state', $profile);
+        $this->assertArrayHasKey('zip', $profile);
+        $this->assertArrayHasKey('country', $profile);
+        $this->assertSame('US', $profile['country']);
+        $this->assertArrayHasKey('address_2', Catalog::customer_profiles()[0]);
+        $this->assertArrayNotHasKey('address_2', Catalog::customer_profiles()[1]);
+
         $pay = Catalog::product_catalog()[0]['meta']['_sc_pay_options'][0];
         $this->assertArrayHasKey('option_id', $pay);
         $this->assertArrayHasKey('option_name', $pay);

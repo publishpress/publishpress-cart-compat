@@ -24,7 +24,7 @@ export default function RolesStep({ status, busy }) {
             )}
             <p className="description">
                 {done
-                    ? __('This step is complete.', 'publishpress-cart-compat')
+                    ? __('Completed', 'publishpress-cart-compat')
                     : busy
                         ? __('Running as part of the continuous migration…', 'publishpress-cart-compat')
                         : __('This step runs automatically with Start / Continue.', 'publishpress-cart-compat')}

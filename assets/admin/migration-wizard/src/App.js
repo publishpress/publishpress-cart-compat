@@ -4,7 +4,7 @@ import { post } from './api';
 import { fetchStatus } from './status';
 import { createChunkLoop } from './chunkLoop';
 import { readQuery, writeQuery } from './url';
-import { renameTablesConfirmOptions, useConfirm } from './ConfirmDialog';
+import { renameTablesConfirmOptions, startMigrationConfirmOptions, useConfirm } from './ConfirmDialog';
 import Landing from './Landing';
 import Wizard, { wizardSteps } from './Wizard';
 
@@ -98,6 +98,9 @@ export default function App({ config }) {
         if (pkg === 'tables') {
             return actions.tables;
         }
+        if (pkg === 'options') {
+            return actions.options;
+        }
         return null;
     }, []);
 
@@ -165,6 +168,27 @@ export default function App({ config }) {
                 });
             }
 
+            if (slug === 'options') {
+                const actions = packageFromStatus(snapshot, 'options');
+                const options = snapshot.options || {};
+                if (!options.needsMigration) {
+                    return { ok: true, skipped: true };
+                }
+                if (!actions || !actions.run) {
+                    return { ok: false };
+                }
+                currentPkgRef.current = 'options';
+                setMessage(statusText('running'));
+                const optionsResult = await ajaxPost({
+                    action: actions.run,
+                    nonce: actions.nonce,
+                });
+                if (optionsResult && optionsResult.ok !== false) {
+                    setMessage(statusText('done'));
+                }
+                return optionsResult;
+            }
+
             if (slug === 'tables') {
                 const actions = packageFromStatus(snapshot, 'tables');
                 const tables = snapshot.tables || {};
@@ -180,10 +204,14 @@ export default function App({ config }) {
                     return { ok: true, skipped: true, cancelled: true };
                 }
                 setMessage(statusText('running'));
-                return ajaxPost({
+                const tablesResult = await ajaxPost({
                     action: actions.run,
                     nonce: actions.nonce,
                 });
+                if (tablesResult && tablesResult.ok !== false) {
+                    setMessage(statusText('done'));
+                }
+                return tablesResult;
             }
 
             return { ok: true, skipped: true };
@@ -196,6 +224,11 @@ export default function App({ config }) {
             return;
         }
 
+        const agreed = await confirm(startMigrationConfirmOptions());
+        if (!agreed) {
+            return;
+        }
+
         abortRef.current = false;
         setBusy(true);
         setAutoRunning(true);
@@ -204,7 +237,11 @@ export default function App({ config }) {
 
         let latest = await refreshStatus();
         const tables = latest.tables || {};
+        const options = latest.options || {};
         const pipeline = [ 'cpt', 'roles', 'meta', 'shortcodes' ];
+        if (options.needsMigration) {
+            pipeline.push('options');
+        }
         if (tables.needsMigration) {
             pipeline.push('tables');
         }
@@ -249,7 +286,7 @@ export default function App({ config }) {
         } else if (!stopped && latest.progress && latest.progress.firstIncomplete) {
             showStep(latest.progress.firstIncomplete);
         }
-    }, [busy, loop, refreshStatus, runOneStep, showStep]);
+    }, [busy, confirm, loop, refreshStatus, runOneStep, showStep]);
 
     const onStop = useCallback(async () => {
         abortRef.current = true;
@@ -295,8 +332,9 @@ export default function App({ config }) {
         [ajaxPost, packageFromStatus, refreshStatus]
     );
 
+    const includeOptions = !!(status.options && (status.options.needsMigration || status.options.completedAt));
     const includeTables = !!(status.tables && (status.tables.needsMigration || status.tables.completedAt));
-    const steps = wizardSteps(includeTables);
+    const steps = wizardSteps(includeOptions, includeTables);
     const hasWork = !!(status.progress && status.progress.firstIncomplete);
 
     const startWizard = () => {
@@ -355,7 +393,7 @@ function statusText(code) {
         return __('Paused. Use Continue to resume from the first incomplete step.', 'publishpress-cart-compat');
     }
     if (code === 'done') {
-        return __('This step is complete.', 'publishpress-cart-compat');
+        return __('Completed', 'publishpress-cart-compat');
     }
     if (code === 'error') {
         return __('The migration request failed.', 'publishpress-cart-compat');

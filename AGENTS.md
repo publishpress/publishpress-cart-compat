@@ -17,6 +17,7 @@ Do not invent process. Do not clone the handbook.
 5. PHP: obey **this** plugin’s declared minimum (`composer.json` / plugin header). No newer syntax without a fallback.
 6. After behavior changes, run the tests this repo already has. Do not invent a full suite.
 7. Do not search `lib/vendor/`, `vendor/`, or `node_modules/` for how this plugin works.
+8. **No silent data migration.** Leftover StudioCart storage (option keys, post meta, CPT slugs, shortcode content, custom tables, roles, …) must not be copied, renamed, or deleted on activate, boot, Compatibility Mode toggle, or read-through. Only merchant Data migration (explicit UI) may mutate those rows. PHP shims leave leftover rows in place.
 
 ## This plugin
 

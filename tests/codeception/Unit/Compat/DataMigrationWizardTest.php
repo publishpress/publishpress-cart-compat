@@ -53,6 +53,9 @@ class DataMigrationWizardTest extends Unit
         if (! function_exists('ppcart_shortcode_tag_migration_get_state')) {
             require_once PPCARTCOMP_PLUGIN_ROOT . 'includes/compat/shortcode-tag-migration/state.php';
         }
+        if (! function_exists('ppcart_option_key_migration_state')) {
+            require_once PPCARTCOMP_PLUGIN_ROOT . 'includes/compat/option-key-migration/index.php';
+        }
         if (! class_exists('PPCartComp_Meta_Key_Migration_Admin', false)) {
             require_once PPCARTCOMP_PLUGIN_ROOT . 'includes/compat/meta-key-migration/class-ppcartcomp-meta-key-migration-admin.php';
         }
@@ -83,29 +86,40 @@ class DataMigrationWizardTest extends Unit
             'roles'      => 'idle',
             'meta'       => 'idle',
             'shortcodes' => 'idle',
+            'options'    => 'skipped',
             'tables'     => 'skipped',
             'backup'     => 'idle',
         ];
-        $skipped_tables = PPCartComp_Data_Migration_Wizard::progress_from_status(
+        $none = PPCartComp_Data_Migration_Wizard::progress_from_status(
             $idle,
+            [ 'needsMigration' => false, 'completedAt' => null ],
             [ 'needsMigration' => false, 'completedAt' => null ]
         );
-        $this->assertSame(4, $skipped_tables['total']);
-        $this->assertSame(0, $skipped_tables['complete']);
-        $this->assertSame('cpt', $skipped_tables['firstIncomplete']);
+        $this->assertSame(4, $none['total']);
+        $this->assertSame(0, $none['complete']);
+        $this->assertSame('cpt', $none['firstIncomplete']);
 
-        $needed = PPCartComp_Data_Migration_Wizard::progress_from_status(
-            array_merge($idle, [ 'tables' => 'idle' ]),
+        $options_needed = PPCartComp_Data_Migration_Wizard::progress_from_status(
+            array_merge($idle, [ 'options' => 'idle' ]),
+            [ 'needsMigration' => false, 'completedAt' => null ],
             [ 'needsMigration' => true, 'completedAt' => null ]
         );
-        $this->assertSame(5, $needed['total']);
+        $this->assertSame(5, $options_needed['total']);
 
-        $ran = PPCartComp_Data_Migration_Wizard::progress_from_status(
-            array_merge($idle, [ 'tables' => 'done' ]),
+        $tables_needed = PPCartComp_Data_Migration_Wizard::progress_from_status(
+            array_merge($idle, [ 'tables' => 'idle' ]),
+            [ 'needsMigration' => true, 'completedAt' => null ],
+            [ 'needsMigration' => false, 'completedAt' => null ]
+        );
+        $this->assertSame(5, $tables_needed['total']);
+
+        $both = PPCartComp_Data_Migration_Wizard::progress_from_status(
+            array_merge($idle, [ 'options' => 'done', 'tables' => 'done' ]),
+            [ 'needsMigration' => false, 'completedAt' => 1700000000 ],
             [ 'needsMigration' => false, 'completedAt' => 1700000000 ]
         );
-        $this->assertSame(5, $ran['total']);
-        $this->assertSame(1, $ran['complete']);
+        $this->assertSame(6, $both['total']);
+        $this->assertSame(2, $both['complete']);
     }
 
     /**
@@ -119,8 +133,10 @@ class DataMigrationWizardTest extends Unit
                 'roles'      => 'paused',
                 'meta'       => 'idle',
                 'shortcodes' => 'idle',
+                'options'    => 'skipped',
                 'tables'     => 'skipped',
             ],
+            [ 'needsMigration' => false, 'completedAt' => null ],
             [ 'needsMigration' => false, 'completedAt' => null ]
         );
         $this->assertSame('roles', $progress['firstIncomplete']);
@@ -132,8 +148,10 @@ class DataMigrationWizardTest extends Unit
                 'roles'      => 'done',
                 'meta'       => 'done',
                 'shortcodes' => 'done',
+                'options'    => 'skipped',
                 'tables'     => 'skipped',
             ],
+            [ 'needsMigration' => false, 'completedAt' => null ],
             [ 'needsMigration' => false, 'completedAt' => null ]
         );
         $this->assertNull($all_done['firstIncomplete']);
@@ -177,6 +195,7 @@ class DataMigrationWizardTest extends Unit
                 'remaining',
                 'backupExists',
                 'tables',
+                'options',
                 'progress',
                 'urls',
                 'initialView',
@@ -191,7 +210,9 @@ class DataMigrationWizardTest extends Unit
         $this->assertArrayHasKey('meta', $payload['actions']);
         $this->assertArrayHasKey('shortcode', $payload['actions']);
         $this->assertArrayHasKey('tables', $payload['actions']);
+        $this->assertArrayHasKey('options', $payload['actions']);
         $this->assertSame(PPCartComp_Data_Migration_Wizard::AJAX_STATUS, $payload['actions']['status']);
+        $this->assertSame('ppcart_migrate_option_keys', $payload['actions']['options']['run']);
 
         $this->assertArrayHasKey('cpt', $payload['backupExists']);
         $this->assertArrayHasKey('meta', $payload['backupExists']);
@@ -200,13 +221,16 @@ class DataMigrationWizardTest extends Unit
 
         $this->assertArrayHasKey('needsMigration', $payload['tables']);
         $this->assertArrayHasKey('completedAt', $payload['tables']);
+        $this->assertArrayHasKey('needsMigration', $payload['options']);
+        $this->assertArrayHasKey('completedAt', $payload['options']);
+        $this->assertArrayHasKey('pendingCount', $payload['options']);
 
         $this->assertArrayHasKey('complete', $payload['progress']);
         $this->assertArrayHasKey('total', $payload['progress']);
         $this->assertArrayHasKey('firstIncomplete', $payload['progress']);
-        $this->assertContains($payload['progress']['total'], [ 4, 5 ]);
+        $this->assertContains($payload['progress']['total'], [ 4, 5, 6 ]);
 
-        foreach ([ 'cpt', 'roles', 'meta', 'shortcodes', 'tables' ] as $slug) {
+        foreach ([ 'cpt', 'roles', 'meta', 'shortcodes', 'options', 'tables' ] as $slug) {
             $this->assertArrayHasKey($slug, $payload['statuses']);
             $this->assertArrayHasKey($slug, $payload['completion']);
         }

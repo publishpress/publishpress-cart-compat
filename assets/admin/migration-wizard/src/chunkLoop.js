@@ -45,6 +45,9 @@ export function createChunkLoop({ post, onStatus }) {
                     return last;
                 }
                 if (!loopUntilDone) {
+                    if (last.done && onStatus) {
+                        onStatus('done');
+                    }
                     return last;
                 }
             }

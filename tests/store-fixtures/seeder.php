@@ -391,6 +391,7 @@ class Seeder
             if (0 === $i % 2) {
                 update_user_meta($user_id, '_sc_stripe_customer_id', 'cus_stripe_seed_' . $user_id);
             }
+            $this->seed_customer_leftover_usermeta($user_id, $profile);
             $this->track('users', $user_id, [ 'login' => $login ]);
             $records[]              = [
                 'user_id' => $user_id,
@@ -401,6 +402,42 @@ class Seeder
         }
 
         return $records;
+    }
+
+    /**
+     * Write leftover StudioCart account-profile user-meta for migration QA.
+     *
+     * @param int                   $user_id User ID.
+     * @param array<string, string> $profile Profile fields.
+     * @return void
+     */
+    private function seed_customer_leftover_usermeta($user_id, array $profile)
+    {
+        $user_id = (int) $user_id;
+        if ($user_id <= 0) {
+            return;
+        }
+
+        $map = [
+            'phone'     => '_sc_phone',
+            'address_1' => '_sc_address_1',
+            'address_2' => '_sc_address_2',
+            'city'      => '_sc_city',
+            'state'     => '_sc_state',
+            'zip'       => '_sc_zip',
+            'country'   => '_sc_country',
+        ];
+
+        foreach ($map as $field => $meta_key) {
+            if (! isset($profile[ $field ]) || '' === (string) $profile[ $field ]) {
+                continue;
+            }
+            update_user_meta($user_id, $meta_key, (string) $profile[ $field ]);
+        }
+
+        if (! empty($profile['address_1'])) {
+            update_user_meta($user_id, '_sc_address', '1');
+        }
     }
 
     /**
