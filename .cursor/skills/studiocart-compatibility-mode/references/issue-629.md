@@ -62,8 +62,8 @@ Add or update entries in `maps/{set}.php` when the canonical symbol moves:
 
 New shim files stay in the package:
 
-- `functions.php` — wrappers `function sc_foo() { return ppcart_foo(...); }`
-- `hooks.php` — bridges so listeners on `studiocart_*` / shipped `sc_*` still run
+- `functions/` — lazy-loaded wrappers `function sc_foo() { return ppcart_foo(...); }` (sharded under `functions/*.php`, loaded via `functions/index.php`)
+- `hooks/` + `hooks.php` shim — bridges so listeners on `studiocart_*` / shipped `sc_*` still run
 
 Load them from `maybe_register_*` on `PPCart_Studiocart_Compatibility_Mode`, not from `publishpress-cart.php` directly.
 

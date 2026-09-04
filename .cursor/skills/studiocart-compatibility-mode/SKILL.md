@@ -59,6 +59,9 @@ includes/compat/studiocart-compatibility-mode/
   maps/hooks.php                                     # not a class map; skipped by the glob
   maps/options.php                                   # not a class map; skipped by the glob
   maps/cpt-taxonomy.php                              # leftover FSE/rewrite; skipped by the glob
+  functions/                                         # lazy-loaded sc_* / ncs_* wrappers (see index.php)
+  hooks/                                             # hook bridge runtime (loaded via hooks.php shim)
+  hooks.php                                          # thin shim → hooks/index.php
   cpt-taxonomy.php                                   # leftover FSE template + rewrite when on
   css/ppcart-compat-admin.css                        # leftover CPT/HTML selectors
   css/ppcart-compat-public.css                       # leftover storefront selectors

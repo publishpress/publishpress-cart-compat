@@ -333,7 +333,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
             return;
         }
 
-        $functions_file = __DIR__ . '/functions.php';
+        $functions_file = __DIR__ . '/functions/index.php';
 
         if (! is_readable($functions_file)) {
             return;

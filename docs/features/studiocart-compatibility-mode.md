@@ -74,7 +74,7 @@ shim. Restore from those backups is unavailable after they are dropped.
 First-party Cart fires `ppcart_*` / `_ppcart_*` hooks and plugin-identity
 `ppcart-*` hooks only. Legacy `sc_*`, `studiocart_*`, `_sc_*`, `ncs_*`,
 `nsc_*`, and shipped `ncs-cart-*` **extension** hook names live only in this
-package (`hooks.php`, `maps/hooks.php`):
+package (`hooks/` + `hooks.php` shim, `maps/hooks.php`):
 
 - **Compatibility Mode on** — dual-fire and reverse-fire so third-party
   `add_action( 'sc_*' )` listeners still run.
