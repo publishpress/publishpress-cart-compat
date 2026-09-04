@@ -110,6 +110,13 @@ modules:
     features: [studiocart-compatibility-mode]
     notes: Compatibility Mode 302s leftover sc-csv-export onto ppcart-csv-export. First-party CSV export is canonical only.
 
+  - id: prefix-integration-repeater
+    name: Leftover integration repeater field-id copy
+    suites: [unit, integration]
+    test_range: UT-263, IT-339
+    features: [studiocart-compatibility-mode]
+    notes: Compatibility Mode copies leftover sc_sub_prod_id / sc_sub_plan_id / sc_sub_cancel onto ppcart_sub_* inner keys. Stored rows are not rewritten.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]

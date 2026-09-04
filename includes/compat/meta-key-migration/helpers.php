@@ -220,14 +220,23 @@ function ppcart_get_post_meta($post_id, $name, $single = true)
     $legacy    = ppcart_legacy_meta_key($name);
 
     if (ppcart_meta_key_exists($post_id, 'post', $canonical)) {
-        return get_post_meta($post_id, $canonical, $single);
+        $value = get_post_meta($post_id, $canonical, $single);
+    } elseif ($legacy !== $canonical && ppcart_meta_key_exists($post_id, 'post', $legacy)) {
+        $value = get_post_meta($post_id, $legacy, $single);
+    } else {
+        $value = get_post_meta($post_id, $canonical, $single);
     }
 
-    if ($legacy !== $canonical && ppcart_meta_key_exists($post_id, 'post', $legacy)) {
-        return get_post_meta($post_id, $legacy, $single);
+    if (
+        $single
+        && is_array($value)
+        && 'integrations' === ppcart_meta_key_suffix($name)
+        && function_exists('ppcart_maybe_copy_legacy_integration_repeater_rows')
+    ) {
+        $value = ppcart_maybe_copy_legacy_integration_repeater_rows($value);
     }
 
-    return get_post_meta($post_id, $canonical, $single);
+    return $value;
 }
 
 /**
