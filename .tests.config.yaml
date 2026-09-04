@@ -179,6 +179,12 @@ modules:
     test_range: UT-243
     features: []
 
+  - id: studiocart-conflict
+    name: Refuse to load beside leftover Studiocart
+    suites: [unit]
+    test_range: UT-244–UT-245
+    features: []
+
 suites:
   unit:
     label: Unit tests

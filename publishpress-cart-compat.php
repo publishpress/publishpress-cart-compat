@@ -43,22 +43,42 @@ if (version_compare($wp_version, PPCARTCOMP_MINIMUM_WP_VERSION, '<')) {
     return;
 }
 
-define('PPCARTCOMP_LOADED', true);
-
-if (! defined('PPCARTCOMP_VERSION')) {
-    define('PPCARTCOMP_VERSION', '1.0.0');
+if (! defined('PPCARTCOMP_BASE_FILE')) {
+    define('PPCARTCOMP_BASE_FILE', __FILE__);
 }
 
 if (! defined('PPCARTCOMP_BASE_DIR')) {
     define('PPCARTCOMP_BASE_DIR', plugin_dir_path(__FILE__));
 }
 
-if (! defined('PPCARTCOMP_BASE_URL')) {
-    define('PPCARTCOMP_BASE_URL', plugin_dir_url(__FILE__));
+require_once PPCARTCOMP_BASE_DIR . 'includes/class-ppcartcomp-studiocart-conflict.php';
+
+if (! function_exists('ppcartcomp_refuse_studiocart_activation')) {
+    /**
+     * @return void
+     */
+    function ppcartcomp_refuse_studiocart_activation()
+    {
+        PPCartComp_Studiocart_Conflict::on_activate(PPCARTCOMP_BASE_FILE);
+    }
 }
 
-if (! defined('PPCARTCOMP_BASE_FILE')) {
-    define('PPCARTCOMP_BASE_FILE', __FILE__);
+register_activation_hook(PPCARTCOMP_BASE_FILE, 'ppcartcomp_refuse_studiocart_activation');
+
+if (PPCartComp_Studiocart_Conflict::is_active()) {
+    PPCartComp_Studiocart_Conflict::register_notice();
+
+    return;
+}
+
+define('PPCARTCOMP_LOADED', true);
+
+if (! defined('PPCARTCOMP_VERSION')) {
+    define('PPCARTCOMP_VERSION', '1.0.0');
+}
+
+if (! defined('PPCARTCOMP_BASE_URL')) {
+    define('PPCARTCOMP_BASE_URL', plugin_dir_url(__FILE__));
 }
 
 if (! function_exists('ppcartcomp_cart_is_loaded')) {
