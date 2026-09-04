@@ -1,11 +1,11 @@
 ---
 name: prefix-leftover-slice
 description: >-
-  Companion half of leftover prefix slices 32–42 (issue #629). Adds
+  Companion half of leftover prefix slices 43+ (issue #629). Adds
   Compatibility Mode maps, leftover aliases, and catalog tests in
   publishpress-cart-compat after Cart first-party is renamed. Use when the
   user asks to run a leftover prefix slice, prefix-leftovers-remaining.md,
-  sc_make_, sc_view_log, sc_order_pending, sc-csv-export, or Compatibility
+  sc-webhook, sc-api, before_sc_order_refund, or Compatibility
   Mode bridges for a leftover family.
 ---
 

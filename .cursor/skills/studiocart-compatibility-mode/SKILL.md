@@ -209,6 +209,6 @@ to “keep BC”.
 ## Related
 
 - [issue-629.md](references/issue-629.md) — prefix rename slices
-- [prefix-leftover-slice](../prefix-leftover-slice/SKILL.md) — leftover families 32–42
+- [prefix-leftover-slice](../prefix-leftover-slice/SKILL.md) — leftover families 43+
 - [docs/dev/prefix-standardization.md](../../../docs/dev/prefix-standardization.md) — official #629 map, leftover tracker, Pro contract
 - [plugin-features](../plugin-features/SKILL.md) — catalog

@@ -68,4 +68,4 @@ Local DDEV database dump: `composer site:backup` / `composer site:restore`.
 - New PHP files: one concern, under 500 lines. Move code; don't rewrite public APIs.
 - Test catalog + Playwright/Codeception: `.cursor/skills/test-authoring/`.
 - Feature records: `.cursor/skills/plugin-features/`.
-- Leftover prefix slices 32–42: `.cursor/skills/prefix-leftover-slice/` (Cart playbook; this repo owns Compat maps/tests).
+- Leftover prefix slices 43+: `.cursor/skills/prefix-leftover-slice/` (Cart playbook; this repo owns Compat maps/tests).
