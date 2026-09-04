@@ -89,6 +89,13 @@ modules:
     test_range: UT-254, IT-335
     features: [studiocart-compatibility-mode]
 
+  - id: prefix-integration-hooks
+    name: Leftover integration trigger tag bridges
+    suites: [unit, integration]
+    test_range: UT-256, IT-336
+    features: [studiocart-compatibility-mode]
+    notes: Mechanical sc_ → ppcart_ hook bridge for sc_order_* / sc_subscription_* / sc_renewal_*. Leftover listeners run only while Compatibility Mode is on.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]

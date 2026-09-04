@@ -36,6 +36,9 @@ return [
         'ncs-cart-currency-symbols'         => 'ppcart_currency_symbols',
         'ncs-cart-zero-decimal-currency'    => 'ppcart_zero_decimal_currency',
     ],
+    // Slice 34 integration triggers (`sc_order_*` / `sc_subscription_*` /
+    // `sc_renewal_*`) use the mechanical sc_ → ppcart_ rule. Do not add 1:1
+    // extras unless a leftover name is not a mechanical prefix.
     'extra' => [
         'ppcart_after_order_paid' => [
             'studiocart_checkout_complete',
