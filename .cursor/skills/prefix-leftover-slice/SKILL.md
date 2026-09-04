@@ -20,6 +20,14 @@ This repo owns leftover **names** (maps, wrappers, gated redirects) and
 Compat-on tests. Cart owns first-party canonical code, the leftover inventory,
 and the Pro contract.
 
+## Unbreakable: leftover read/write lives here
+
+Cart first-party never dual-reads, dual-writes, or falls back to leftover
+names. Any secondary or compatibility read/write of leftover keys, values,
+GET/POST, hooks, or URLs belongs **only** in this plugin (Compatibility Mode
+package, or Data migration when the merchant opts in). Do not add leftover
+fallbacks to `publishpress-cart`.
+
 ## This repo
 
 1. Do not rename leftover names in maps until Cart first-party is canonical.
