@@ -2,6 +2,7 @@
 - .bench-admin
 - .claude
 - .cursorignore
+- .ddev
 - .distignore
 - .env
 - .env.example
@@ -21,8 +22,10 @@
 - .rsync-filters-sync
 - .tests.config.yaml
 - .vscode
+- .web
 - .wordpress-org
 - .zed
+- .zshrc
 - *.ansi.txt
 - *.code-workspace
 - /.cache
@@ -49,11 +52,13 @@
 - /webpack.config.js
 - /yarn.lock
 - admin/scss
+- AGENTS.md
 - builder.yml
 - CHANGELOG.md
 - codeception.dist.yml
 - codeception.yml
 - codegraph.json
+- CONTEXT.md
 - cs
 - gh_token.txt
 - graphify-out/
@@ -77,5 +82,4 @@
 - RoboFile.php
 - screenshot-*.png
 - tmp/
-- .web
-- .ddev
+- wp-cli.yml
