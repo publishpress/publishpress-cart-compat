@@ -56,7 +56,7 @@ Do not search `lib/vendor/`, `vendor/`, or `node_modules/` (see `.cursorignore`)
 | Admin e2e | `tests/playwright/admin/` | `composer test:admin` |
 | Smoke | `tests/playwright/smoke/` | see `tests/README.md` |
 
-Dev seed for Data migration leftovers: `wp ppcartcomp seed-migration` (also `composer seed:migration` / `./bin/seed-migration`).
+Dev seed for Data migration leftovers: `wp ppcartcomp seed-migration` (also `composer seed:migration` / `./bin/seed-migration`). Guide: [docs/testing/seed-migration-data.md](docs/testing/seed-migration-data.md).
 
 Test-only leftover StudioCart store: `composer seed:store` / `./bin/seed-store` / `ddev seed-store` (loads `tests/store-fixtures/`, not plugin `includes/`).
 

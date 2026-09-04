@@ -16,8 +16,11 @@ Compatibility Mode, leftover maps, and Data migration.
 .tests.config.yaml
 docs/testing/cases/unit/
 docs/testing/cases/integration/
+docs/testing/seed-migration-data.md
 tests/README.md
 ```
+
+Seeding leftovers for the Data migration wizard: [seed-migration-data.md](seed-migration-data.md).
 
 | Suite | Prefix | Runner |
 |-------|--------|--------|

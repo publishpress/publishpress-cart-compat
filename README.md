@@ -25,7 +25,7 @@ npm install && npm run build:admin   # migration wizard React assets
 
 ### Seed migration leftovers
 
-Works on any site where WP-CLI can load active Cart + Cart Compatibility:
+Works on any site where WP-CLI can load active Cart + Cart Compatibility. Full guide: [docs/testing/seed-migration-data.md](docs/testing/seed-migration-data.md).
 
 ```bash
 wp ppcartcomp seed-migration

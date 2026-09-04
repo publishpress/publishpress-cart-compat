@@ -37,6 +37,8 @@ Keep the same IT/UT ids as Cart when a leftover assertion moved here.
 
 `tests/store-fixtures/` plants a working leftover store (`sc_product`, `_sc_*`, `[studiocart-form]`) on the cart-compat site. Not loaded by the plugin.
 
+How-to (both seeders, flags, wizard flow): [docs/testing/seed-migration-data.md](../docs/testing/seed-migration-data.md).
+
 ```bash
 composer seed:store
 ./bin/seed-store --reset
