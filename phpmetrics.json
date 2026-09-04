@@ -1,0 +1,29 @@
+{
+    "includes": [
+        "includes",
+        "publishpress-cart-compat.php"
+    ],
+    "excludes": [
+        ".cursor",
+        ".ddev",
+        ".git",
+        ".github",
+        ".web",
+        "assets",
+        "dev-workspace-cache",
+        "dev-workspace",
+        "dist",
+        "docs",
+        "languages",
+        "lib",
+        "lib/vendor",
+        "logs",
+        "metrics",
+        "node_modules",
+        "tests",
+        "vendor"
+    ],
+    "report": {
+        "html": "metrics"
+    }
+}
