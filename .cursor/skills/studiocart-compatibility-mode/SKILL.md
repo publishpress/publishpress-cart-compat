@@ -74,8 +74,8 @@ again after those defaults. Unit bootstrap uses the same path.
 Each class `maps/*.php` file returns `array<string, array<int, string>>`.
 The class-alias glob skips `index.php`, `options.php`, `hooks.php`,
 `constants.php`, `shortcodes.php`, `ajax.php`, `nonces.php`,
-`request-fields.php`, `stripe-metadata.php`, `cpt-taxonomy.php`, and
-`integration-repeater-fields.php`.
+`request-fields.php`, `stripe-metadata.php`, `cpt-taxonomy.php`,
+`integration-repeater-fields.php`, and `invoice-format-values.php`.
 
 ### Gates
 

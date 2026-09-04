@@ -117,6 +117,13 @@ modules:
     features: [studiocart-compatibility-mode]
     notes: Compatibility Mode copies leftover sc_sub_prod_id / sc_sub_plan_id / sc_sub_cancel onto ppcart_sub_* inner keys. Stored rows are not rewritten.
 
+  - id: prefix-invoice-format
+    name: Leftover invoice format value map
+    suites: [unit, integration]
+    test_range: UT-265, IT-340
+    features: [studiocart-compatibility-mode]
+    notes: Compatibility Mode maps leftover sc_pns / sc_pn / sc_ns / sc_n onto ppcart_* via ppcart_invoice_format. Stored option rows are not rewritten.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]

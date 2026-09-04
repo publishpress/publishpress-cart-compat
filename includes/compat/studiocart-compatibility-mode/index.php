@@ -12,6 +12,7 @@ require_once __DIR__ . '/ajax.php';
 require_once __DIR__ . '/request-fields.php';
 require_once __DIR__ . '/stripe-metadata.php';
 require_once __DIR__ . '/integration-repeater-fields.php';
+require_once __DIR__ . '/invoice-format.php';
 require_once __DIR__ . '/cpt-taxonomy.php';
 require_once __DIR__ . '/shortcodes.php';
 require_once __DIR__ . '/constants.php';
