@@ -1,0 +1,27 @@
+# Integration suite configuration
+#
+# Run integration and "WordPress unit" tests.
+
+actor: IntegrationTester
+bootstrap: _bootstrap.php
+modules:
+    enabled:
+        - lucatume\WPBrowser\Module\WPLoader
+    config:
+        lucatume\WPBrowser\Module\WPLoader:
+            wpRootFolder: "%WP_TESTS_ROOT_DIR%"
+            dbUrl: "%WP_TESTS_DB_URL%"
+            wpDebug: true
+            tablePrefix: '%WP_TESTS_TEST_TABLE_PREFIX%'
+            domain: '%WP_TESTS_DOMAIN%'
+            adminEmail: 'admin@%WP_TESTS_DOMAIN%'
+            dump: 'tests/codeception/Support/Data/dump.sql'
+            title: 'Integration Tests'
+            theme: 'twentytwentyfive'
+            WP_PLUGIN_DIR: '%PPCARTCOMP_TEST_PLUGINS_DIR%'
+            plugins:
+                - publishpress-cart/publishpress-cart.php
+                - publishpress-cart-compat/publishpress-cart-compat.php
+            activatePlugins:
+                - publishpress-cart/publishpress-cart.php
+                - publishpress-cart-compat/publishpress-cart-compat.php

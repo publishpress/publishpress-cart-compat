@@ -28,7 +28,7 @@ Feature record: [docs/features/studiocart-compatibility-mode.md](../../../docs/f
 
 | Rule | Detail |
 |------|--------|
-| It is a **feature** | Catalog id `studiocart-compatibility-mode`, edition **free**, Settings → StudioCart |
+| It is a **feature** | Catalog id `studiocart-compatibility-mode`, edition **free**, Cart → StudioCart (`page=ppcart-studiocart`) |
 | Default **off** | New stores do not load StudioCart PHP names |
 | Package, not a loader | `includes/compat/studiocart-compatibility-mode/` loaded from `publishpress-cart.php` |
 | **Do not** restore `includes/compat/legacy.php` | IT-161 asserts that file is gone |

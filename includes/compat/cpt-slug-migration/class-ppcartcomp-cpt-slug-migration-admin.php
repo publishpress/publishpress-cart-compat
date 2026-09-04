@@ -10,9 +10,6 @@ if (! defined('ABSPATH')) {
 class PPCartComp_Cpt_Slug_Migration_Admin
 {
     public const PAGE_SLUG         = 'ppcart-migration';
-    public const SETTINGS_PAGE     = 'ppcart';
-    public const SETTINGS_SECTION  = 'data-migration';
-    public const SETTINGS_TAB      = 'studiocart';
     public const NONCE_ACTION      = 'ppcart_cpt_slug_migration';
     public const AJAX_RUN          = 'ppcart_cpt_slug_migration_run';
     public const AJAX_STOP         = 'ppcart_cpt_slug_migration_stop';
@@ -331,39 +328,6 @@ class PPCartComp_Cpt_Slug_Migration_Admin
     {
         self::require_ajax();
         wp_send_json(PPCartComp_Cpt_Slug_Migrator::delete_backup());
-    }
-
-    /**
-     * @return string
-     */
-    public static function settings_section_id()
-    {
-        return self::SETTINGS_PAGE . '-' . self::SETTINGS_SECTION;
-    }
-
-    /**
-     * @return void
-     */
-    public static function register_settings_section()
-    {
-        if (! function_exists('add_settings_section') || ! function_exists('add_settings_field')) {
-            return;
-        }
-
-        add_settings_section(
-            self::settings_section_id(),
-            esc_html__('Data migration', 'publishpress-cart'),
-            '__return_false',
-            self::SETTINGS_PAGE
-        );
-
-        add_settings_field(
-            'ppcart-data-migration-ui',
-            '',
-            '__return_null',
-            self::SETTINGS_PAGE,
-            self::settings_section_id()
-        );
     }
 
     /**

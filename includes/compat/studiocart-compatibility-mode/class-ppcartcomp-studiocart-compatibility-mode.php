@@ -15,9 +15,6 @@ class PPCartComp_Studiocart_Compatibility_Mode
     public const OPTION_NAME        = '_ppcart_studiocart_compatibility_mode';
     public const LEGACY_OPTION_NAME = '_sc_studiocart_compatibility_mode';
     public const WP_CONFIG_CONSTANT = 'PPCART_STUDIOCART_COMPATIBILITY_MODE';
-    public const SETTINGS_PAGE    = 'ppcart';
-    public const SETTINGS_SECTION = 'compatibility';
-    public const SETTINGS_TAB     = 'studiocart';
 
     /**
      * Whether legacy option API bridges were registered this request.
@@ -584,82 +581,6 @@ class PPCartComp_Studiocart_Compatibility_Mode
     public static function legacy_globals_registered()
     {
         return self::$legacy_globals_registered;
-    }
-
-    /**
-     * Add the Compatibility settings section on the StudioCart tab.
-     *
-     * @return void
-     */
-    public static function register_settings_section()
-    {
-        if (! function_exists('add_settings_section')) {
-            return;
-        }
-
-        add_settings_section(
-            self::SETTINGS_PAGE . '-' . self::SETTINGS_SECTION,
-            esc_html__('Compatibility', 'publishpress-cart'),
-            [ self::class, 'render_settings_section' ],
-            self::SETTINGS_PAGE
-        );
-    }
-
-    /**
-     * Settings section intro.
-     *
-     * @return void
-     */
-    public static function render_settings_section()
-    {
-        echo '<p class="ppcart-settings__card-desc">' . esc_html__(
-            'Keep StudioCart legacy PHP APIs and public links available for third-party plugins and apps.',
-            'publishpress-cart'
-        ) . '</p>';
-        echo '<p class="ppcart-settings__card-desc">' . esc_html__(
-            'Renaming stored post types and capabilities is a separate Data migration on this tab. Compatibility Mode only keeps StudioCart PHP APIs.',
-            'publishpress-cart'
-        ) . '</p>';
-    }
-
-    /**
-     * Add the Compatibility Mode checkbox to Cart settings.
-     *
-     * @param array $options Settings field map.
-     * @return array
-     */
-    public static function register_settings($options)
-    {
-        if (! is_array($options)) {
-            $options = [];
-        }
-
-        if (! isset($options['settings']) || ! is_array($options['settings'])) {
-            $options['settings'] = [];
-        }
-
-        $options['settings']['studiocart-compatibility-mode'] = [
-            'type'       => 'checkbox',
-            'label'      => esc_html__('StudioCart Compatibility Mode', 'publishpress-cart'),
-            'subsection' => self::SETTINGS_SECTION,
-            'settings'   => [
-                'id'          => self::OPTION_NAME,
-                'value'       => '1',
-                'description' => esc_html__(
-                    'Enable legacy StudioCart PHP APIs and public URL redirects so existing third-party plugins, apps, and links keep working. Leave this off on new stores.',
-                    'publishpress-cart'
-                ),
-                'disabled'    => self::is_wp_config_forced(),
-                'note'        => self::is_wp_config_forced()
-                    ? esc_html__(
-                        'This setting is controlled by PPCART_STUDIOCART_COMPATIBILITY_MODE in wp-config.php.',
-                        'publishpress-cart'
-                    )
-                    : '',
-            ],
-        ];
-
-        return $options;
     }
 
     /**

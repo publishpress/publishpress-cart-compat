@@ -48,7 +48,7 @@ template slug `single-sc_product` and leftover taxonomy rewrite
 Canonical Cart code must not depend on this mode. Gate runtime with
 `sc_cart_supports( 'studiocart-compatibility-mode' )`.
 
-Merchants toggle it under **Settings → StudioCart** (option
+Merchants toggle it under **Cart → StudioCart** (`admin.php?page=ppcart-studiocart`, option
 `_ppcart_studiocart_compatibility_mode`, default off). Class aliases from
 `includes/compat/studiocart-compatibility-mode/aliases.php` register only
 when the mode is on. `NCS_CART_LEGACY_COMPAT` / `ncs_cart_legacy_compat_enabled()`
