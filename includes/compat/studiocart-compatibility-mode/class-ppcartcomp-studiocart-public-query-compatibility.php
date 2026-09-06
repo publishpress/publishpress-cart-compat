@@ -30,6 +30,9 @@ final class PPCartComp_Studiocart_Public_Query_Compatibility
         }
 
         add_filter('query_vars', [ self::class, 'register_legacy_query_vars' ]);
+        add_action('init', [ self::class, 'register_legacy_webhook_rewrite' ], 0);
+        add_action('init', [ self::class, 'copy_legacy_webhook_into_request' ], 1);
+        add_filter('request', [ self::class, 'copy_legacy_webhook_request' ], 0);
         add_action('template_redirect', [ self::class, 'maybe_redirect_legacy_query_vars' ], 0);
 
         self::$registered = true;
@@ -49,7 +52,128 @@ final class PPCartComp_Studiocart_Public_Query_Compatibility
             'sc-manage'      => 'ppcart-manage',
             'sc-download'    => 'ppcart-download',
             'sc-csv-export'  => 'ppcart-csv-export',
+            'sc-api'         => 'ppcart-api',
+            'sc-invoice'     => 'ppcart-invoice',
         ];
+    }
+
+    /**
+     * Leftover pretty webhook rewrite when Compatibility Mode is on.
+     *
+     * Maps `/sc-webhook/{gateway}` onto the canonical `ppcart-api` query var
+     * without a 302 so Stripe/PayPal POSTs keep their bodies.
+     *
+     * @return array{regex: string, query: string}
+     */
+    public static function leftover_webhook_rewrite()
+    {
+        return [
+            'regex' => 'sc-webhook/?([^/]*)',
+            'query' => 'index.php?ppcart-api=$matches[1]',
+        ];
+    }
+
+    /**
+     * Register the leftover webhook rewrite only while Compatibility Mode is on.
+     *
+     * @return void
+     */
+    public static function register_legacy_webhook_rewrite()
+    {
+        if (! self::is_enabled()) {
+            return;
+        }
+
+        $rule = self::leftover_webhook_rewrite();
+        add_rewrite_rule($rule['regex'], $rule['query'], 'top');
+    }
+
+    /**
+     * Copy leftover webhook identifiers onto canonical request keys for POST.
+     *
+     * GET/HEAD leftover query args 302 instead. Pretty leftover paths and
+     * `?sc-api=` POSTs cannot redirect without dropping the processor body.
+     *
+     * @return void
+     */
+    public static function copy_legacy_webhook_into_request()
+    {
+        if (! self::is_enabled() || self::is_safe_public_request()) {
+            return;
+        }
+
+        $gateway = self::resolve_legacy_webhook_gateway();
+        if ('' === $gateway) {
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Inbound processor POST copy, not a merchant form.
+        if (! isset($_GET['ppcart-api']) || '' === (string) $_GET['ppcart-api']) {
+            $_GET['ppcart-api']     = $gateway;
+            $_REQUEST['ppcart-api'] = $gateway;
+        }
+    }
+
+    /**
+     * Copy leftover webhook query vars onto canonical vars for non-GET requests.
+     *
+     * @param array $query_vars Resolved query vars.
+     * @return array
+     */
+    public static function copy_legacy_webhook_request($query_vars)
+    {
+        if (! self::is_enabled() || ! is_array($query_vars) || self::is_safe_public_request()) {
+            return $query_vars;
+        }
+
+        $gateway = '';
+        if (isset($query_vars['sc-api']) && is_scalar($query_vars['sc-api'])) {
+            $gateway = sanitize_key((string) $query_vars['sc-api']);
+        }
+        if ('' === $gateway) {
+            $gateway = self::resolve_legacy_webhook_gateway($query_vars);
+        }
+
+        if ('' === $gateway) {
+            return $query_vars;
+        }
+
+        if (! isset($query_vars['ppcart-api']) || '' === (string) $query_vars['ppcart-api']) {
+            $query_vars['ppcart-api'] = $gateway;
+        }
+
+        return $query_vars;
+    }
+
+    /**
+     * Resolve a leftover webhook gateway from query args or the request path.
+     *
+     * @param array|null  $request_args Raw GET or resolved query args.
+     * @param string|null $request_uri  Request URI.
+     * @return string
+     */
+    public static function resolve_legacy_webhook_gateway($request_args = null, $request_uri = null)
+    {
+        if (null === $request_args) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only leftover webhook identifier.
+            $request_args = is_array($_GET) ? $_GET : [];
+        }
+
+        if (isset($request_args['sc-api']) && is_scalar($request_args['sc-api'])) {
+            return sanitize_key(wp_unslash((string) $request_args['sc-api']));
+        }
+
+        if (null === $request_uri) {
+            $request_uri = isset($_SERVER['REQUEST_URI'])
+                ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI']))
+                : '';
+        }
+
+        if (is_string($request_uri) && preg_match('#(?:^|/)sc-webhook/([^/?]+)#', $request_uri, $matches)) {
+            return sanitize_key($matches[1]);
+        }
+
+        return '';
     }
 
     /**

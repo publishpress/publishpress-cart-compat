@@ -48,6 +48,8 @@ class PublicQueryVarsTest extends Unit
                 'sc-manage'      => 'ppcart-manage',
                 'sc-download'    => 'ppcart-download',
                 'sc-csv-export'  => 'ppcart-csv-export',
+                'sc-api'         => 'ppcart-api',
+                'sc-invoice'     => 'ppcart-invoice',
             ],
             PPCartComp_Studiocart_Public_Query_Compatibility::legacy_query_var_map()
         );
@@ -82,6 +84,8 @@ class PublicQueryVarsTest extends Unit
                 'sc-manage',
                 'sc-download',
                 'sc-csv-export',
+                'sc-api',
+                'sc-invoice',
             ],
             $registered
         );
@@ -187,5 +191,97 @@ class PublicQueryVarsTest extends Unit
 
         $this->assertSame('ppcart-csv-export', $map['sc-csv-export']);
         $this->assertSame(302, PPCartComp_Studiocart_Public_Query_Compatibility::REDIRECT_STATUS);
+    }
+
+    /**
+     * @test-id UT-274
+     */
+    public function test_UT_274_query_var_map_covers_leftover_webhook_and_invoice(): void
+    {
+        $map = PPCartComp_Studiocart_Public_Query_Compatibility::legacy_query_var_map();
+
+        $this->assertSame('ppcart-api', $map['sc-api']);
+        $this->assertSame('ppcart-invoice', $map['sc-invoice']);
+        $this->assertSame(
+            [
+                'regex' => 'sc-webhook/?([^/]*)',
+                'query' => 'index.php?ppcart-api=$matches[1]',
+            ],
+            PPCartComp_Studiocart_Public_Query_Compatibility::leftover_webhook_rewrite()
+        );
+        $this->assertSame(302, PPCartComp_Studiocart_Public_Query_Compatibility::REDIRECT_STATUS);
+    }
+
+    /**
+     * @test-id UT-274
+     */
+    public function test_UT_274_leftover_webhook_rewrite_registers_only_when_compatibility_mode_is_on(): void
+    {
+        $calls = [];
+        WordPressStubContext::set(
+            'add_rewrite_rule',
+            static function ($regex, $query, $after = 'bottom') use (&$calls) {
+                $calls[] = [ $regex, $query, $after ];
+            }
+        );
+
+        PPCartComp_Studiocart_Public_Query_Compatibility::register_legacy_webhook_rewrite();
+        $this->assertSame([], $calls);
+
+        WordPressStubContext::setState(
+            'options',
+            [ PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME => '1' ]
+        );
+
+        PPCartComp_Studiocart_Public_Query_Compatibility::register_legacy_webhook_rewrite();
+        $this->assertSame(
+            [
+                [ 'sc-webhook/?([^/]*)', 'index.php?ppcart-api=$matches[1]', 'top' ],
+            ],
+            $calls
+        );
+    }
+
+    /**
+     * @test-id UT-274
+     */
+    public function test_UT_274_copies_leftover_webhook_gateway_on_post_not_get(): void
+    {
+        WordPressStubContext::setState(
+            'options',
+            [ PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME => '1' ]
+        );
+        WordPressStubContext::set('is_admin', static fn () => false);
+        WordPressStubContext::set('wp_doing_ajax', static fn () => false);
+        WordPressStubContext::set('wp_is_serving_rest_request', static fn () => false);
+
+        $this->assertSame(
+            'stripe',
+            PPCartComp_Studiocart_Public_Query_Compatibility::resolve_legacy_webhook_gateway(
+                [ 'sc-api' => 'stripe' ]
+            )
+        );
+        $this->assertSame(
+            'paypal',
+            PPCartComp_Studiocart_Public_Query_Compatibility::resolve_legacy_webhook_gateway(
+                [],
+                '/sc-webhook/paypal?foo=1'
+            )
+        );
+
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $this->assertSame(
+            [ 'sc-api' => 'stripe' ],
+            PPCartComp_Studiocart_Public_Query_Compatibility::copy_legacy_webhook_request(
+                [ 'sc-api' => 'stripe' ]
+            )
+        );
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $copied = PPCartComp_Studiocart_Public_Query_Compatibility::copy_legacy_webhook_request(
+            [ 'sc-api' => 'stripe' ]
+        );
+        $this->assertSame('stripe', $copied['ppcart-api']);
+        $this->assertSame('stripe', $copied['sc-api']);
     }
 }

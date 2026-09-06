@@ -145,6 +145,13 @@ modules:
     features: [studiocart-compatibility-mode]
     notes: Compatibility Mode detects leftover shortcode tags for frontend assets, account body class, order-summary skip, and email download replace via Cart filters. Mode off ignores leftover openings.
 
+  - id: prefix-webhook-query-vars
+    name: Leftover webhook / invoice query-var redirects
+    suites: [unit, integration]
+    test_range: UT-274, IT-344
+    features: [studiocart-compatibility-mode]
+    notes: Compatibility Mode 302s leftover sc-invoice / GET sc-api onto ppcart-invoice / ppcart-api. Leftover /sc-webhook/ rewrite and POST sc-api copy onto ppcart-api. First-party webhook URLs are canonical only.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]

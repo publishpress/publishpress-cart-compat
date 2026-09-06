@@ -370,6 +370,88 @@ class PublicQueryVarsTest extends WPTestCase
     }
 
     /**
+     * @test-id IT-344
+     */
+    public function test_IT_344_leftover_webhook_and_invoice_bridge_only_when_compatibility_mode_is_on(): void
+    {
+        $public = (new \ReflectionClass(PPCart_Public::class))->newInstanceWithoutConstructor();
+        $query_vars = $public->api_query_vars([]);
+
+        $this->assertContains('ppcart-api', $query_vars);
+        $this->assertContains('ppcart-invoice', $query_vars);
+        $this->assertNotContains('sc-api', $query_vars);
+        $this->assertNotContains('sc-invoice', $query_vars);
+
+        $this->assertSame(
+            [ 'ppcart-api', 'ppcart-invoice' ],
+            PPCartComp_Studiocart_Public_Query_Compatibility::register_legacy_query_vars(
+                [ 'ppcart-api', 'ppcart-invoice' ]
+            )
+        );
+
+        $this->useFreshRewriteEnvironment();
+        PPCartComp_Studiocart_Public_Query_Compatibility::register_legacy_webhook_rewrite();
+
+        global $wp_rewrite;
+        $leftover = PPCartComp_Studiocart_Public_Query_Compatibility::leftover_webhook_rewrite();
+        $this->assertArrayNotHasKey($leftover['regex'], $wp_rewrite->extra_rules_top);
+
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+
+        $registered = PPCartComp_Studiocart_Public_Query_Compatibility::register_legacy_query_vars(
+            [ 'ppcart-api', 'ppcart-invoice' ]
+        );
+        $this->assertContains('sc-api', $registered);
+        $this->assertContains('sc-invoice', $registered);
+
+        $this->useFreshRewriteEnvironment();
+        PPCartComp_Studiocart_Public_Query_Compatibility::register_legacy_webhook_rewrite();
+        $this->assertSame(
+            $leftover['query'],
+            $wp_rewrite->extra_rules_top[ $leftover['regex'] ]
+        );
+
+        $request_url = home_url('/?sc-invoice=12&token=abc&dl=1');
+        $redirect_url = PPCartComp_Studiocart_Public_Query_Compatibility::get_legacy_redirect_url(
+            $request_url,
+            [
+                'sc-invoice' => '12',
+                'token'      => 'abc',
+                'dl'         => '1',
+            ]
+        );
+        $this->assertIsString($redirect_url);
+
+        $query_args = [];
+        wp_parse_str((string) wp_parse_url($redirect_url, PHP_URL_QUERY), $query_args);
+        $this->assertSame('12', $query_args['ppcart-invoice']);
+        $this->assertSame('abc', $query_args['token']);
+        $this->assertSame('1', $query_args['dl']);
+        $this->assertArrayNotHasKey('sc-invoice', $query_args);
+
+        $this->assertFalse(
+            PPCartComp_Studiocart_Public_Query_Compatibility::is_safe_public_request(
+                'POST',
+                false,
+                false,
+                false
+            )
+        );
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $copied = PPCartComp_Studiocart_Public_Query_Compatibility::copy_legacy_webhook_request(
+            [ 'sc-api' => 'stripe' ]
+        );
+        $this->assertSame('stripe', $copied['ppcart-api']);
+        $this->assertNull(
+            PPCartComp_Studiocart_Public_Query_Compatibility::get_legacy_redirect_url(
+                home_url('/?ppcart-api=stripe'),
+                [ 'ppcart-api' => 'stripe' ]
+            )
+        );
+    }
+
+    /**
      * Replace rewrite globals so rule assertions cannot leak across tests.
      *
      * @return void

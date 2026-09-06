@@ -173,6 +173,17 @@ if (! function_exists('add_action')) {
     }
 }
 
+if (! function_exists('add_rewrite_rule')) {
+    function add_rewrite_rule($regex, $query, $after = 'bottom')
+    {
+        if (! WordPressStubContext::has('add_rewrite_rule')) {
+            return;
+        }
+
+        return WordPressStubContext::invoke('add_rewrite_rule', func_get_args());
+    }
+}
+
 if (! function_exists('remove_action')) {
     function remove_action($hook_name, $callback, $priority = 10)
     {
