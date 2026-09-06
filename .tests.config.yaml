@@ -166,6 +166,13 @@ modules:
     features: [studiocart-compatibility-mode]
     notes: Compatibility Mode copies leftover GET sc_extension_notice onto ppcart_extension_notice. Leftover admin_post and price-format dismiss are Free hard cutovers.
 
+  - id: prefix-pro-lock-keys
+    name: Pro lock tab id prefix rename
+    suites: [unit]
+    test_range: UT-281
+    features: []
+    notes: First-party leftover Pro lock tab ids live in publishpress-cart. This catalog id is shared. Hard cutover; no Compatibility Mode tab aliases.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]
