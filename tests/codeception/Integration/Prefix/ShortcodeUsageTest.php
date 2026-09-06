@@ -44,6 +44,8 @@ class ShortcodeUsageTest extends WPTestCase
      */
     public function test_IT_283_enqueue_treats_leftover_form_tag_as_a_hit(): void
     {
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+
         $leftoverId = $this->insertPage('[studiocart-form id="1"]');
         $this->assertTrue($this->assetsNeededForPost($leftoverId));
     }

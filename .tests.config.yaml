@@ -138,6 +138,13 @@ modules:
     features: [studiocart-compatibility-mode]
     notes: Compatibility Mode substitutes leftover yourtheme/studiocart/ copies via ppcart_theme_template_path. Canonical yourtheme/publishpress-cart/ wins. Theme files are not copied or renamed.
 
+  - id: prefix-shortcode-detectors
+    name: Leftover shortcode detectors
+    suites: [unit, integration]
+    test_range: UT-272, IT-343
+    features: [studiocart-compatibility-mode]
+    notes: Compatibility Mode detects leftover shortcode tags for frontend assets, account body class, order-summary skip, and email download replace via Cart filters. Mode off ignores leftover openings.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]
