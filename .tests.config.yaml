@@ -159,6 +159,13 @@ modules:
     features: []
     notes: First-party leftover hook fires live in publishpress-cart. This catalog id is shared.
 
+  - id: prefix-admin-notice-keys
+    name: Leftover admin notice GET keys
+    suites: [unit, integration]
+    test_range: UT-280, IT-346
+    features: [studiocart-compatibility-mode]
+    notes: Compatibility Mode copies leftover GET sc_extension_notice onto ppcart_extension_notice. Leftover admin_post and price-format dismiss are Free hard cutovers.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]

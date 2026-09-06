@@ -72,6 +72,7 @@ return [
     'ppcart_downsell_nonce' => [ 'sc_downsell_nonce' ],
     'ppcart_due_today_label' => [ 'sc_due_today_label' ],
     'ppcart_errors' => [ 'sc_errors' ],
+    'ppcart_extension_notice' => [ 'sc_extension_notice' ],
     'ppcart_extension_slug' => [ 'sc_extension_slug' ],
     'ppcart_fields_nonce' => [ 'sc_fields_nonce' ],
     'ppcart_hosted' => [ 'sc_hosted' ],
