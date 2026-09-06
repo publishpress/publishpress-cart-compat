@@ -162,6 +162,56 @@ class HookBridgesTest extends WPTestCase
         $this->assertStringNotContainsString('studiocart_checkout_complete', $source);
     }
 
+    /**
+     * @test-id IT-345
+     */
+    public function test_IT_345_leftover_before_sc_order_refund_bridge_only_when_compatibility_mode_is_on(): void
+    {
+        $canonical_ran = false;
+        $legacy_ran = false;
+
+        add_action(
+            'ppcart_before_order_refund',
+            static function () use (&$canonical_ran) {
+                $canonical_ran = true;
+            },
+            10,
+            1
+        );
+        add_action(
+            'before_sc_order_refund',
+            static function () use (&$legacy_ran) {
+                $legacy_ran = true;
+            },
+            10,
+            1
+        );
+
+        do_action('ppcart_before_order_refund', []);
+
+        $this->assertTrue($canonical_ran);
+        $this->assertFalse($legacy_ran);
+
+        $canonical_ran = false;
+        $legacy_ran = false;
+
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+        PPCartComp_Studiocart_Compatibility_Mode::maybe_register_hooks();
+
+        do_action('ppcart_before_order_refund', []);
+
+        $this->assertTrue($canonical_ran);
+        $this->assertTrue($legacy_ran);
+
+        $canonical_ran = false;
+        $legacy_ran = false;
+
+        do_action('before_sc_order_refund', []);
+
+        $this->assertTrue($canonical_ran);
+        $this->assertTrue($legacy_ran);
+    }
+
     public function test_IT_265_plugin_identity_hooks_do_not_bridge_when_compat_is_off(): void
     {
         foreach ($this->pluginIdentityHookMap() as $canonical => $legacy) {

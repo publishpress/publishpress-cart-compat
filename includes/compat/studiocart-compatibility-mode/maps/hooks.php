@@ -35,6 +35,7 @@ return [
         'ncs-cart-currencies'               => 'ppcart_currencies',
         'ncs-cart-currency-symbols'         => 'ppcart_currency_symbols',
         'ncs-cart-zero-decimal-currency'    => 'ppcart_zero_decimal_currency',
+        'before_sc_order_refund'           => 'ppcart_before_order_refund',
     ],
     // Slice 34 integration triggers (`sc_order_*` / `sc_subscription_*` /
     // `sc_renewal_*`) use the mechanical sc_ → ppcart_ rule. Do not add 1:1
@@ -42,6 +43,9 @@ return [
     'extra' => [
         'ppcart_after_order_paid' => [
             'studiocart_checkout_complete',
+        ],
+        'ppcart_before_order_refund' => [
+            'before_sc_order_refund',
         ],
     ],
     'cron' => [

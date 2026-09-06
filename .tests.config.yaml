@@ -38,7 +38,7 @@ modules:
   - id: prefix-hooks
     name: Leftover hook bridges
     suites: [unit, integration]
-    test_range: UT-189, IT-259, IT-265
+    test_range: UT-189, UT-276, IT-259, IT-265, IT-345
     features: [studiocart-compatibility-mode]
 
   - id: prefix-constants
@@ -151,6 +151,13 @@ modules:
     test_range: UT-274, IT-344
     features: [studiocart-compatibility-mode]
     notes: Compatibility Mode 302s leftover sc-invoice / GET sc-api onto ppcart-invoice / ppcart-api. Leftover /sc-webhook/ rewrite and POST sc-api copy onto ppcart-api. First-party webhook URLs are canonical only.
+
+  - id: prefix-leftover-hooks
+    name: Leftover hook fires and lookups
+    suites: [unit]
+    test_range: UT-275
+    features: []
+    notes: First-party leftover hook fires live in publishpress-cart. This catalog id is shared.
 
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup

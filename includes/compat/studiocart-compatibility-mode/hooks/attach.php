@@ -104,6 +104,11 @@ if (! function_exists('ncs_cart_hook_bridge_is_candidate')) {
             }
         }
 
+        $config = ncs_cart_get_legacy_hook_map_config();
+        if (isset($config['override'][ $hook ])) {
+            return true;
+        }
+
         return false;
     }
 }

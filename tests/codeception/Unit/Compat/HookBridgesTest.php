@@ -99,6 +99,27 @@ class HookBridgesTest extends Unit
         $this->assertTrue(ncs_cart_hook_bridge_is_candidate('ncs-cart-repeater-more-link-label'));
     }
 
+    /**
+     * @test-id UT-276
+     */
+    public function test_UT_276_hook_map_covers_leftover_before_sc_order_refund(): void
+    {
+        $this->assertSame(
+            'ppcart_before_order_refund',
+            ncs_cart_legacy_to_canonical_hook_name('before_sc_order_refund')
+        );
+        $this->assertContains(
+            'before_sc_order_refund',
+            ncs_cart_canonical_to_legacy_hook_names('ppcart_before_order_refund')
+        );
+        $this->assertSame(
+            'ppcart_before_create_main_order',
+            ncs_cart_legacy_to_canonical_hook_name('sc_before_create_main_order')
+        );
+        $this->assertTrue(ncs_cart_hook_bridge_is_candidate('before_sc_order_refund'));
+        $this->assertTrue(ncs_cart_hook_bridge_is_candidate('ppcart_before_order_refund'));
+    }
+
     public function test_UT_189_cron_bridges_register_always_and_legacy_hook_bridges_only_when_compat_is_on(): void
     {
         $this->assertFalse(PPCartComp_Studiocart_Compatibility_Mode::cron_hook_bridges_registered());
