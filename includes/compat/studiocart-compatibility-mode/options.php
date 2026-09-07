@@ -554,3 +554,153 @@ if (! function_exists('ppcart_option_api_bridge_pre_delete_option')) {
         return true;
     }
 }
+
+if (! function_exists('ppcart_legacy_sensitive_option_patterns')) {
+    /**
+     * Leftover option-name regexes that match Cart's canonical _ppcart_* family.
+     *
+     * @return string[]
+     */
+    function ppcart_legacy_sensitive_option_patterns()
+    {
+        return [
+            '/^_sc_.*_api_key$/',
+            '/^_sc_.*_api_token$/',
+            '/^_sc_.*_access_token$/',
+            '/^_sc_.*_signature_key$/',
+            '/^_sc_.*secret.*$/i',
+            '/^_sc_.*_password$/',
+            '/^_sc_.*_write_key$/',
+            '/^_sc_.*_webhook_data$/',
+        ];
+    }
+}
+
+if (! function_exists('ppcart_append_legacy_sensitive_option_names')) {
+    /**
+     * Append leftover _sc_* counterparts of canonical sensitive option names.
+     *
+     * @param mixed $names Canonical option names.
+     * @return string[]
+     */
+    function ppcart_append_legacy_sensitive_option_names($names)
+    {
+        if (! is_array($names)) {
+            return [];
+        }
+
+        $appended = [];
+
+        foreach ($names as $name) {
+            if (! is_string($name) || '' === $name) {
+                continue;
+            }
+
+            $appended[] = $name;
+
+            if (! function_exists('ncs_cart_canonical_to_legacy_option_name')) {
+                continue;
+            }
+
+            $legacy = ncs_cart_canonical_to_legacy_option_name($name);
+
+            if (null !== $legacy && $legacy !== $name) {
+                $appended[] = $legacy;
+            }
+        }
+
+        return array_values(array_unique($appended));
+    }
+}
+
+if (! function_exists('ppcart_maybe_append_legacy_sensitive_option_names')) {
+    /**
+     * Append leftover sensitive names only while Compatibility Mode is on.
+     *
+     * @param mixed $names Canonical option names.
+     * @return mixed
+     */
+    function ppcart_maybe_append_legacy_sensitive_option_names($names)
+    {
+        if (
+            ! class_exists('PPCartComp_Studiocart_Compatibility_Mode', false)
+            || ! PPCartComp_Studiocart_Compatibility_Mode::is_enabled()
+        ) {
+            return $names;
+        }
+
+        return ppcart_append_legacy_sensitive_option_names($names);
+    }
+}
+
+if (! function_exists('ppcart_is_legacy_sensitive_option')) {
+    /**
+     * Whether a leftover option name stores a payment or integration secret.
+     *
+     * @param string $option_name Option name.
+     * @return bool
+     */
+    function ppcart_is_legacy_sensitive_option($option_name)
+    {
+        $option_name = (string) $option_name;
+
+        if ('' === $option_name || 0 !== strpos($option_name, '_sc_')) {
+            return false;
+        }
+
+        if (function_exists('ncs_cart_legacy_to_canonical_option_name')) {
+            $canonical = ncs_cart_legacy_to_canonical_option_name($option_name);
+
+            if (is_string($canonical) && $canonical !== $option_name && function_exists('ppcart_is_sensitive_option')) {
+                if (ppcart_is_sensitive_option($canonical)) {
+                    return true;
+                }
+            }
+        }
+
+        foreach (ppcart_legacy_sensitive_option_patterns() as $pattern) {
+            if (preg_match($pattern, $option_name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+if (! function_exists('ppcart_maybe_mark_legacy_sensitive_option')) {
+    /**
+     * Treat leftover _sc_* secret names as sensitive only while Compatibility Mode is on.
+     *
+     * @param mixed  $is_sensitive Whether Cart already marked the option sensitive.
+     * @param string $option_name  Option name.
+     * @return bool
+     */
+    function ppcart_maybe_mark_legacy_sensitive_option($is_sensitive, $option_name = '')
+    {
+        if ($is_sensitive) {
+            return true;
+        }
+
+        $option_name = (string) $option_name;
+
+        // Canonical names (including the Compatibility Mode toggle) must not
+        // call is_enabled() here: that path writes options and re-enters
+        // ppcart_is_sensitive_option via Cart's pre_update_option hook.
+        if ('' === $option_name || 0 !== strpos($option_name, '_sc_')) {
+            return false;
+        }
+
+        if (
+            ! class_exists('PPCartComp_Studiocart_Compatibility_Mode', false)
+            || ! PPCartComp_Studiocart_Compatibility_Mode::is_enabled()
+        ) {
+            return false;
+        }
+
+        return ppcart_is_legacy_sensitive_option($option_name);
+    }
+}
+
+add_filter('ppcart_sensitive_option_names', 'ppcart_maybe_append_legacy_sensitive_option_names');
+add_filter('ppcart_is_sensitive_option', 'ppcart_maybe_mark_legacy_sensitive_option', 10, 2);

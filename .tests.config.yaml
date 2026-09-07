@@ -180,6 +180,20 @@ modules:
     features: [studiocart-compatibility-mode]
     notes: Compatibility Mode remaps leftover sc_subscription / sc_refund_order / sc_wpdomainchecker services onto ppcart_*. Stored rows are not rewritten. Leftover ppcart_sc_*_integrations listeners run only while Compatibility Mode is on.
 
+  - id: prefix-option-name-literals
+    name: Leftover option-name sensitivity
+    suites: [unit, integration]
+    test_range: UT-285, IT-348
+    features: [studiocart-compatibility-mode]
+    notes: Compatibility Mode appends leftover _sc_* sensitive option names and marks leftover secret names only while on. Stored leftover option rows stay until Data migration. Canonical get_option still read-throughs leftover rows.
+
+  - id: prefix-identity
+    name: Identity merge-tag Compatibility Mode bridge
+    suites: [unit, integration]
+    test_range: UT-287, IT-349
+    features: [studiocart-compatibility-mode, data-migration]
+    notes: Compatibility Mode preserves {studiocart} at runtime and the explicit Data migration rewrites stored email merge tags to {publishpress_cart} with backups.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]

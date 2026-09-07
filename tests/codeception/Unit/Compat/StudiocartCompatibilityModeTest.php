@@ -19,9 +19,12 @@ class StudiocartCompatibilityModeTest extends Unit
     protected function _before(): void
     {
         $reflection = new \ReflectionClass(PPCartComp_Studiocart_Compatibility_Mode::class);
-        $property   = $reflection->getProperty('legacy_functions_registered');
-        $property->setAccessible(true);
-        $property->setValue(null, false);
+
+        foreach ([ 'legacy_functions_registered', 'reading_option' ] as $property_name) {
+            $property = $reflection->getProperty($property_name);
+            $property->setAccessible(true);
+            $property->setValue(null, false);
+        }
 
         WordPressStubContext::set(
             'apply_filters',
@@ -78,9 +81,12 @@ class StudiocartCompatibilityModeTest extends Unit
     protected function _after(): void
     {
         $reflection = new \ReflectionClass(PPCartComp_Studiocart_Compatibility_Mode::class);
-        $property   = $reflection->getProperty('legacy_functions_registered');
-        $property->setAccessible(true);
-        $property->setValue(null, false);
+
+        foreach ([ 'legacy_functions_registered', 'reading_option' ] as $property_name) {
+            $property = $reflection->getProperty($property_name);
+            $property->setAccessible(true);
+            $property->setValue(null, false);
+        }
 
         WordPressStubContext::clear();
         parent::_after();
@@ -107,6 +113,25 @@ class StudiocartCompatibilityModeTest extends Unit
 
     public function test_UT_201_leftover_option_row_still_enables_and_copies_to_canonical(): void
     {
+        WordPressStubContext::set(
+            'update_option',
+            function ($option, $value) {
+                // Cart's pre_update_option secrets hook builds the sensitive
+                // names list (ppcart_sensitive_option_names) then calls
+                // is_enabled() while the leftover toggle is still being copied.
+                ppcart_maybe_append_legacy_sensitive_option_names(
+                    [ '_ppcart_mailchimp_api' ]
+                );
+                PPCartComp_Studiocart_Compatibility_Mode::is_enabled();
+
+                $options = WordPressStubContext::getState('options', array());
+                $options[$option] = $value;
+                WordPressStubContext::setState('options', $options);
+
+                return true;
+            }
+        );
+
         WordPressStubContext::setState(
             'options',
             array(

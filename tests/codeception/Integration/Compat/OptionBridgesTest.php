@@ -159,9 +159,10 @@ class OptionBridgesTest extends WPTestCase
         $blob = 'PPCARTENC:unit-test-ciphertext-blob';
         $this->seedLegacyOption('_sc_stripe_test_sk', $blob);
 
-        $this->assertSame($blob, PPCart_Secrets::get_raw_option_value('_ppcart_stripe_test_sk'));
+        $this->assertSame('', PPCart_Secrets::get_raw_option_value('_ppcart_stripe_test_sk'));
         $this->assertFalse($this->optionRowExists('_ppcart_stripe_test_sk'));
         $this->assertTrue($this->optionRowExists('_sc_stripe_test_sk'));
+        $this->assertSame($blob, get_option('_ppcart_stripe_test_sk'));
 
         ppcart_maybe_copy_leftover_option_rows(true);
 

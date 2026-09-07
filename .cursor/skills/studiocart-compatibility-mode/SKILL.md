@@ -57,6 +57,7 @@ includes/compat/studiocart-compatibility-mode/
   maps/{set}.php                                     # canonical => [ legacy, ... ]
   maps/constants.php                                 # not a class map; skipped by the glob
   maps/hooks.php                                     # not a class map; skipped by the glob
+  options.php                                        # leftover row read-through + leftover _sc_* sensitivity
   maps/options.php                                   # not a class map; skipped by the glob
   maps/cpt-taxonomy.php                              # leftover FSE/rewrite; skipped by the glob
   functions/                                         # lazy-loaded sc_* / ncs_* wrappers (see index.php)

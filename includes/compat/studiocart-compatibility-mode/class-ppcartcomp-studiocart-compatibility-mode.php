@@ -31,6 +31,17 @@ class PPCartComp_Studiocart_Compatibility_Mode
     private static $option_storage_bridges_registered = false;
 
     /**
+     * Whether leftover-toggle copy is already in progress.
+     *
+     * Cart's pre_update_option secrets hook calls is_sensitive_option(), and
+     * Compat's leftover-sensitivity filters call is_enabled(). Without this
+     * latch, copying `_sc_studiocart_compatibility_mode` recurses until OOM.
+     *
+     * @var bool
+     */
+    private static $reading_option = false;
+
+    /**
      * Whether leftover meta-key API bridges were registered this request.
      *
      * @var bool
@@ -171,25 +182,40 @@ class PPCartComp_Studiocart_Compatibility_Mode
      */
     private static function read_option_value()
     {
-        $canonical = get_option(self::OPTION_NAME, false);
-        if (false !== $canonical) {
-            return $canonical;
+        if (self::$reading_option) {
+            $canonical = get_option(self::OPTION_NAME, false);
+            if (false !== $canonical) {
+                return $canonical;
+            }
+
+            return get_option(self::LEGACY_OPTION_NAME, false);
         }
 
-        $legacy = get_option(self::LEGACY_OPTION_NAME, false);
-        if (false === $legacy) {
-            return false;
-        }
+        self::$reading_option = true;
 
-        if (function_exists('update_option')) {
-            update_option(self::OPTION_NAME, $legacy);
-        }
+        try {
+            $canonical = get_option(self::OPTION_NAME, false);
+            if (false !== $canonical) {
+                return $canonical;
+            }
 
-        if (function_exists('delete_option')) {
-            delete_option(self::LEGACY_OPTION_NAME);
-        }
+            $legacy = get_option(self::LEGACY_OPTION_NAME, false);
+            if (false === $legacy) {
+                return false;
+            }
 
-        return $legacy;
+            if (function_exists('update_option')) {
+                update_option(self::OPTION_NAME, $legacy);
+            }
+
+            if (function_exists('delete_option')) {
+                delete_option(self::LEGACY_OPTION_NAME);
+            }
+
+            return $legacy;
+        } finally {
+            self::$reading_option = false;
+        }
     }
 
     /**
