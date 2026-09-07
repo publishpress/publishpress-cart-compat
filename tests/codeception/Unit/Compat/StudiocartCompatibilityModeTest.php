@@ -20,7 +20,7 @@ class StudiocartCompatibilityModeTest extends Unit
     {
         $reflection = new \ReflectionClass(PPCartComp_Studiocart_Compatibility_Mode::class);
 
-        foreach ([ 'legacy_functions_registered', 'reading_option' ] as $property_name) {
+        foreach ([ 'legacy_functions_registered' ] as $property_name) {
             $property = $reflection->getProperty($property_name);
             $property->setAccessible(true);
             $property->setValue(null, false);
@@ -89,7 +89,7 @@ class StudiocartCompatibilityModeTest extends Unit
     {
         $reflection = new \ReflectionClass(PPCartComp_Studiocart_Compatibility_Mode::class);
 
-        foreach ([ 'legacy_functions_registered', 'reading_option' ] as $property_name) {
+        foreach ([ 'legacy_functions_registered' ] as $property_name) {
             $property = $reflection->getProperty($property_name);
             $property->setAccessible(true);
             $property->setValue(null, false);
@@ -118,44 +118,21 @@ class StudiocartCompatibilityModeTest extends Unit
         $this->assertTrue(PPCartComp_Studiocart_Compatibility_Mode::is_enabled());
     }
 
-    public function test_UT_201_leftover_option_row_still_enables_and_copies_to_canonical(): void
+    public function test_UT_201_oldest_toggle_option_still_enables_without_mutating_storage(): void
     {
-        WordPressStubContext::set(
-            'update_option',
-            function ($option, $value) {
-                // Cart's pre_update_option secrets hook builds the sensitive
-                // names list (ppcart_sensitive_option_names) then calls
-                // is_enabled() while the leftover toggle is still being copied.
-                ppcart_maybe_append_legacy_sensitive_option_names(
-                    [ '_ppcart_mailchimp_api' ]
-                );
-                PPCartComp_Studiocart_Compatibility_Mode::is_enabled();
-
-                $options = WordPressStubContext::getState('options', array());
-                $options[$option] = $value;
-                WordPressStubContext::setState('options', $options);
-
-                return true;
-            }
-        );
-
         WordPressStubContext::setState(
             'options',
             array(
-                PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME => '1',
+                PPCartComp_Studiocart_Compatibility_Mode::OLDEST_LEGACY_OPTION_NAME => '1',
             )
         );
 
         $this->assertTrue(PPCartComp_Studiocart_Compatibility_Mode::is_user_enabled());
-
-        $options = WordPressStubContext::getState('options', array());
         $this->assertSame(
-            '1',
-            $options[PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME]
-        );
-        $this->assertArrayNotHasKey(
-            PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME,
-            $options
+            array(
+                PPCartComp_Studiocart_Compatibility_Mode::OLDEST_LEGACY_OPTION_NAME => '1',
+            ),
+            WordPressStubContext::getState('options', array())
         );
     }
 
@@ -181,7 +158,7 @@ class StudiocartCompatibilityModeTest extends Unit
         $this->assertFalse(ncs_cart_legacy_compat_enabled());
     }
 
-    public function test_UT_182_feature_support_filter_only_gates_studiocart_compatibility_mode(): void
+    public function test_UT_182_feature_support_filter_only_gates_compatibility_mode(): void
     {
         WordPressStubContext::setState(
             'options',
@@ -215,9 +192,43 @@ class StudiocartCompatibilityModeTest extends Unit
         $this->assertSame('ppcartcomp_studiocart', PPCartComp_Studiocart_Admin::OPTION_GROUP);
         $this->assertSame(
             PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME,
-            '_ppcart_studiocart_compatibility_mode'
+            '_ppcart_compatibility_mode'
         );
         $this->assertTrue(method_exists(PPCartComp_Studiocart_Admin::class, 'register_setting'));
+    }
+
+    /**
+     * @test-id UT-291
+     */
+    public function test_UT_291_canonical_feature_id_uses_a_read_only_legacy_toggle_bridge(): void
+    {
+        WordPressStubContext::setState(
+            'options',
+            array(
+                PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME => '1',
+            )
+        );
+
+        $this->assertSame('ppcart-compatibility-mode', PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID);
+        $this->assertSame('_ppcart_compatibility_mode', PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME);
+        $this->assertTrue(
+            PPCartComp_Studiocart_Compatibility_Mode::supports_feature(
+                false,
+                PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID
+            )
+        );
+        $this->assertTrue(
+            PPCartComp_Studiocart_Compatibility_Mode::supports_feature(
+                false,
+                PPCartComp_Studiocart_Compatibility_Mode::LEGACY_FEATURE_ID
+            )
+        );
+        $this->assertSame(
+            array(
+                PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME => '1',
+            ),
+            WordPressStubContext::getState('options', array())
+        );
     }
 
     /**

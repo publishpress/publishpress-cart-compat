@@ -8,7 +8,7 @@ $compat_class        = 'PPCartComp_Studiocart_Compatibility_Mode';
 $compat_ready        = class_exists($compat_class, false);
 $forced              = $compat_ready && $compat_class::is_wp_config_forced();
 $enabled             = $compat_ready && $compat_class::is_user_enabled();
-$option_name         = $compat_ready ? $compat_class::OPTION_NAME : '_ppcart_studiocart_compatibility_mode';
+$option_name         = $compat_ready ? $compat_class::OPTION_NAME : '_ppcart_compatibility_mode';
 $drop_backups_option = PPCartComp_Studiocart_Admin::DROP_BACKUPS_OPTION;
 $drop_backups        = '1' === (string) get_option($drop_backups_option, '0');
 ?>

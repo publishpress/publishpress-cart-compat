@@ -50,9 +50,9 @@ Moved package classes were renamed on copy
 
 Cart live helpers and stored option keys that Free/Pro already call stay
 `ppcart_*` / `_ppcart_*` (stubs in Cart; real implementations in this plugin
-behind `function_exists`). Merchant option
-`_ppcart_studiocart_compatibility_mode` and wp-config
-`PPCART_STUDIOCART_COMPATIBILITY_MODE` stay (stored contract).
+behind `function_exists`). Merchant option `_ppcart_compatibility_mode` and
+wp-config `PPCART_STUDIOCART_COMPATIBILITY_MODE` stay (stored contract).
+Historical toggle rows are read-only Compat inputs.
 
 ---
 
@@ -153,7 +153,7 @@ catalog cases for companion assertions, and the matching Codeception files.
 
 **StudioCart is a submenu of Cart**, parent
 `PPCart_Admin_Screens::PAGE_DASHBOARD` (`ppcart`). Contents: Compatibility Mode
-checkbox (option `_ppcart_studiocart_compatibility_mode`, wp-config
+checkbox (option `_ppcart_compatibility_mode`, wp-config
 `PPCART_STUDIOCART_COMPATIBILITY_MODE`) plus the Data migration wizard.
 
 Companion WPLoader activates **both** plugins (sibling `../publishpress-cart`).

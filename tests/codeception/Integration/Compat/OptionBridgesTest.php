@@ -25,6 +25,7 @@ class OptionBridgesTest extends WPTestCase
         $this->deleteOptionRow(self::LEGACY_OPTION);
         $this->deleteOptionRow(self::CANONICAL_OPTION);
         $this->deleteOptionRow(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME);
+        $this->deleteOptionRow(PPCartComp_Studiocart_Compatibility_Mode::OLDEST_LEGACY_OPTION_NAME);
         $this->deleteOptionRow('_sc_stripe_test_sk');
         $this->deleteOptionRow('_ppcart_stripe_test_sk');
         $this->deleteOptionRow(ppcart_option_key_migration_option());
@@ -38,6 +39,7 @@ class OptionBridgesTest extends WPTestCase
         $this->deleteOptionRow(self::LEGACY_OPTION);
         $this->deleteOptionRow(self::CANONICAL_OPTION);
         $this->deleteOptionRow(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME);
+        $this->deleteOptionRow(PPCartComp_Studiocart_Compatibility_Mode::OLDEST_LEGACY_OPTION_NAME);
         $this->deleteOptionRow('_sc_stripe_test_sk');
         $this->deleteOptionRow('_ppcart_stripe_test_sk');
         $this->deleteOptionRow(ppcart_option_key_migration_option());
@@ -143,11 +145,11 @@ class OptionBridgesTest extends WPTestCase
      */
     public function test_IT_280_leftover_compat_toggle_is_excluded_from_option_copier(): void
     {
-        $this->seedLegacyOption(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME, '1');
+        $this->seedLegacyOption(PPCartComp_Studiocart_Compatibility_Mode::OLDEST_LEGACY_OPTION_NAME, '1');
 
         ppcart_maybe_copy_leftover_option_rows(true);
 
-        $this->assertTrue($this->optionRowExists(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME));
+        $this->assertTrue($this->optionRowExists(PPCartComp_Studiocart_Compatibility_Mode::OLDEST_LEGACY_OPTION_NAME));
         $this->assertFalse($this->optionRowExists(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME));
     }
 

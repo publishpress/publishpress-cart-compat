@@ -14,50 +14,57 @@ modules:
     name: StudioCart Compatibility Mode
     suites: [unit, integration]
     test_range: UT-022–UT-031, UT-179–UT-196, UT-201, IT-161–IT-169, IT-170–IT-178, IT-256–IT-262, IT-275
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Compatibility Mode package, leftover class/function/constant/hook helpers, and the merchant toggle.
+
+  - id: prefix-compatibility-mode-feature
+    name: Compatibility Mode feature id and toggle
+    suites: [unit, integration]
+    test_range: UT-291, IT-350
+    features: [ppcart-compatibility-mode]
+    notes: Canonical feature id and toggle are ppcart-compatibility-mode / _ppcart_compatibility_mode. Historical toggle rows are read only and remain in place.
 
   - id: prefix-options
     name: Option name prefix bridges
     suites: [unit, integration]
     test_range: UT-188, UT-202, IT-258, IT-280
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-meta-keys
     name: Post-meta and user-meta leftover lookup
     suites: [unit, integration]
     test_range: UT-203, UT-247, IT-281
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-functions
     name: Leftover global function wrappers
     suites: [unit, integration]
     test_range: UT-187, IT-256–IT-257
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-hooks
     name: Leftover hook bridges
     suites: [unit, integration]
     test_range: UT-189, UT-276, IT-259, IT-265, IT-345
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-constants
     name: Leftover constant aliases
     suites: [unit, integration]
     test_range: UT-190–UT-194, IT-260–IT-261
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-compat-class
     name: Compatibility Mode class
     suites: [unit, integration]
     test_range: UT-195–UT-196, IT-262
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-runtime-globals
     name: Leftover runtime global aliases
     suites: [unit, integration]
     test_range: UT-227, IT-263–IT-264, IT-314
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-transients
     name: Leftover transient copy
@@ -69,87 +76,87 @@ modules:
     name: Leftover public query-var redirects
     suites: [unit, integration]
     test_range: UT-198, IT-267
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-ajax-actions
     name: Leftover AJAX and nonce bridges
     suites: [unit, integration]
     test_range: UT-199, UT-238, IT-268, IT-330
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-request-fields
     name: Leftover request-field copy
     suites: [unit, integration]
     test_range: UT-231–UT-232, IT-317–IT-318
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-log-request-fields
     name: Leftover debug / Stripe log request-field copy
     suites: [unit, integration]
     test_range: UT-254, IT-335
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-integration-hooks
     name: Leftover integration trigger tag bridges
     suites: [unit, integration]
     test_range: UT-256, IT-336
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Mechanical sc_ → ppcart_ hook bridge for sc_order_* / sc_subscription_* / sc_renewal_*. Leftover listeners run only while Compatibility Mode is on.
 
   - id: prefix-checkout
     name: Leftover checkout request-field copy
     suites: [unit, integration]
     test_range: UT-258, IT-337
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Compatibility Mode copies leftover POST sc_qty onto ppcart_qty. First-party checkout leftovers are a Free hard cutover except this request field.
 
   - id: prefix-csv-export
     name: Leftover CSV export query-var redirect
     suites: [unit, integration]
     test_range: UT-260, IT-338
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Compatibility Mode 302s leftover sc-csv-export onto ppcart-csv-export. First-party CSV export is canonical only.
 
   - id: prefix-integration-repeater
     name: Leftover integration repeater field-id copy
     suites: [unit, integration]
     test_range: UT-263, IT-339
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Compatibility Mode copies leftover sc_sub_prod_id / sc_sub_plan_id / sc_sub_cancel onto ppcart_sub_* inner keys. Stored rows are not rewritten.
 
   - id: prefix-invoice-format
     name: Leftover invoice format value map
     suites: [unit, integration]
     test_range: UT-265, IT-340
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Compatibility Mode maps leftover sc_pns / sc_pn / sc_ns / sc_n onto ppcart_* via ppcart_invoice_format. Stored option rows are not rewritten.
 
   - id: prefix-tax-rates
     name: Leftover tax-rate inner-key copy
     suites: [unit, integration]
     test_range: UT-267, IT-341
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Compatibility Mode copies leftover _sc_tax_rate_title / _sc_tax_rate_slug / _sc_tax_rate onto _ppcart_tax_rate_* via ppcart_tax_rates. Stored option rows are not rewritten.
 
   - id: prefix-theme-overrides
     name: Leftover theme override directory
     suites: [unit, integration]
     test_range: UT-270, IT-342
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Compatibility Mode substitutes leftover yourtheme/studiocart/ copies via ppcart_theme_template_path. Canonical yourtheme/publishpress-cart/ wins. Theme files are not copied or renamed.
 
   - id: prefix-shortcode-detectors
     name: Leftover shortcode detectors
     suites: [unit, integration]
     test_range: UT-272, IT-343
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Compatibility Mode detects leftover shortcode tags for frontend assets, account body class, order-summary skip, and email download replace via Cart filters. Mode off ignores leftover openings.
 
   - id: prefix-webhook-query-vars
     name: Leftover webhook / invoice query-var redirects
     suites: [unit, integration]
     test_range: UT-274, IT-344
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Compatibility Mode 302s leftover sc-invoice / GET sc-api onto ppcart-invoice / ppcart-api. Leftover /sc-webhook/ rewrite and POST sc-api copy onto ppcart-api. First-party webhook URLs are canonical only.
 
   - id: prefix-leftover-hooks
@@ -163,7 +170,7 @@ modules:
     name: Leftover admin notice GET keys
     suites: [unit, integration]
     test_range: UT-280, IT-346
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Compatibility Mode copies leftover GET sc_extension_notice onto ppcart_extension_notice. Leftover admin_post and price-format dismiss are Free hard cutovers.
 
   - id: prefix-pro-lock-keys
@@ -177,46 +184,46 @@ modules:
     name: Leftover integration service-id copy
     suites: [unit, integration]
     test_range: UT-283, IT-347
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Compatibility Mode remaps leftover sc_subscription / sc_refund_order / sc_wpdomainchecker services onto ppcart_*. Stored rows are not rewritten. Leftover ppcart_sc_*_integrations listeners run only while Compatibility Mode is on.
 
   - id: prefix-option-name-literals
     name: Leftover option-name sensitivity
     suites: [unit, integration]
     test_range: UT-285, IT-348
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
     notes: Compatibility Mode appends leftover _sc_* sensitive option names and marks leftover secret names only while on. Stored leftover option rows stay until Data migration. Canonical get_option still read-throughs leftover rows.
 
   - id: prefix-identity
     name: Identity merge-tag Compatibility Mode bridge
     suites: [unit, integration]
     test_range: UT-287, IT-349
-    features: [studiocart-compatibility-mode, data-migration]
+    features: [ppcart-compatibility-mode, data-migration]
     notes: Compatibility Mode preserves {studiocart} at runtime and the explicit Data migration rewrites stored email merge tags to {publishpress_cart} with backups.
 
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]
     test_range: UT-235
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-cpt-taxonomy-strings
     name: Leftover CPT/FSE maps
     suites: [integration]
     test_range: IT-328
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-shortcode-tags
     name: Leftover shortcode dual-register
     suites: [unit, integration]
     test_range: UT-204, IT-282
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-shortcode-usage
     name: Leftover shortcode enqueue and email replace
     suites: [integration]
     test_range: IT-283
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-shortcode-tag-migration
     name: Shortcode tag Data migration
@@ -234,43 +241,43 @@ modules:
     name: Public class leftover aliases
     suites: [integration]
     test_range: IT-179–IT-188
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-helpers
     name: Helper class leftover aliases
     suites: [integration]
     test_range: IT-189–IT-192
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-admin
     name: Admin class leftover aliases
     suites: [integration]
     test_range: IT-193–IT-207
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-admin-controllers
     name: Admin controller leftover aliases
     suites: [integration]
     test_range: IT-208–IT-219
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-stripe-logging
     name: Stripe/logging/files leftover aliases
     suites: [integration]
     test_range: IT-220–IT-227
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-bootstrap
     name: Bootstrap class leftover aliases
     suites: [integration]
     test_range: IT-228–IT-244
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-fixtures
     name: Fixture class leftover aliases
     suites: [integration]
     test_range: IT-245–IT-255
-    features: [studiocart-compatibility-mode]
+    features: [ppcart-compatibility-mode]
 
   - id: prefix-custom-tables
     name: Custom table prefix migration

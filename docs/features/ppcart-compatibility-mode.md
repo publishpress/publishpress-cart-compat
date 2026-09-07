@@ -1,5 +1,5 @@
 ---
-id: studiocart-compatibility-mode
+id: ppcart-compatibility-mode
 plugin: publishpress-cart-compat
 name: StudioCart Compatibility Mode
 status: active
@@ -52,10 +52,12 @@ template slug `single-sc_product` and leftover taxonomy rewrite
 `ppcart_*`; live helpers stay row-state-based until Data migration.
 
 Canonical Cart code must not depend on this mode. Gate runtime with
-`ppcart_cart_supports( 'studiocart-compatibility-mode' )`.
+`ppcart_cart_supports( 'ppcart-compatibility-mode' )`. The prior feature id is
+accepted only by this package while Compatibility Mode is enabled.
 
 Merchants toggle it under **Cart → StudioCart** (`admin.php?page=ppcart-studiocart`, option
-`_ppcart_studiocart_compatibility_mode`, default off). Class aliases from
+`_ppcart_compatibility_mode`, default off). Prior toggle keys are read only by
+this package and remain in place. Class aliases from
 `includes/compat/studiocart-compatibility-mode/aliases.php` register only
 when the mode is on. `NCS_CART_LEGACY_COMPAT` / `ncs_cart_legacy_compat_enabled()`
 can still suppress individual shims in CI.

@@ -20,12 +20,14 @@ class StudiocartCompatibilityModeTest extends WPTestCase
         parent::setUp();
         delete_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME);
         delete_option(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME);
+        delete_option(PPCartComp_Studiocart_Compatibility_Mode::OLDEST_LEGACY_OPTION_NAME);
     }
 
     protected function tearDown(): void
     {
         delete_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME);
         delete_option(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME);
+        delete_option(PPCartComp_Studiocart_Compatibility_Mode::OLDEST_LEGACY_OPTION_NAME);
         parent::tearDown();
     }
 
@@ -136,7 +138,7 @@ class StudiocartCompatibilityModeTest extends WPTestCase
         $this->assertSame('ppcart-studiocart', PPCartComp_Studiocart_Admin::PAGE_SLUG);
         $this->assertSame(
             PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME,
-            '_ppcart_studiocart_compatibility_mode'
+            '_ppcart_compatibility_mode'
         );
 
         global $wp_settings_sections, $wp_settings_fields;
@@ -145,17 +147,39 @@ class StudiocartCompatibilityModeTest extends WPTestCase
         );
     }
 
-    public function test_IT_275_leftover_option_row_still_enables_and_copies_to_canonical(): void
+    public function test_IT_275_oldest_toggle_option_still_enables_without_mutating_storage(): void
     {
-        delete_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME);
-        update_option(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME, '1');
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OLDEST_LEGACY_OPTION_NAME, '1');
 
         $this->assertTrue(PPCartComp_Studiocart_Compatibility_Mode::is_user_enabled());
+        $this->assertFalse(get_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, false));
         $this->assertSame(
             '1',
-            get_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, false)
+            get_option(PPCartComp_Studiocart_Compatibility_Mode::OLDEST_LEGACY_OPTION_NAME, false)
         );
-        $this->assertFalse(
+    }
+
+    /**
+     * @test-id IT-350
+     */
+    public function test_IT_350_canonical_feature_and_option_keep_the_previous_toggle_row_in_place(): void
+    {
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME, '1');
+
+        $this->assertTrue(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
+        $this->assertTrue(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_FEATURE_ID));
+        $this->assertFalse(get_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, false));
+        $this->assertSame(
+            '1',
+            get_option(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME, false)
+        );
+
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '0');
+
+        $this->assertFalse(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
+        $this->assertFalse(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_FEATURE_ID));
+        $this->assertSame(
+            '1',
             get_option(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME, false)
         );
     }

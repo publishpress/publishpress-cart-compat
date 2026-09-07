@@ -97,15 +97,17 @@ Without this companion, leftover CPT/table rows look missing.
 ## Compatibility Mode
 
 Gate: `PPCartComp_Studiocart_Compatibility_Mode::is_enabled()`. Default **off**.
-Merchant option `_ppcart_studiocart_compatibility_mode`; wp-config
-`PPCART_STUDIOCART_COMPATIBILITY_MODE` overrides the checkbox.
+Merchant option `_ppcart_compatibility_mode`; historical toggle rows are
+read-only Compat inputs. wp-config `PPCART_STUDIOCART_COMPATIBILITY_MODE`
+overrides the checkbox.
 
 When on, the package registers leftover class aliases, function wrappers, hook
 bridges, option/meta API bridges, constant aliases, runtime-global aliases,
 shortcode tags, request-field copies, Stripe metadata lookup, CPT/taxonomy/FSE
 names, and public URL redirects. First-party Cart must not call these shims.
-Runtime gate for extensions: `ppcart_cart_supports( 'studiocart-compatibility-mode' )`
-(filter `ppcart_cart_supports_feature` at priority 20).
+Runtime gate for extensions: `ppcart_cart_supports( 'ppcart-compatibility-mode' )`
+(filter `ppcart_cart_supports_feature` at priority 20). The prior feature id is
+accepted only by Compat while the mode is enabled.
 
 Function wrappers load from `functions/index.php` **only** when the mode is on
 (`maybe_register_functions()`). Bodies are one-line delegates to `ppcart_*`.
@@ -113,7 +115,7 @@ Function wrappers load from `functions/index.php` **only** when the mode is on
 Cron hook drain bridges register even when the mode is off so leftover
 `wp_cron` hook names still reach canonical handlers.
 
-Feature record: [studiocart-compatibility-mode.md](../features/studiocart-compatibility-mode.md).
+Feature record: [ppcart-compatibility-mode.md](../features/ppcart-compatibility-mode.md).
 
 ---
 

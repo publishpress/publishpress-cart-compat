@@ -12,8 +12,9 @@ if (! defined('ABSPATH')) {
  */
 return [
     'exclude' => [
-        // Leftover Cart-era toggle. Keep excluded so storage bridges do not
-        // persist `_ppcart_studiocart_compatibility_mode` onto this leftover row.
+        // Historical Compatibility Mode toggles. Keep excluded so storage
+        // bridges leave historical toggle rows in place.
+        '_ppcart_studiocart_compatibility_mode',
         '_sc_studiocart_compatibility_mode',
     ],
     'override' => [

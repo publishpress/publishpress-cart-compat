@@ -56,8 +56,16 @@ class OptionBridgesTest extends Unit
         $this->assertSame('ppcart_current_schedule_val', ncs_cart_legacy_to_canonical_option_name('current_schedule_val'));
         $this->assertSame('_ppcart_myaccount_page_id', ncs_cart_legacy_to_canonical_option_name('_my_account'));
 
-        $this->assertNull(ncs_cart_legacy_to_canonical_option_name('_sc_studiocart_compatibility_mode'));
-        $this->assertNull(ncs_cart_canonical_to_legacy_option_name('_ppcart_studiocart_compatibility_mode'));
+        $this->assertNull(
+            ncs_cart_legacy_to_canonical_option_name(
+                PPCartComp_Studiocart_Compatibility_Mode::OLDEST_LEGACY_OPTION_NAME
+            )
+        );
+        $this->assertNull(
+            ncs_cart_canonical_to_legacy_option_name(
+                PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME
+            )
+        );
         $this->assertNull(ncs_cart_legacy_to_canonical_option_name('unrelated_option'));
 
         $this->assertSame('_sc_stripe_enable', ncs_cart_canonical_to_legacy_option_name('_ppcart_stripe_enable'));
@@ -102,7 +110,16 @@ class OptionBridgesTest extends Unit
         $this->assertTrue(ppcart_legacy_option_name_is_copyable('current_schedule_val'));
         $this->assertTrue(ppcart_legacy_option_name_is_copyable('_my_account'));
 
-        $this->assertFalse(ppcart_legacy_option_name_is_copyable('_sc_studiocart_compatibility_mode'));
+        $this->assertFalse(
+            ppcart_legacy_option_name_is_copyable(
+                PPCartComp_Studiocart_Compatibility_Mode::OLDEST_LEGACY_OPTION_NAME
+            )
+        );
+        $this->assertFalse(
+            ppcart_legacy_option_name_is_copyable(
+                PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME
+            )
+        );
         $this->assertFalse(ppcart_legacy_option_name_is_copyable('unrelated_option'));
         $this->assertFalse(ppcart_legacy_option_name_is_copyable('_ppcart_stripe_enable'));
         $this->assertFalse(ppcart_legacy_option_name_is_copyable('ppcart_admin_email'));

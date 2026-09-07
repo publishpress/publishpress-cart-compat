@@ -11,10 +11,12 @@ if (! defined('ABSPATH')) {
  */
 class PPCartComp_Studiocart_Compatibility_Mode
 {
-    public const FEATURE_ID         = 'studiocart-compatibility-mode';
-    public const OPTION_NAME        = '_ppcart_studiocart_compatibility_mode';
-    public const LEGACY_OPTION_NAME = '_sc_studiocart_compatibility_mode';
-    public const WP_CONFIG_CONSTANT = 'PPCART_STUDIOCART_COMPATIBILITY_MODE';
+    public const FEATURE_ID                = 'ppcart-compatibility-mode';
+    public const LEGACY_FEATURE_ID         = 'studiocart-compatibility-mode';
+    public const OPTION_NAME               = '_ppcart_compatibility_mode';
+    public const LEGACY_OPTION_NAME        = '_ppcart_studiocart_compatibility_mode';
+    public const OLDEST_LEGACY_OPTION_NAME = '_sc_studiocart_compatibility_mode';
+    public const WP_CONFIG_CONSTANT        = 'PPCART_STUDIOCART_COMPATIBILITY_MODE';
 
     /**
      * Whether legacy option API bridges were registered this request.
@@ -30,16 +32,6 @@ class PPCartComp_Studiocart_Compatibility_Mode
      */
     private static $option_storage_bridges_registered = false;
 
-    /**
-     * Whether leftover-toggle copy is already in progress.
-     *
-     * Cart's pre_update_option secrets hook calls is_sensitive_option(), and
-     * Compat's leftover-sensitivity filters call is_enabled(). Without this
-     * latch, copying `_sc_studiocart_compatibility_mode` recurses until OOM.
-     *
-     * @var bool
-     */
-    private static $reading_option = false;
 
     /**
      * Whether leftover meta-key API bridges were registered this request.
@@ -176,46 +168,20 @@ class PPCartComp_Studiocart_Compatibility_Mode
     }
 
     /**
-     * Read the merchant toggle, copying a leftover row onto the canonical key.
+     * Read the merchant toggle without mutating historical option rows.
      *
      * @return mixed Stored value, or false when unset.
      */
     private static function read_option_value()
     {
-        if (self::$reading_option) {
-            $canonical = get_option(self::OPTION_NAME, false);
-            if (false !== $canonical) {
-                return $canonical;
+        foreach ([ self::OPTION_NAME, self::LEGACY_OPTION_NAME, self::OLDEST_LEGACY_OPTION_NAME ] as $option_name) {
+            $value = get_option($option_name, false);
+            if (false !== $value) {
+                return $value;
             }
-
-            return get_option(self::LEGACY_OPTION_NAME, false);
         }
 
-        self::$reading_option = true;
-
-        try {
-            $canonical = get_option(self::OPTION_NAME, false);
-            if (false !== $canonical) {
-                return $canonical;
-            }
-
-            $legacy = get_option(self::LEGACY_OPTION_NAME, false);
-            if (false === $legacy) {
-                return false;
-            }
-
-            if (function_exists('update_option')) {
-                update_option(self::OPTION_NAME, $legacy);
-            }
-
-            if (function_exists('delete_option')) {
-                delete_option(self::LEGACY_OPTION_NAME);
-            }
-
-            return $legacy;
-        } finally {
-            self::$reading_option = false;
-        }
+        return false;
     }
 
     /**
@@ -229,7 +195,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
     }
 
     /**
-     * Gate sc_cart_supports( 'studiocart-compatibility-mode' ).
+     * Gate the canonical feature id and the Compat-only legacy alias.
      *
      * Runs after Pro's blanket supports filter so this feature stays
      * merchant-controlled in both Free and Pro.
@@ -240,7 +206,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
      */
     public static function supports_feature($supports, $feature)
     {
-        if (self::FEATURE_ID !== $feature) {
+        if (self::FEATURE_ID !== $feature && self::LEGACY_FEATURE_ID !== $feature) {
             return $supports;
         }
 

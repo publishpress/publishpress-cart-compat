@@ -134,7 +134,7 @@ Expect hits in frozen strings (CPT `'sc_product'`, meta `'_sc_*'`, shortcode tag
 New cases: module `legacy-compat`, `prefix-compat-class`, `prefix-constants`,
 `prefix-hooks`, `prefix-runtime-globals`, or `prefix-admin-screen-slugs`.
 Admin-screen slug cases use `features: []`; Compatibility Mode cases use
-`features: [studiocart-compatibility-mode]`.
+`features: [ppcart-compatibility-mode]`.
 
 Public query/rewrite coverage uses module `prefix-public-query-vars`
 (UT-198 / IT-267). Core registers `ppcart-preview`, `ppcart-order`,

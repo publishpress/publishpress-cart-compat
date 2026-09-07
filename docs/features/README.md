@@ -13,5 +13,5 @@ are not the same as features.
 
 | ID | Name |
 |----|------|
-| [studiocart-compatibility-mode](studiocart-compatibility-mode.md) | StudioCart Compatibility Mode |
+| [ppcart-compatibility-mode](ppcart-compatibility-mode.md) | StudioCart Compatibility Mode |
 | [data-migration](data-migration.md) | StudioCart Data migration |

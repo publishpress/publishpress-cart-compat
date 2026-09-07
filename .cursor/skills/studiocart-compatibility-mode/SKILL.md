@@ -22,13 +22,13 @@ plugins and apps keep working.
 
 **Issue #629 workflow:** [references/issue-629.md](references/issue-629.md)
 
-Feature record: [docs/features/studiocart-compatibility-mode.md](../../../docs/features/studiocart-compatibility-mode.md)
+Feature record: [docs/features/ppcart-compatibility-mode.md](../../../docs/features/ppcart-compatibility-mode.md)
 
 ## Decision (do not reopen)
 
 | Rule | Detail |
 |------|--------|
-| It is a **feature** | Catalog id `studiocart-compatibility-mode`, edition **free**, Cart → StudioCart (`page=ppcart-studiocart`) |
+| It is a **feature** | Catalog id `ppcart-compatibility-mode`, edition **free**, Cart → StudioCart (`page=ppcart-studiocart`) |
 | Default **off** | New stores do not load StudioCart PHP names |
 | Package, not a loader | `includes/compat/studiocart-compatibility-mode/` loaded from `publishpress-cart.php` |
 | **Do not** restore `includes/compat/legacy.php` | IT-161 asserts that file is gone |
@@ -86,7 +86,7 @@ Three layers (outer to inner):
 
 1. **wp-config** (highest): `PPCART_STUDIOCART_COMPATIBILITY_MODE` — if defined,
    `(bool)` value overrides the Settings checkbox.
-2. **Merchant**: option `_ppcart_studiocart_compatibility_mode` (`1`/`0`), default `0`. Leftover `_sc_studiocart_compatibility_mode` is dual-read and copied onto the canonical key (only exception to the no-silent-migration rule; store option keys are never auto-copied).
+2. **Merchant**: option `_ppcart_compatibility_mode` (`1`/`0`), default `0`. Historical `_ppcart_studiocart_compatibility_mode` and `_sc_studiocart_compatibility_mode` rows are read-only Compat inputs; neither is copied, renamed, or deleted on enable checks.
 3. **Developer/CI**: `ncs_cart_legacy_compat_enabled()` / `NCS_CART_LEGACY_COMPAT` /
    filter `ncs_cart_legacy_compat_enabled`. Suppresses individual `class_alias`
    calls and outbound constant aliases after the feature is on.
@@ -94,8 +94,8 @@ Three layers (outer to inner):
 When `PPCART_STUDIOCART_COMPATIBILITY_MODE` is defined, the Settings checkbox is
 **disabled** and shows a note.
 
-`supports_feature` is on `sc_cart_supports_feature` at **priority 20** so Pro’s
-blanket `supports_feature() { return true; }` cannot force this on.
+`supports_feature` is on `ppcart_cart_supports_feature` at **priority 20** so
+Pro’s blanket `supports_feature() { return true; }` cannot force this on.
 
 Register shims from `maybe_register_*` methods, same pattern as
 `maybe_register_aliases()` (early `sc_before_load` plus late hooks for
@@ -121,9 +121,8 @@ Persisted strings cannot be “aliased” with `class_alias`. If #629 or WP.org
 forces a stored-key rename, that is a **migration**, not a silent shim. Stop
 and confirm with the user.
 
-Exception: the Compatibility Mode toggle itself may dual-read leftover
-`_sc_studiocart_compatibility_mode` onto `_ppcart_studiocart_compatibility_mode`
-(UT-201 / IT-275). That is plugin settings for this feature, not store data.
+The Compatibility Mode toggle keeps historical rows as read-only Compat inputs
+(UT-201 / IT-275); no normal request migrates its setting.
 
 Admin menu/page slugs are an approved exception: slice 9 made a hard cutover
 to `ppcart` / `ppcart-*` and `ppcart_page_*`, with no redirects, dual

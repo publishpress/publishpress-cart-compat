@@ -58,5 +58,5 @@ storage bridges, not this feature. The option-key step is the explicit copy.
 
 ## Related
 
-- [StudioCart Compatibility Mode](studiocart-compatibility-mode.md) — PHP shims; does not rewrite stored rows
+- [StudioCart Compatibility Mode](ppcart-compatibility-mode.md) — PHP shims; does not rewrite stored rows
 - [Architecture](../dev/architecture.md)
