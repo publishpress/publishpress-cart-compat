@@ -72,6 +72,6 @@ if (! function_exists('sc_is_stripe_secret_key')) {
 if (! function_exists('sc_is_studiocart')) {
     function sc_is_studiocart()
     {
-        return ppcart_is_studiocart();
+        return ppcart_is_checkout_context();
     }
 }

@@ -42,6 +42,16 @@ function ppcart_shortcode_tag_migration_pairs()
 }
 
 /**
+ * Leftover email merge tag => canonical merge tag.
+ *
+ * @return array<string, string>
+ */
+function ppcart_email_merge_tag_migration_pairs()
+{
+    return [ 'studiocart' => 'publishpress_cart' ];
+}
+
+/**
  * Site option keys that store email HTML (canonical and leftover names).
  *
  * @return array<int, string>

@@ -92,6 +92,20 @@ class ShortcodeTagMigrationTest extends WPTestCase
     }
 
     /**
+     * @test-id IT-349
+     */
+    public function test_IT_349_migrates_leftover_email_merge_tag(): void
+    {
+        update_option('_ppcart_email_confirmation_body', 'Powered by {studiocart}', false);
+        $this->runMigrationUntilDone();
+
+        $this->assertSame(
+            'Powered by {publishpress_cart}',
+            get_option('_ppcart_email_confirmation_body')
+        );
+    }
+
+    /**
      * @test-id IT-284
      */
     public function test_IT_284_compat_off_does_not_register_leftover_shortcodes(): void

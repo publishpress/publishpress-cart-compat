@@ -206,11 +206,11 @@ class PPCartComp_Shortcode_Tag_Migrator
         $moved = 0;
         foreach (ppcart_shortcode_tag_migration_email_option_keys() as $option) {
             $value = get_option($option, false);
-            if (! is_string($value) || ! ppcart_content_has_leftover_shortcode_tags($value)) {
+            if (! is_string($value) || ! ppcart_value_has_leftover_email_tags($value)) {
                 continue;
             }
 
-            $rewritten = ppcart_rewrite_leftover_shortcode_tags($value);
+            $rewritten = ppcart_rewrite_leftover_email_tags($value);
             if ($rewritten === $value) {
                 continue;
             }
@@ -240,11 +240,11 @@ class PPCartComp_Shortcode_Tag_Migrator
             $post_id  = (int) $row['post_id'];
             $meta_key = (string) $row['meta_key'];
             $value    = get_post_meta($post_id, $meta_key, true);
-            if (! ppcart_value_has_leftover_shortcode_tags($value)) {
+            if (! ppcart_value_has_leftover_email_tags($value)) {
                 continue;
             }
 
-            $rewritten = ppcart_rewrite_leftover_shortcode_tags_in_value($value);
+            $rewritten = ppcart_rewrite_leftover_email_tags_in_value($value);
             self::insert_backup(
                 'postmeta',
                 $post_id . ':' . $meta_key,
@@ -292,7 +292,7 @@ class PPCartComp_Shortcode_Tag_Migrator
         global $wpdb;
 
         $keys = ppcart_shortcode_tag_migration_notification_meta_keys();
-        $like = self::leftover_like_sql("{$wpdb->postmeta}.meta_value");
+        $like = self::leftover_like_sql("{$wpdb->postmeta}.meta_value", ppcart_email_tag_migration_like_patterns());
         if ('' === $like || [] === $keys) {
             return [];
         }
@@ -337,7 +337,7 @@ class PPCartComp_Shortcode_Tag_Migrator
         $count = 0;
         foreach (ppcart_shortcode_tag_migration_email_option_keys() as $option) {
             $value = get_option($option, false);
-            if (is_string($value) && ppcart_content_has_leftover_shortcode_tags($value)) {
+            if (is_string($value) && ppcart_value_has_leftover_email_tags($value)) {
                 ++$count;
             }
         }
@@ -353,7 +353,7 @@ class PPCartComp_Shortcode_Tag_Migrator
         global $wpdb;
 
         $keys = ppcart_shortcode_tag_migration_notification_meta_keys();
-        $like = self::leftover_like_sql("{$wpdb->postmeta}.meta_value");
+        $like = self::leftover_like_sql("{$wpdb->postmeta}.meta_value", ppcart_email_tag_migration_like_patterns());
         if ('' === $like || [] === $keys || empty($wpdb->postmeta)) {
             return 0;
         }
@@ -373,12 +373,12 @@ class PPCartComp_Shortcode_Tag_Migrator
      * @param string $column Qualified column name.
      * @return string
      */
-    private static function leftover_like_sql($column)
+    private static function leftover_like_sql($column, $patterns = null)
     {
         global $wpdb;
 
         $parts = [];
-        foreach (ppcart_shortcode_tag_migration_like_patterns() as $pattern) {
+        foreach (null === $patterns ? ppcart_shortcode_tag_migration_like_patterns() : $patterns as $pattern) {
             $parts[] = $wpdb->prepare("{$column} LIKE %s", $pattern);
         }
 

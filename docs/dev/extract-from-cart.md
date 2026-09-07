@@ -166,7 +166,7 @@ Cart’s suite must pass **without** this companion. IT/UT ids were kept.
 These are out of the companion extract; do not treat them as unfinished
 cutover of these packages:
 
-- jQuery `studiocart/orderform/*`, privacy exporter `studiocart_exporter`,
+- jQuery `studiocart/orderform/*`, privacy exporter `ppcart_exporter`,
   marketing URLs, leftover `add_option__sc_*` hooks in Cart
   `includes/bootstrap/templates/admin-hook-registrar-register.php`
 - Cart scanners that stay in Free (`prefix-leftover-literals`, HTML ids,

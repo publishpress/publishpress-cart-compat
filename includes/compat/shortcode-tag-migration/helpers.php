@@ -45,10 +45,30 @@ function ppcart_rewrite_leftover_shortcode_tags($text)
 }
 
 /**
- * Recursively rewrite leftover shortcode tags in strings.
+ * Rewrite leftover shortcode and merge tags in email content.
  *
  * @param mixed $value Content or nested notification payload.
  * @return mixed
+ */
+function ppcart_rewrite_leftover_email_tags($text)
+{
+    if (! is_string($text) || '' === $text) {
+        return $text;
+    }
+
+    $text = ppcart_rewrite_leftover_shortcode_tags($text);
+    foreach (ppcart_email_merge_tag_migration_pairs() as $legacy => $canonical) {
+        $text = str_replace('{' . $legacy . '}', '{' . $canonical . '}', $text);
+    }
+
+    return $text;
+}
+
+/**
+ * Whether email content contains a leftover shortcode or merge tag.
+ *
+ * @param mixed $value Email content.
+ * @return bool
  */
 function ppcart_rewrite_leftover_shortcode_tags_in_value($value)
 {
@@ -59,6 +79,62 @@ function ppcart_rewrite_leftover_shortcode_tags_in_value($value)
     if (is_array($value)) {
         foreach ($value as $key => $item) {
             $value[ $key ] = ppcart_rewrite_leftover_shortcode_tags_in_value($item);
+        }
+    }
+
+    return $value;
+}
+
+/**
+ * Whether email content contains a leftover shortcode or merge tag.
+ *
+ * @param mixed $value Email content.
+ * @return bool
+ */
+function ppcart_value_has_leftover_email_tags($value)
+{
+    if (is_string($value)) {
+        if (ppcart_content_has_leftover_shortcode_tags($value)) {
+            return true;
+        }
+
+        foreach (array_keys(ppcart_email_merge_tag_migration_pairs()) as $legacy) {
+            if (false !== strpos($value, '{' . $legacy . '}')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    if (! is_array($value)) {
+        return false;
+    }
+
+    foreach ($value as $item) {
+        if (ppcart_value_has_leftover_email_tags($item)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Recursively rewrite leftover email tags in nested values.
+ *
+ * @param mixed $value Email content.
+ * @return mixed
+ */
+function ppcart_rewrite_leftover_email_tags_in_value($value)
+{
+    if (is_string($value)) {
+        return ppcart_rewrite_leftover_email_tags($value);
+    }
+
+    if (is_array($value)) {
+        foreach ($value as $key => $item) {
+            $value[ $key ] = ppcart_rewrite_leftover_email_tags_in_value($item);
         }
     }
 
@@ -102,6 +178,24 @@ function ppcart_shortcode_tag_migration_like_patterns()
     $patterns = [];
     foreach (array_keys(ppcart_shortcode_tag_migration_pairs()) as $legacy) {
         $escaped    = method_exists($wpdb, 'esc_like') ? $wpdb->esc_like('[' . $legacy) : '[' . $legacy;
+        $patterns[] = '%' . $escaped . '%';
+    }
+
+    return $patterns;
+}
+
+/**
+ * SQL LIKE fragments for leftover email shortcodes and merge tags.
+ *
+ * @return array<int, string>
+ */
+function ppcart_email_tag_migration_like_patterns()
+{
+    global $wpdb;
+
+    $patterns = ppcart_shortcode_tag_migration_like_patterns();
+    foreach (array_keys(ppcart_email_merge_tag_migration_pairs()) as $legacy) {
+        $escaped    = method_exists($wpdb, 'esc_like') ? $wpdb->esc_like('{' . $legacy . '}') : '{' . $legacy . '}';
         $patterns[] = '%' . $escaped . '%';
     }
 

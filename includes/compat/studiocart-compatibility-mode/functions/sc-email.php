@@ -9,6 +9,24 @@ if (! defined('ABSPATH')) {
  * Loaded only when Compatibility Mode is on (see functions/index.php).
  */
 
+if (! function_exists('ppcartcomp_email_personalize_replacements')) {
+    /**
+     * Preserve the stored StudioCart merge tag while Compatibility Mode is on.
+     *
+     * @param array<string, mixed> $replacements Email replacements.
+     * @param array<string, mixed> $order_info Order data.
+     * @return array<string, mixed>
+     */
+    function ppcartcomp_email_personalize_replacements($replacements, $order_info)
+    {
+        $replacements['studiocart'] = $replacements['publishpress_cart'] ?? '';
+
+        return $replacements;
+    }
+
+    add_filter('ppcart_personalize_replacements', 'ppcartcomp_email_personalize_replacements', 20, 2);
+}
+
 if (! function_exists('sc_email_personalize_replacements')) {
     function sc_email_personalize_replacements($replacements, $order_info)
     {
