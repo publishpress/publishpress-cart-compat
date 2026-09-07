@@ -10,7 +10,7 @@ if (! defined('ABSPATH')) {
  * Leftover installs keep leftover names until Data migration runs.
  * Fresh installs (no leftover table) use canonical names.
  *
- * Pro `NCS_Cart_Tax` must call this with `'tax_rate'` instead of hardcoding
+ * Pro `PPCart_Tax` must call this with `'tax_rate'` instead of hardcoding
  * leftover or canonical table names.
  *
  * @param string $family Family key: tax_rate, order_items, order_itemmeta, downloads.
