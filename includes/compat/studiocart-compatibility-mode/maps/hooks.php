@@ -36,16 +36,30 @@ return [
         'ncs-cart-currency-symbols'         => 'ppcart_currency_symbols',
         'ncs-cart-zero-decimal-currency'    => 'ppcart_zero_decimal_currency',
         'before_sc_order_refund'           => 'ppcart_before_order_refund',
+        'ppcart_sc_subscription_integrations' => 'ppcart_ppcart_subscription_integrations',
+        'ppcart_sc_refund_order_integrations' => 'ppcart_ppcart_refund_order_integrations',
+        'ppcart_sc_wpdomainchecker_integrations' => 'ppcart_ppcart_wpdomainchecker_integrations',
     ],
     // Slice 34 integration triggers (`sc_order_*` / `sc_subscription_*` /
     // `sc_renewal_*`) use the mechanical sc_ → ppcart_ rule. Do not add 1:1
     // extras unless a leftover name is not a mechanical prefix.
+    // Slice 49 leftover service-id hooks already start with ppcart_, so they
+    // are not a mechanical sc_ prefix.
     'extra' => [
         'ppcart_after_order_paid' => [
             'studiocart_checkout_complete',
         ],
         'ppcart_before_order_refund' => [
             'before_sc_order_refund',
+        ],
+        'ppcart_ppcart_subscription_integrations' => [
+            'ppcart_sc_subscription_integrations',
+        ],
+        'ppcart_ppcart_refund_order_integrations' => [
+            'ppcart_sc_refund_order_integrations',
+        ],
+        'ppcart_ppcart_wpdomainchecker_integrations' => [
+            'ppcart_sc_wpdomainchecker_integrations',
         ],
     ],
     'cron' => [

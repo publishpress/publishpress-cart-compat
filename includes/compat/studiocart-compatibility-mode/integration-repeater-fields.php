@@ -23,11 +23,33 @@ if (! function_exists('ncs_cart_get_legacy_integration_repeater_field_map')) {
     }
 }
 
+if (! function_exists('ncs_cart_get_legacy_integration_service_id_map')) {
+    /**
+     * Canonical integration `services` values mapped to leftover ids.
+     *
+     * @return array<string, array<int, string>>
+     */
+    function ncs_cart_get_legacy_integration_service_id_map()
+    {
+        static $map = null;
+
+        if (null !== $map) {
+            return $map;
+        }
+
+        $map_file = __DIR__ . '/maps/integration-service-ids.php';
+        $map      = is_readable($map_file) ? include $map_file : [];
+
+        return is_array($map) ? $map : [];
+    }
+}
+
 if (! function_exists('ppcart_copy_legacy_integration_repeater_rows')) {
     /**
      * Copy leftover inner keys onto canonical keys. Canonical wins.
      *
-     * Leftover keys stay in place. Does not write stored rows.
+     * Remaps leftover `services` values onto canonical ids. Canonical
+     * `services` wins. Leftover keys stay in place. Does not write stored rows.
      *
      * @param mixed $rows Repeater rows.
      * @return mixed
@@ -39,6 +61,7 @@ if (! function_exists('ppcart_copy_legacy_integration_repeater_rows')) {
         }
 
         $map = ncs_cart_get_legacy_integration_repeater_field_map();
+        $service_map = ncs_cart_get_legacy_integration_service_id_map();
 
         foreach ($rows as $index => $row) {
             if (! is_array($row)) {
@@ -68,10 +91,45 @@ if (! function_exists('ppcart_copy_legacy_integration_repeater_rows')) {
                 }
             }
 
+            $row = ppcart_copy_legacy_integration_service_id($row, $service_map);
+
             $rows[ $index ] = $row;
         }
 
         return $rows;
+    }
+}
+
+if (! function_exists('ppcart_copy_legacy_integration_service_id')) {
+    /**
+     * Remap leftover `services` onto the canonical id. Canonical wins.
+     *
+     * @param array<string, mixed>              $row          Repeater row.
+     * @param array<string, array<int, string>> $service_map Canonical => leftover ids.
+     * @return array<string, mixed>
+     */
+    function ppcart_copy_legacy_integration_service_id($row, $service_map)
+    {
+        if (! isset($row['services']) || ! is_string($row['services']) || '' === $row['services']) {
+            return $row;
+        }
+
+        foreach ($service_map as $canonical => $leftovers) {
+            if (! is_string($canonical) || '' === $canonical || ! is_array($leftovers)) {
+                continue;
+            }
+
+            if ($row['services'] === $canonical) {
+                return $row;
+            }
+
+            if (in_array($row['services'], $leftovers, true)) {
+                $row['services'] = $canonical;
+                return $row;
+            }
+        }
+
+        return $row;
     }
 }
 

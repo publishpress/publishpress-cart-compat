@@ -173,6 +173,13 @@ modules:
     features: []
     notes: First-party leftover Pro lock tab ids live in publishpress-cart. This catalog id is shared. Hard cutover; no Compatibility Mode tab aliases.
 
+  - id: prefix-integration-service-ids
+    name: Leftover integration service-id copy
+    suites: [unit, integration]
+    test_range: UT-283, IT-347
+    features: [studiocart-compatibility-mode]
+    notes: Compatibility Mode remaps leftover sc_subscription / sc_refund_order / sc_wpdomainchecker services onto ppcart_*. Stored rows are not rewritten. Leftover ppcart_sc_*_integrations listeners run only while Compatibility Mode is on.
+
   - id: prefix-stripe-metadata
     name: Leftover Stripe metadata lookup
     suites: [unit]
