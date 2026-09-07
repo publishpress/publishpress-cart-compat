@@ -27,6 +27,13 @@ class StudiocartCompatibilityModeTest extends Unit
         }
 
         WordPressStubContext::set(
+            'add_filter',
+            static function () {
+                return true;
+            }
+        );
+
+        WordPressStubContext::set(
             'apply_filters',
             function ($hook_name, $value) {
                 $filters = WordPressStubContext::getState('compat_filters', array());
