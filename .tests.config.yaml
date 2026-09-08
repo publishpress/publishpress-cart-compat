@@ -255,6 +255,13 @@ modules:
     features: [ppcart-compatibility-mode]
     notes: Compatibility Mode maps leftover sc-cart-cpt-options / sc-cart-taxonomy-options onto ppcart_cpt_options / ppcart_taxonomy_options while on.
 
+  - id: prefix-mangled-hooks
+    name: Mangled leftover hook bridges (#629 slice 70)
+    suites: [unit, integration]
+    test_range: UT-305, IT-359
+    features: [ppcart-compatibility-mode]
+    notes: Compatibility Mode maps shipped leftover ncs_activate / sc_activate / ncs_upgrade / sc_upgrade / sc_product / sc_product_price onto canonical tags while on. Never alias mangled ppcart_ctivate / ppcart_pgrade / ppcart_roduct.
+
   - id: prefix-shortcode-tags
     name: Leftover shortcode dual-register
     suites: [unit, integration]

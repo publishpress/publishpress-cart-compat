@@ -147,6 +147,60 @@ class HookBridgesTest extends Unit
         $this->assertTrue(ncs_cart_hook_bridge_is_candidate('ppcart_taxonomy_options'));
     }
 
+    /**
+     * @test-id UT-305
+     */
+    public function test_UT_305_hook_map_covers_shipped_leftover_activate_upgrade_product_hooks(): void
+    {
+        $pairs = [
+            'sc_activate'       => 'ppcart_activate',
+            'ncs_activate'      => 'ppcart_activate',
+            'sc_upgrade'        => 'ppcart_upgrade',
+            'ncs_upgrade'       => 'ppcart_upgrade',
+            'sc_product'        => 'ppcart_product',
+            'sc_product_price'  => 'ppcart_product_price',
+        ];
+
+        foreach ($pairs as $leftover => $canonical) {
+            $this->assertSame(
+                $canonical,
+                ncs_cart_legacy_to_canonical_hook_name($leftover),
+                $leftover
+            );
+            $this->assertContains(
+                $leftover,
+                ncs_cart_canonical_to_legacy_hook_names($canonical),
+                $leftover
+            );
+            $this->assertTrue(ncs_cart_hook_bridge_is_candidate($leftover), $leftover);
+            $this->assertTrue(ncs_cart_hook_bridge_is_candidate($canonical), $canonical);
+        }
+
+        foreach (['ppcart_ctivate', 'ppcart_pgrade', 'ppcart_roduct', 'ppcart_roduct_price'] as $mangled) {
+            $this->assertNull(
+                ncs_cart_legacy_to_canonical_hook_name($mangled),
+                $mangled . ' must not be aliased'
+            );
+        }
+
+        $this->assertNotContains(
+            'ppcart_ctivate',
+            ncs_cart_canonical_to_legacy_hook_names('ppcart_activate')
+        );
+        $this->assertNotContains(
+            'ppcart_pgrade',
+            ncs_cart_canonical_to_legacy_hook_names('ppcart_upgrade')
+        );
+        $this->assertNotContains(
+            'ppcart_roduct',
+            ncs_cart_canonical_to_legacy_hook_names('ppcart_product')
+        );
+        $this->assertNotContains(
+            'ppcart_roduct_price',
+            ncs_cart_canonical_to_legacy_hook_names('ppcart_product_price')
+        );
+    }
+
     public function test_UT_189_cron_bridges_register_always_and_legacy_hook_bridges_only_when_compat_is_on(): void
     {
         $this->assertFalse(PPCartComp_Studiocart_Compatibility_Mode::cron_hook_bridges_registered());

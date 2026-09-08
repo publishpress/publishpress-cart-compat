@@ -278,6 +278,107 @@ class HookBridgesTest extends WPTestCase
         $this->assertTrue($canonical_taxonomy);
     }
 
+    /**
+     * @test-id IT-359
+     */
+    public function test_IT_359_leftover_activate_upgrade_product_hooks_bridge_only_when_compatibility_mode_is_on(): void
+    {
+        // Cart listens on these tags to CREATE custom tables. Strip those
+        // side effects so this hook-name check does not pollute later schema tests.
+        remove_all_actions('ppcart_activate');
+        remove_all_actions('ppcart_upgrade');
+
+        $legacy_activate = false;
+        $legacy_upgrade = false;
+        $mangled_activate = false;
+
+        add_action(
+            'sc_activate',
+            static function () use (&$legacy_activate) {
+                $legacy_activate = true;
+            }
+        );
+        add_action(
+            'ncs_upgrade',
+            static function () use (&$legacy_upgrade) {
+                $legacy_upgrade = true;
+            }
+        );
+        add_action(
+            'ppcart_ctivate',
+            static function () use (&$mangled_activate) {
+                $mangled_activate = true;
+            }
+        );
+        add_filter(
+            'sc_product',
+            static function ($value) {
+                $value['bridged'] = true;
+
+                return $value;
+            }
+        );
+        add_filter(
+            'sc_product_price',
+            static function ($price) {
+                return $price + 1;
+            }
+        );
+
+        do_action('ppcart_activate');
+        do_action('ppcart_upgrade');
+        $product = apply_filters('ppcart_product', ['ID' => 1]);
+        $price = apply_filters('ppcart_product_price', 10);
+
+        $this->assertFalse($legacy_activate);
+        $this->assertFalse($legacy_upgrade);
+        $this->assertFalse($mangled_activate);
+        $this->assertArrayNotHasKey('bridged', $product);
+        $this->assertSame(10, $price);
+
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+        PPCartComp_Studiocart_Compatibility_Mode::maybe_register_hooks();
+
+        $legacy_activate = false;
+        $legacy_upgrade = false;
+        $mangled_activate = false;
+
+        do_action('ppcart_activate');
+        do_action('ppcart_upgrade');
+        $product = apply_filters('ppcart_product', ['ID' => 1]);
+        $price = apply_filters('ppcart_product_price', 10);
+
+        $this->assertTrue($legacy_activate);
+        $this->assertTrue($legacy_upgrade);
+        $this->assertFalse($mangled_activate);
+        $this->assertTrue($product['bridged'] ?? false);
+        $this->assertSame(11, $price);
+
+        $canonical_activate = false;
+        $canonical_product = false;
+
+        add_action(
+            'ppcart_activate',
+            static function () use (&$canonical_activate) {
+                $canonical_activate = true;
+            }
+        );
+        add_filter(
+            'ppcart_product',
+            static function ($value) use (&$canonical_product) {
+                $canonical_product = true;
+
+                return $value;
+            }
+        );
+
+        do_action('ncs_activate');
+        apply_filters('sc_product', ['ID' => 2]);
+
+        $this->assertTrue($canonical_activate);
+        $this->assertTrue($canonical_product);
+    }
+
     public function test_IT_265_plugin_identity_hooks_do_not_bridge_when_compat_is_off(): void
     {
         foreach ($this->pluginIdentityHookMap() as $canonical => $legacy) {
