@@ -50,6 +50,8 @@ return [
     'ppcart-revoked' => [ 'sc-revoked' ],
     'ppcart-show-password' => [ 'sc-show-password' ],
     'ppcart-subscription-sync' => [ 'sc-subscription-sync' ],
+    'ppcart_action' => [ 'ncs_action' ],
+    'ppcart_ajax_nonce' => [ 'ncs_ajax_nonce' ],
     'ppcart_accept_privacy' => [ 'sc_accept_privacy' ],
     'ppcart_accept_terms' => [ 'sc_accept_terms' ],
     'ppcart_account_id' => [ 'sc_account_id' ],

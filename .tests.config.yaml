@@ -220,6 +220,13 @@ modules:
     features: [ppcart-compatibility-mode]
     notes: Compatibility Mode dual-registers leftover sc-products-shortcode/product-shortcode onto publishpress-cart/checkout-form while on.
 
+  - id: prefix-admin-ajax-js-globals
+    name: Leftover admin AJAX POST keys and JS globals bridge
+    suites: [unit, integration]
+    test_range: UT-296, IT-352
+    features: [ppcart-compatibility-mode]
+    notes: Compatibility Mode copies ncs_ajax_nonce / ncs_action onto ppcart_ajax_nonce / ppcart_action and aliases sc_tax_settings to ppcart_tax_settings in JS while on.
+
   - id: prefix-shortcode-tags
     name: Leftover shortcode dual-register
     suites: [unit, integration]

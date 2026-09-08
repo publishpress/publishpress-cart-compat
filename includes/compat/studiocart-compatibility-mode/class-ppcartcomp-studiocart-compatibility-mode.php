@@ -655,6 +655,16 @@ class PPCartComp_Studiocart_Compatibility_Mode
             $version,
             'all'
         );
+
+        if (self::is_enabled() && function_exists('wp_script_is') && wp_script_is('ppcart', 'registered')) {
+            wp_enqueue_script(
+                'ppcart-compat-js-globals',
+                plugin_dir_url(__FILE__) . 'js/ppcart-compat-js-globals.js',
+                [ 'ppcart' ],
+                $version,
+                true
+            );
+        }
     }
 
     /**
