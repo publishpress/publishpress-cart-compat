@@ -262,6 +262,13 @@ modules:
     features: [ppcart-compatibility-mode]
     notes: Compatibility Mode maps shipped leftover ncs_activate / sc_activate / ncs_upgrade / sc_upgrade / sc_product / sc_product_price onto canonical tags while on. Never alias mangled ppcart_ctivate / ppcart_pgrade / ppcart_roduct.
 
+  - id: prefix-revoke-get-keys
+    name: Leftover GET sc-revoke / sc-revoked request-field copy
+    suites: [unit, integration]
+    test_range: UT-306, IT-360
+    features: [ppcart-compatibility-mode]
+    notes: Compatibility Mode copies leftover GET sc-revoke / sc-revoked onto ppcart-revoke / ppcart-revoked while on.
+
   - id: prefix-shortcode-tags
     name: Leftover shortcode dual-register
     suites: [unit, integration]
