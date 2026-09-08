@@ -248,6 +248,13 @@ modules:
     features: [ppcart-compatibility-mode]
     notes: Forbidden ppcart_compat_* renamed to ppcartcomp_* in metadata-bridges.php. Bridges register only while Compatibility Mode is on.
 
+  - id: prefix-cpt-taxonomy-filters
+    name: CPT/taxonomy leftover filter bridges (#629 slice 66)
+    suites: [unit, integration]
+    test_range: UT-301, IT-357
+    features: [ppcart-compatibility-mode]
+    notes: Compatibility Mode maps leftover sc-cart-cpt-options / sc-cart-taxonomy-options onto ppcart_cpt_options / ppcart_taxonomy_options while on.
+
   - id: prefix-shortcode-tags
     name: Leftover shortcode dual-register
     suites: [unit, integration]

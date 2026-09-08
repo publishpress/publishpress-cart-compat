@@ -120,6 +120,33 @@ class HookBridgesTest extends Unit
         $this->assertTrue(ncs_cart_hook_bridge_is_candidate('ppcart_before_order_refund'));
     }
 
+    /**
+     * @test-id UT-301
+     */
+    public function test_UT_301_hook_map_covers_leftover_sc_cart_cpt_taxonomy_options(): void
+    {
+        $this->assertSame(
+            'ppcart_cpt_options',
+            ncs_cart_legacy_to_canonical_hook_name('sc-cart-cpt-options')
+        );
+        $this->assertContains(
+            'sc-cart-cpt-options',
+            ncs_cart_canonical_to_legacy_hook_names('ppcart_cpt_options')
+        );
+        $this->assertSame(
+            'ppcart_taxonomy_options',
+            ncs_cart_legacy_to_canonical_hook_name('sc-cart-taxonomy-options')
+        );
+        $this->assertContains(
+            'sc-cart-taxonomy-options',
+            ncs_cart_canonical_to_legacy_hook_names('ppcart_taxonomy_options')
+        );
+        $this->assertTrue(ncs_cart_hook_bridge_is_candidate('sc-cart-cpt-options'));
+        $this->assertTrue(ncs_cart_hook_bridge_is_candidate('sc-cart-taxonomy-options'));
+        $this->assertTrue(ncs_cart_hook_bridge_is_candidate('ppcart_cpt_options'));
+        $this->assertTrue(ncs_cart_hook_bridge_is_candidate('ppcart_taxonomy_options'));
+    }
+
     public function test_UT_189_cron_bridges_register_always_and_legacy_hook_bridges_only_when_compat_is_on(): void
     {
         $this->assertFalse(PPCartComp_Studiocart_Compatibility_Mode::cron_hook_bridges_registered());

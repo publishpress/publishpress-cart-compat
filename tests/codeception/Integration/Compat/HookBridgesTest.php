@@ -212,6 +212,72 @@ class HookBridgesTest extends WPTestCase
         $this->assertTrue($legacy_ran);
     }
 
+    /**
+     * @test-id IT-357
+     */
+    public function test_IT_357_leftover_cpt_taxonomy_option_filters_bridge_only_when_compatibility_mode_is_on(): void
+    {
+        add_filter(
+            'sc-cart-cpt-options',
+            static function ($opts, $cpt_name) {
+                $opts['bridged'] = $cpt_name;
+
+                return $opts;
+            },
+            10,
+            2
+        );
+        add_filter(
+            'sc-cart-taxonomy-options',
+            static function ($opts) {
+                $opts['bridged'] = true;
+
+                return $opts;
+            }
+        );
+
+        $cpt = apply_filters('ppcart_cpt_options', ['menu_icon' => 'dashicons-products'], 'ppcart_product');
+        $taxonomy = apply_filters('ppcart_taxonomy_options', ['hierarchical' => true]);
+
+        $this->assertArrayNotHasKey('bridged', $cpt);
+        $this->assertArrayNotHasKey('bridged', $taxonomy);
+
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+        PPCartComp_Studiocart_Compatibility_Mode::maybe_register_hooks();
+
+        $cpt = apply_filters('ppcart_cpt_options', ['menu_icon' => 'dashicons-products'], 'ppcart_product');
+        $taxonomy = apply_filters('ppcart_taxonomy_options', ['hierarchical' => true]);
+
+        $this->assertSame('ppcart_product', $cpt['bridged'] ?? null);
+        $this->assertTrue($taxonomy['bridged'] ?? false);
+
+        $canonical_cpt = false;
+        $canonical_taxonomy = false;
+
+        add_filter(
+            'ppcart_cpt_options',
+            static function ($opts) use (&$canonical_cpt) {
+                $canonical_cpt = true;
+
+                return $opts;
+            }
+        );
+        add_filter(
+            'ppcart_taxonomy_options',
+            static function ($opts) use (&$canonical_taxonomy) {
+                $canonical_taxonomy = true;
+
+                return $opts;
+            }
+        );
+
+        apply_filters('sc-cart-cpt-options', ['menu_icon' => 'dashicons-products'], 'ppcart_product');
+        apply_filters('sc-cart-taxonomy-options', ['hierarchical' => true]);
+
+        $this->assertTrue($canonical_cpt);
+        $this->assertTrue($canonical_taxonomy);
+    }
+
     public function test_IT_265_plugin_identity_hooks_do_not_bridge_when_compat_is_off(): void
     {
         foreach ($this->pluginIdentityHookMap() as $canonical => $legacy) {
