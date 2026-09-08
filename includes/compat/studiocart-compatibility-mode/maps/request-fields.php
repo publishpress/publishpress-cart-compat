@@ -49,6 +49,7 @@ return [
     'ppcart-revoke' => [ 'sc-revoke' ],
     'ppcart-revoked' => [ 'sc-revoked' ],
     'ppcart-show-password' => [ 'sc-show-password' ],
+    'ppcart-slm-order' => [ 'sc-slm-order' ],
     'ppcart-subscription-sync' => [ 'sc-subscription-sync' ],
     'ppcart_action' => [ 'ncs_action' ],
     'ppcart_ajax_nonce' => [ 'ncs_ajax_nonce' ],

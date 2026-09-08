@@ -227,6 +227,13 @@ modules:
     features: [ppcart-compatibility-mode]
     notes: Compatibility Mode copies ncs_ajax_nonce / ncs_action onto ppcart_ajax_nonce / ppcart_action and aliases sc_tax_settings to ppcart_tax_settings in JS while on.
 
+  - id: prefix-request-name-get
+    name: Leftover GET sc-slm-order request-field copy
+    suites: [unit, integration]
+    test_range: UT-297, IT-353
+    features: [ppcart-compatibility-mode]
+    notes: Compatibility Mode copies leftover GET sc-slm-order onto ppcart-slm-order while on.
+
   - id: prefix-shortcode-tags
     name: Leftover shortcode dual-register
     suites: [unit, integration]
