@@ -216,6 +216,28 @@ if (! function_exists('add_filter')) {
     }
 }
 
+if (! function_exists('has_filter')) {
+    function has_filter($hook_name, $callback = false)
+    {
+        if (! WordPressStubContext::has('has_filter')) {
+            return false;
+        }
+
+        return WordPressStubContext::invoke('has_filter', func_get_args());
+    }
+}
+
+if (! function_exists('remove_filter')) {
+    function remove_filter($hook_name, $callback, $priority = 10)
+    {
+        if (! WordPressStubContext::has('remove_filter')) {
+            return true;
+        }
+
+        return WordPressStubContext::invoke('remove_filter', func_get_args());
+    }
+}
+
 if (! function_exists('add_settings_section')) {
     function add_settings_section($id, $title, $callback, $page)
     {

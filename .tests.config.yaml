@@ -269,6 +269,13 @@ modules:
     features: [ppcart-compatibility-mode]
     notes: Compatibility Mode copies leftover GET sc-revoke / sc-revoked onto ppcart-revoke / ppcart-revoked while on.
 
+  - id: prefix-download-upload-directory
+    name: Leftover sc-uploads extra allowed download root
+    suites: [unit, integration]
+    test_range: UT-308, IT-361
+    features: [ppcart-compatibility-mode]
+    notes: Compatibility Mode adds leftover sc-uploads as an extra allowed download root while on. No disk copy. Cart writes and allow-lists ppcart-uploads only.
+
   - id: prefix-shortcode-tags
     name: Leftover shortcode dual-register
     suites: [unit, integration]

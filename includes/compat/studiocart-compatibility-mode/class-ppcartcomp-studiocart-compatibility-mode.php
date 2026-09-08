@@ -87,6 +87,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('plugins_loaded', [ self::class, 'maybe_register_request_fields' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_stripe_metadata' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_cpt_taxonomy' ], 0);
+        add_action('plugins_loaded', [ self::class, 'maybe_register_download_upload_directory' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_shortcodes' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_hooks' ], PHP_INT_MAX);
 
@@ -99,6 +100,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('ppcart_before_load', [ self::class, 'maybe_register_request_fields' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_stripe_metadata' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_cpt_taxonomy' ], PHP_INT_MAX);
+        add_action('ppcart_before_load', [ self::class, 'maybe_register_download_upload_directory' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_shortcodes' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_option_storage_bridges' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_options' ], PHP_INT_MAX);
@@ -136,6 +138,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
         self::maybe_register_request_fields();
         self::maybe_register_stripe_metadata();
         self::maybe_register_cpt_taxonomy();
+        self::maybe_register_download_upload_directory();
         self::maybe_register_shortcodes();
 
         if (class_exists('PPCartComp_Studiocart_Public_Query_Compatibility', false)) {
@@ -424,6 +427,30 @@ class PPCartComp_Studiocart_Compatibility_Mode
         }
 
         ppcart_register_legacy_cpt_taxonomy_bridges();
+    }
+
+    /**
+     * Allow leftover sc-uploads as an extra download root when the mode is on.
+     *
+     * In-memory extra root only. Does not create, copy, or move files.
+     *
+     * @return void
+     */
+    public static function maybe_register_download_upload_directory()
+    {
+        if (! function_exists('ppcart_register_legacy_download_upload_roots')) {
+            return;
+        }
+
+        if (! self::is_enabled()) {
+            if (function_exists('ppcart_unregister_legacy_download_upload_roots')) {
+                ppcart_unregister_legacy_download_upload_roots();
+            }
+
+            return;
+        }
+
+        ppcart_register_legacy_download_upload_roots();
     }
 
     /**
