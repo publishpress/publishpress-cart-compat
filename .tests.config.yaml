@@ -234,6 +234,13 @@ modules:
     features: [ppcart-compatibility-mode]
     notes: Compatibility Mode copies leftover GET sc-slm-order onto ppcart-slm-order while on.
 
+  - id: prefix-leftover-recognition
+    name: Leftover recognition Compat bridges (#629 slice 63)
+    suites: [unit, integration]
+    test_range: UT-298, IT-354
+    features: [ppcart-compatibility-mode]
+    notes: Compatibility Mode read-throughs leftover _my_account, FSE template slugs, product-duplicate meta rewrites, and Stripe _sc_* owned-field names while on.
+
   - id: prefix-shortcode-tags
     name: Leftover shortcode dual-register
     suites: [unit, integration]

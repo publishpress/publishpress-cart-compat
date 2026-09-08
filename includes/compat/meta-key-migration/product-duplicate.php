@@ -7,8 +7,8 @@ if (! defined('ABSPATH')) {
 /**
  * Leftover product-duplicate handling for PublishPress Cart Free.
  *
- * Free skips `_sc_*` write keys. When cart-compat is loaded, rewrite leftover
- * source rows to canonical `_ppcart_*` (and exclude leftover Stripe identity).
+ * Free copies `_ppcart_*` write keys only. When cart-compat is loaded,
+ * rewrite leftover source rows to canonical `_ppcart_*` (and exclude leftover
  * Persistent leftover rows are renamed by merchant Data migration
  * (`PPCartComp_Meta_Key_Migrator`, LIKE `_sc_%` on postmeta/usermeta) — not by Free.
  */

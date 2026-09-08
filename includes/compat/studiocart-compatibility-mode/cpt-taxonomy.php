@@ -80,8 +80,69 @@ if (! function_exists('ppcart_unregister_legacy_cpt_taxonomy_bridges')) {
         }
 
         remove_action('init', 'ppcart_register_legacy_taxonomy_rewrite_aliases', 11);
+        remove_action('init', 'ppcart_register_legacy_fse_product_templates', 1001);
     }
 }
+
+if (! function_exists('ppcart_register_legacy_fse_product_templates')) {
+    /**
+     * Register leftover FSE product templates while Compatibility Mode is on.
+     *
+     * @return void
+     */
+    function ppcart_register_legacy_fse_product_templates()
+    {
+        if (
+            ! class_exists('PPCart_Product_Template', false)
+            || ! PPCart_Product_Template::is_supported_block_theme()
+        ) {
+            return;
+        }
+
+        if (get_option('_ppcart_disable_template')) {
+            return;
+        }
+
+        if (
+            ! class_exists('PPCartComp_Studiocart_Compatibility_Mode', false)
+            || ! PPCartComp_Studiocart_Compatibility_Mode::is_enabled()
+        ) {
+            return;
+        }
+
+        if (! function_exists('ppcart_cpt_leftover_fse_template_slugs')) {
+            return;
+        }
+
+        $plugin_slug = PPCart_Product_Template::PLUGIN_SLUG;
+        $post_types  = PPCart_Product_Template::get_product_post_types();
+
+        foreach (ppcart_cpt_leftover_fse_template_slugs() as $leftover_slug) {
+            $leftover_name = $plugin_slug . '//' . $leftover_slug;
+            $leftover_type = preg_replace('/^single-/', '', $leftover_slug);
+
+            if (class_exists('WP_Block_Templates_Registry')) {
+                $registry = WP_Block_Templates_Registry::get_instance();
+                if ($registry->is_registered($leftover_name)) {
+                    continue;
+                }
+            }
+
+            register_block_template(
+                $leftover_name,
+                [
+                    'title'       => PPCart_Product_Template::get_template_title($leftover_type),
+                    'description' => esc_html__('Controls PublishPress Cart product pages. Edit this template to move product content and the checkout form.', 'publishpress-cart'),
+                    'content'     => PPCart_Product_Template::get_template_content(),
+                    'post_types'  => $leftover_type ? [ $leftover_type ] : $post_types,
+                    'plugin'      => $plugin_slug,
+                ]
+            );
+        }
+    }
+}
+
+add_action('init', 'ppcart_register_legacy_fse_product_templates', 1001);
 
 if (! function_exists('ppcart_register_legacy_taxonomy_rewrite_aliases')) {
     /**
