@@ -104,3 +104,5 @@ metrics-report.json
 .ddev/
 
 *.code-workspace
+# PHP CS Fixer configuration
+/.php-cs-fixer.php
