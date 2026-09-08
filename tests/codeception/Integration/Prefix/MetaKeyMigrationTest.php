@@ -332,14 +332,14 @@ class MetaKeyMigrationTest extends WPTestCase
     private function removeMetadataBridges(): void
     {
         $filters = [
-            'get_post_metadata'    => 'ppcart_compat_get_post_metadata',
-            'update_post_metadata' => 'ppcart_compat_update_post_metadata',
-            'delete_post_metadata' => 'ppcart_compat_delete_post_metadata',
-            'add_post_metadata'    => 'ppcart_compat_add_post_metadata',
-            'get_user_metadata'    => 'ppcart_compat_get_user_metadata',
-            'update_user_metadata' => 'ppcart_compat_update_user_metadata',
-            'delete_user_metadata' => 'ppcart_compat_delete_user_metadata',
-            'add_user_metadata'    => 'ppcart_compat_add_user_metadata',
+            'get_post_metadata'    => 'ppcartcomp_get_post_metadata',
+            'update_post_metadata' => 'ppcartcomp_update_post_metadata',
+            'delete_post_metadata' => 'ppcartcomp_delete_post_metadata',
+            'add_post_metadata'    => 'ppcartcomp_add_post_metadata',
+            'get_user_metadata'    => 'ppcartcomp_get_user_metadata',
+            'update_user_metadata' => 'ppcartcomp_update_user_metadata',
+            'delete_user_metadata' => 'ppcartcomp_delete_user_metadata',
+            'add_user_metadata'    => 'ppcartcomp_add_user_metadata',
         ];
 
         foreach ($filters as $hook => $callback) {

@@ -241,6 +241,13 @@ modules:
     features: [ppcart-compatibility-mode]
     notes: Compatibility Mode read-throughs leftover _my_account, FSE template slugs, product-duplicate meta rewrites, and Stripe _sc_* owned-field names while on.
 
+  - id: prefix-compat-prefix
+    name: Metadata bridge ppcartcomp_* callbacks (#629 slice 64)
+    suites: [unit, integration]
+    test_range: UT-299, IT-355
+    features: [ppcart-compatibility-mode]
+    notes: Forbidden ppcart_compat_* renamed to ppcartcomp_* in metadata-bridges.php. Bridges register only while Compatibility Mode is on.
+
   - id: prefix-shortcode-tags
     name: Leftover shortcode dual-register
     suites: [unit, integration]

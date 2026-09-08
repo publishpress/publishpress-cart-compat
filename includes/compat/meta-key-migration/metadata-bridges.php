@@ -17,7 +17,7 @@ function ppcart_register_legacy_metadata_api_bridges()
     static $registered = false;
 
     if (function_exists('has_filter')) {
-        if (false !== has_filter('get_post_metadata', 'ppcart_compat_get_post_metadata')) {
+        if (false !== has_filter('get_post_metadata', 'ppcartcomp_get_post_metadata')) {
             $registered = true;
             return;
         }
@@ -25,14 +25,14 @@ function ppcart_register_legacy_metadata_api_bridges()
         return;
     }
 
-    add_filter('get_post_metadata', 'ppcart_compat_get_post_metadata', 10, 4);
-    add_filter('update_post_metadata', 'ppcart_compat_update_post_metadata', 10, 5);
-    add_filter('delete_post_metadata', 'ppcart_compat_delete_post_metadata', 10, 5);
-    add_filter('add_post_metadata', 'ppcart_compat_add_post_metadata', 10, 5);
-    add_filter('get_user_metadata', 'ppcart_compat_get_user_metadata', 10, 4);
-    add_filter('update_user_metadata', 'ppcart_compat_update_user_metadata', 10, 5);
-    add_filter('delete_user_metadata', 'ppcart_compat_delete_user_metadata', 10, 5);
-    add_filter('add_user_metadata', 'ppcart_compat_add_user_metadata', 10, 5);
+    add_filter('get_post_metadata', 'ppcartcomp_get_post_metadata', 10, 4);
+    add_filter('update_post_metadata', 'ppcartcomp_update_post_metadata', 10, 5);
+    add_filter('delete_post_metadata', 'ppcartcomp_delete_post_metadata', 10, 5);
+    add_filter('add_post_metadata', 'ppcartcomp_add_post_metadata', 10, 5);
+    add_filter('get_user_metadata', 'ppcartcomp_get_user_metadata', 10, 4);
+    add_filter('update_user_metadata', 'ppcartcomp_update_user_metadata', 10, 5);
+    add_filter('delete_user_metadata', 'ppcartcomp_delete_user_metadata', 10, 5);
+    add_filter('add_user_metadata', 'ppcartcomp_add_user_metadata', 10, 5);
 
     $registered = true;
 }
@@ -85,7 +85,7 @@ function ppcart_meta_bridge_leave()
  * @param string $meta_type post|user.
  * @return mixed
  */
-function ppcart_compat_get_metadata($check, $object_id, $meta_key, $single, $meta_type)
+function ppcartcomp_get_metadata($check, $object_id, $meta_key, $single, $meta_type)
 {
     if (null !== $check || ppcart_meta_bridge_is_active() || ! ppcart_is_legacy_meta_key($meta_key)) {
         return $check;
@@ -124,9 +124,9 @@ function ppcart_compat_get_metadata($check, $object_id, $meta_key, $single, $met
  * @param bool   $single    Single.
  * @return mixed
  */
-function ppcart_compat_get_post_metadata($check, $object_id, $meta_key, $single)
+function ppcartcomp_get_post_metadata($check, $object_id, $meta_key, $single)
 {
-    return ppcart_compat_get_metadata($check, $object_id, $meta_key, $single, 'post');
+    return ppcartcomp_get_metadata($check, $object_id, $meta_key, $single, 'post');
 }
 
 /**
@@ -136,9 +136,9 @@ function ppcart_compat_get_post_metadata($check, $object_id, $meta_key, $single)
  * @param bool   $single    Single.
  * @return mixed
  */
-function ppcart_compat_get_user_metadata($check, $object_id, $meta_key, $single)
+function ppcartcomp_get_user_metadata($check, $object_id, $meta_key, $single)
 {
-    return ppcart_compat_get_metadata($check, $object_id, $meta_key, $single, 'user');
+    return ppcartcomp_get_metadata($check, $object_id, $meta_key, $single, 'user');
 }
 
 /**
@@ -149,9 +149,9 @@ function ppcart_compat_get_user_metadata($check, $object_id, $meta_key, $single)
  * @param mixed  $prev_value Previous value.
  * @return mixed
  */
-function ppcart_compat_update_post_metadata($check, $object_id, $meta_key, $meta_value, $prev_value)
+function ppcartcomp_update_post_metadata($check, $object_id, $meta_key, $meta_value, $prev_value)
 {
-    return ppcart_compat_write_metadata($check, $object_id, $meta_key, $meta_value, $prev_value, 'post', 'update');
+    return ppcartcomp_write_metadata($check, $object_id, $meta_key, $meta_value, $prev_value, 'post', 'update');
 }
 
 /**
@@ -162,9 +162,9 @@ function ppcart_compat_update_post_metadata($check, $object_id, $meta_key, $meta
  * @param mixed  $prev_value Previous value.
  * @return mixed
  */
-function ppcart_compat_update_user_metadata($check, $object_id, $meta_key, $meta_value, $prev_value)
+function ppcartcomp_update_user_metadata($check, $object_id, $meta_key, $meta_value, $prev_value)
 {
-    return ppcart_compat_write_metadata($check, $object_id, $meta_key, $meta_value, $prev_value, 'user', 'update');
+    return ppcartcomp_write_metadata($check, $object_id, $meta_key, $meta_value, $prev_value, 'user', 'update');
 }
 
 /**
@@ -175,9 +175,9 @@ function ppcart_compat_update_user_metadata($check, $object_id, $meta_key, $meta
  * @param bool   $unique     Unique.
  * @return mixed
  */
-function ppcart_compat_add_post_metadata($check, $object_id, $meta_key, $meta_value, $unique)
+function ppcartcomp_add_post_metadata($check, $object_id, $meta_key, $meta_value, $unique)
 {
-    return ppcart_compat_write_metadata($check, $object_id, $meta_key, $meta_value, $unique, 'post', 'add');
+    return ppcartcomp_write_metadata($check, $object_id, $meta_key, $meta_value, $unique, 'post', 'add');
 }
 
 /**
@@ -188,9 +188,9 @@ function ppcart_compat_add_post_metadata($check, $object_id, $meta_key, $meta_va
  * @param bool   $unique     Unique.
  * @return mixed
  */
-function ppcart_compat_add_user_metadata($check, $object_id, $meta_key, $meta_value, $unique)
+function ppcartcomp_add_user_metadata($check, $object_id, $meta_key, $meta_value, $unique)
 {
-    return ppcart_compat_write_metadata($check, $object_id, $meta_key, $meta_value, $unique, 'user', 'add');
+    return ppcartcomp_write_metadata($check, $object_id, $meta_key, $meta_value, $unique, 'user', 'add');
 }
 
 /**
@@ -201,9 +201,9 @@ function ppcart_compat_add_user_metadata($check, $object_id, $meta_key, $meta_va
  * @param bool   $delete_all Delete all matching values.
  * @return mixed
  */
-function ppcart_compat_delete_post_metadata($check, $object_id, $meta_key, $meta_value, $delete_all)
+function ppcartcomp_delete_post_metadata($check, $object_id, $meta_key, $meta_value, $delete_all)
 {
-    return ppcart_compat_write_metadata($check, $object_id, $meta_key, $meta_value, $delete_all, 'post', 'delete');
+    return ppcartcomp_write_metadata($check, $object_id, $meta_key, $meta_value, $delete_all, 'post', 'delete');
 }
 
 /**
@@ -214,9 +214,9 @@ function ppcart_compat_delete_post_metadata($check, $object_id, $meta_key, $meta
  * @param bool   $delete_all Delete all matching values.
  * @return mixed
  */
-function ppcart_compat_delete_user_metadata($check, $object_id, $meta_key, $meta_value, $delete_all)
+function ppcartcomp_delete_user_metadata($check, $object_id, $meta_key, $meta_value, $delete_all)
 {
-    return ppcart_compat_write_metadata($check, $object_id, $meta_key, $meta_value, $delete_all, 'user', 'delete');
+    return ppcartcomp_write_metadata($check, $object_id, $meta_key, $meta_value, $delete_all, 'user', 'delete');
 }
 
 /**
@@ -229,7 +229,7 @@ function ppcart_compat_delete_user_metadata($check, $object_id, $meta_key, $meta
  * @param string $op        update|add|delete.
  * @return mixed
  */
-function ppcart_compat_write_metadata($check, $object_id, $meta_key, $value, $extra, $meta_type, $op)
+function ppcartcomp_write_metadata($check, $object_id, $meta_key, $value, $extra, $meta_type, $op)
 {
     if (null !== $check || ppcart_meta_bridge_is_active() || ! ppcart_is_legacy_meta_key($meta_key)) {
         return $check;
