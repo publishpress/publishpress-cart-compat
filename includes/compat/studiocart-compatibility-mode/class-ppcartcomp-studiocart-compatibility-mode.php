@@ -90,6 +90,9 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('plugins_loaded', [ self::class, 'maybe_register_shortcodes' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_hooks' ], PHP_INT_MAX);
 
+        add_action('init', [ self::class, 'maybe_register_gutenberg_blocks' ], 11);
+        add_action('enqueue_block_editor_assets', [ self::class, 'enqueue_legacy_gutenberg_editor_assets' ], 20);
+
         add_action('ppcart_before_load', [ self::class, 'maybe_register_aliases' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_functions' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_ajax' ], PHP_INT_MAX);
@@ -449,6 +452,30 @@ class PPCartComp_Studiocart_Compatibility_Mode
     }
 
     /**
+     * Dual-register leftover Gutenberg checkout blocks when Compatibility Mode is on.
+     *
+     * Runs on init after Cart registers the canonical checkout block.
+     *
+     * @return void
+     */
+    public static function maybe_register_gutenberg_blocks()
+    {
+        if (! function_exists('ppcart_register_legacy_gutenberg_blocks')) {
+            return;
+        }
+
+        if (! self::is_enabled()) {
+            if (function_exists('ppcart_unregister_legacy_gutenberg_blocks')) {
+                ppcart_unregister_legacy_gutenberg_blocks();
+            }
+
+            return;
+        }
+
+        ppcart_register_legacy_gutenberg_blocks();
+    }
+
+    /**
      * Register always-on cron hook drain bridges.
      *
      * @return void
@@ -627,6 +654,46 @@ class PPCartComp_Studiocart_Compatibility_Mode
             [ 'ppcart' ],
             $version,
             'all'
+        );
+    }
+
+    /**
+     * Leftover Gutenberg checkout block editor CSS/JS while Compatibility Mode is on.
+     *
+     * @return void
+     */
+    public static function enqueue_legacy_gutenberg_editor_assets()
+    {
+        if (! self::is_enabled() || ! function_exists('wp_enqueue_script')) {
+            return;
+        }
+
+        $version = defined('PPCARTCOMP_VERSION') ? PPCARTCOMP_VERSION : ( defined('PPCART_VERSION') ? PPCART_VERSION : '1.0.0' );
+        $base    = plugin_dir_url(__FILE__);
+
+        $style_deps = [];
+        if (function_exists('wp_style_is') && wp_style_is('ppcart-checkout-form-editor-style', 'registered')) {
+            $style_deps[] = 'ppcart-checkout-form-editor-style';
+        }
+
+        wp_enqueue_style(
+            'ppcart-compat-checkout-editor',
+            $base . 'css/ppcart-compat-checkout-editor.css',
+            $style_deps,
+            $version
+        );
+
+        $script_deps = [ 'wp-blocks', 'wp-i18n' ];
+        if (function_exists('wp_script_is') && wp_script_is('ppcart-checkout-form-editor', 'registered')) {
+            $script_deps[] = 'ppcart-checkout-form-editor';
+        }
+
+        wp_enqueue_script(
+            'ppcart-compat-legacy-checkout-block',
+            $base . 'js/ppcart-compat-legacy-checkout-block.js',
+            $script_deps,
+            $version,
+            true
         );
     }
 }

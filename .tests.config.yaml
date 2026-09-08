@@ -213,6 +213,13 @@ modules:
     test_range: IT-328
     features: [ppcart-compatibility-mode]
 
+  - id: prefix-gutenberg-block
+    name: Leftover Gutenberg checkout block dual-register
+    suites: [unit, integration]
+    test_range: UT-295, IT-351
+    features: [ppcart-compatibility-mode]
+    notes: Compatibility Mode dual-registers leftover sc-products-shortcode/product-shortcode onto publishpress-cart/checkout-form while on.
+
   - id: prefix-shortcode-tags
     name: Leftover shortcode dual-register
     suites: [unit, integration]

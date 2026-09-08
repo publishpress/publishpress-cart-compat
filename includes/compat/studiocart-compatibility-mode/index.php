@@ -17,6 +17,7 @@ require_once __DIR__ . '/tax-rate-inner-keys.php';
 require_once __DIR__ . '/theme-templates.php';
 require_once __DIR__ . '/cpt-taxonomy.php';
 require_once __DIR__ . '/shortcodes.php';
+require_once __DIR__ . '/gutenberg-blocks.php';
 require_once __DIR__ . '/class-ppcartcomp-studiocart-compatibility-mode.php';
 require_once __DIR__ . '/shortcode-detectors.php';
 require_once __DIR__ . '/constants.php';

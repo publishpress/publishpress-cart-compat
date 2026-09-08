@@ -1,0 +1,8 @@
+/**
+ * Leftover StudioCart checkout block wrapper in the block editor.
+ * Loaded only while Compatibility Mode is on.
+ */
+
+.wp-block-sc-products-shortcode-product-shortcode {
+	min-height: 1px;
+}
