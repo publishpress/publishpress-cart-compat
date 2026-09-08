@@ -28,15 +28,25 @@ leftover names (`has_shortcode` leftover tags, asset detectors). Any leftover
 or backward-compat path belongs **only** in this plugin. Do not add leftover
 fallbacks or leftover-tag detectors to `publishpress-cart`.
 
+Silent migrate is always denied. Any migration should be on the compat plugin.
+Dual-register, dual-reading, only in the compat plugin also. Free plugin is a
+complete new and clean plugin. The only exception is keep the studiocart
+conflict checker at the beginning of the Cart plugin.
+
 ## This repo
 
 1. Do not rename leftover names in maps until Cart first-party is canonical.
 2. Add map/wrapper/redirect rows so leftover still works **only while Compatibility Mode is on**.
 3. No silent row copy/rename/delete (AGENTS.md hard rule 8).
 4. Catalog IDs are shared with Cart — next unused `UT-` / `IT-` across both repos.
-5. One family per session. Stop for review. Do not commit unless asked.
-6. After Cart `composer test:all:mocked`, run `composer test:all` in this
-   repo when Compat maps or tests changed.
+5. After Cart `composer test:all:mocked`, always run `composer test:all` in this
+   repo (not only when Compat files changed).
+6. Commit after both suites are green **and** the Cart leftover-slice capable
+   reviewer pass (`refactor(prefix):` then `docs(prefix):` on Cart; this repo’s
+   slice commit when Compat changed). Minor fixes are their own `fix(compat):`
+   commits. No PR unless asked.
+7. Do not start the next family. Orchestrator:
+   `publishpress-cart/.cursor/skills/prefix-leftover-orchestrator/`.
 
 ## Package
 

@@ -32,7 +32,7 @@ Not the reverted rebrand: **`PP_Cart_` / `pp_cart_` / `pp-cart-` are wrong** (un
    recognize legacy `sc-*` URLs only long enough to redirect safe public
    GET/HEAD requests to the same-site canonical URL.
 
-Remaining work is tracked in [docs/dev/prefix-standardization.md](../../../docs/dev/prefix-standardization.md). Do one slice per session. The Pro contract lives in the same file.
+Remaining work is tracked in the Cart [prefix-standardization.md](../../../publishpress-cart/docs/dev/prefix-standardization.md). One family per worker via leftover-slice. Remaining queue: Cart `prefix-leftover-orchestrator`. Keep Cart `docs/dev/pro-plugin-extraction.md` in sync so Pro can follow the same refactor.
 
 ## Slice workflow
 
