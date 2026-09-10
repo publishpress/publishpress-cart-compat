@@ -130,7 +130,7 @@ Pro must keep calling these symbols in Free; do not vendor shims into Pro.
 missing (canonical stubs). Leftover stores must **activate this companion before
 updating Cart**.
 
-Keep Cart extension points: `ppcart_before_load`, `ppcart_cart_supports_feature`,
+Keep Cart extension points: `ppcart_before_load`, `ppcart_supports_feature`,
 `ppcart_stripe_metadata_compatibility_lookup()` in Cart
 `includes/helpers/ppcart-stripe-metadata.php`. Do not move that helper.
 

@@ -94,7 +94,7 @@ Three layers (outer to inner):
 When `PPCART_STUDIOCART_COMPATIBILITY_MODE` is defined, the Settings checkbox is
 **disabled** and shows a note.
 
-`supports_feature` is on `ppcart_cart_supports_feature` at **priority 20** so
+`supports_feature` is on `ppcart_supports_feature` at **priority 20** so
 Pro’s blanket `supports_feature() { return true; }` cannot force this on.
 
 Register shims from `maybe_register_*` methods, same pattern as

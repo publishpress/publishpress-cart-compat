@@ -105,8 +105,8 @@ When on, the package registers leftover class aliases, function wrappers, hook
 bridges, option/meta API bridges, constant aliases, runtime-global aliases,
 shortcode tags, request-field copies, Stripe metadata lookup, CPT/taxonomy/FSE
 names, and public URL redirects. First-party Cart must not call these shims.
-Runtime gate for extensions: `ppcart_cart_supports( 'ppcart-compatibility-mode' )`
-(filter `ppcart_cart_supports_feature` at priority 20). The prior feature id is
+Runtime gate for extensions: `ppcart_supports( 'ppcart-compatibility-mode' )`
+(filter `ppcart_supports_feature` at priority 20). The prior feature id is
 accepted only by Compat while the mode is enabled.
 
 Function wrappers load from `functions/index.php` **only** when the mode is on

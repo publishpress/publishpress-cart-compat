@@ -52,7 +52,7 @@ template slug `single-sc_product` and leftover taxonomy rewrite
 `ppcart_*`; live helpers stay row-state-based until Data migration.
 
 Canonical Cart code must not depend on this mode. Gate runtime with
-`ppcart_cart_supports( 'ppcart-compatibility-mode' )`. The prior feature id is
+`ppcart_supports( 'ppcart-compatibility-mode' )`. The prior feature id is
 accepted only by this package while Compatibility Mode is enabled.
 
 Merchants toggle it under **Cart → StudioCart** (`admin.php?page=ppcart-studiocart`, option
