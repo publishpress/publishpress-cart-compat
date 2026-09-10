@@ -734,7 +734,7 @@ class ZPrefixCompatibilityModeOnTest extends WPTestCase
         update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '0');
 
         $this->assertTrue(PPCartComp_Studiocart_Compatibility_Mode::is_enabled());
-        $this->assertTrue(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
+        $this->assertTrue(ppcart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
     }
 
     public function test_wp_config_constant_false_overrides_enabled_option_on_real_site(): void
@@ -748,7 +748,7 @@ class ZPrefixCompatibilityModeOnTest extends WPTestCase
         update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
 
         $this->assertFalse(PPCartComp_Studiocart_Compatibility_Mode::is_enabled());
-        $this->assertFalse(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
+        $this->assertFalse(ppcart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
     }
 
     public function test_settings_checkbox_is_disabled_when_wp_config_constant_is_forced(): void

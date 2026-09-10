@@ -41,6 +41,9 @@ return [
         'ppcart_sc_wpdomainchecker_integrations' => 'ppcart_ppcart_wpdomainchecker_integrations',
         'sc-cart-cpt-options'                  => 'ppcart_cpt_options',
         'sc-cart-taxonomy-options'            => 'ppcart_taxonomy_options',
+        'sc_cart_loaded'                       => 'ppcart_loaded',
+        'ncs_cart_loaded'                      => 'ppcart_loaded',
+        'sc_cart_supports_feature'             => 'ppcart_supports_feature',
     ],
     // Slice 34 integration triggers (`sc_order_*` / `sc_subscription_*` /
     // `sc_renewal_*`) use the mechanical sc_ → ppcart_ rule. Do not add 1:1
@@ -68,6 +71,13 @@ return [
         ],
         'ppcart_taxonomy_options' => [
             'sc-cart-taxonomy-options',
+        ],
+        'ppcart_loaded' => [
+            'sc_cart_loaded',
+            'ncs_cart_loaded',
+        ],
+        'ppcart_supports_feature' => [
+            'sc_cart_supports_feature',
         ],
     ],
     'cron' => [

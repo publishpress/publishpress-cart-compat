@@ -61,7 +61,18 @@ class HookBridgesTest extends Unit
     {
         $this->assertSame('ppcart_after_order_paid', ncs_cart_legacy_to_canonical_hook_name('sc_after_order_paid'));
         $this->assertSame('_ppcart_option_list', ncs_cart_legacy_to_canonical_hook_name('_sc_option_list'));
-        $this->assertSame('ppcart_cart_loaded', ncs_cart_legacy_to_canonical_hook_name('ncs_cart_loaded'));
+        $this->assertSame('ppcart_loaded', ncs_cart_legacy_to_canonical_hook_name('ncs_cart_loaded'));
+        $this->assertSame('ppcart_loaded', ncs_cart_legacy_to_canonical_hook_name('sc_cart_loaded'));
+        $this->assertSame(
+            'ppcart_supports_feature',
+            ncs_cart_legacy_to_canonical_hook_name('sc_cart_supports_feature')
+        );
+        $this->assertContains('sc_cart_loaded', ncs_cart_canonical_to_legacy_hook_names('ppcart_loaded'));
+        $this->assertContains('ncs_cart_loaded', ncs_cart_canonical_to_legacy_hook_names('ppcart_loaded'));
+        $this->assertContains(
+            'sc_cart_supports_feature',
+            ncs_cart_canonical_to_legacy_hook_names('ppcart_supports_feature')
+        );
         $this->assertSame('ppcart_daily_events', ncs_cart_legacy_to_canonical_hook_name('studiocart_daily_events'));
         $this->assertSame('ppcart_after_order_paid', ncs_cart_legacy_to_canonical_hook_name('studiocart_checkout_complete'));
         $this->assertSame('ppcart_page_metabox', ncs_cart_legacy_to_canonical_hook_name('studiocart_page_metabox'));

@@ -80,8 +80,8 @@ function ppcart_cpt_slug_migration_maps()
         ],
         'capabilities' => $capabilities,
         'roles'        => [
-            'sc_cart_manager'       => 'ppcart_cart_manager',
-            'sc_cart_administrator' => 'ppcart_cart_administrator',
+            'sc_cart_manager'       => 'ppcart_manager',
+            'sc_cart_administrator' => 'ppcart_administrator',
         ],
     ];
 

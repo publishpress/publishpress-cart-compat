@@ -44,11 +44,11 @@ class CptSlugMigrationStep2Test extends CptSlugMigrationTestCase
         $this->assertTrue(ppcart_cpt_slug_migration_step2_complete());
 
         $this->assertNull(get_role('sc_cart_manager'));
-        $this->assertNotNull(get_role('ppcart_cart_manager'));
+        $this->assertNotNull(get_role('ppcart_manager'));
 
         $user = get_user_by('id', $userId);
         $this->assertNotFalse($user);
-        $this->assertTrue(in_array('ppcart_cart_manager', (array) $user->roles, true));
+        $this->assertTrue(in_array('ppcart_manager', (array) $user->roles, true));
         $this->assertFalse(in_array('sc_cart_manager', (array) $user->roles, true));
         $this->assertGreaterThan(0, $this->backupRowCount());
     }
@@ -79,7 +79,7 @@ class CptSlugMigrationStep2Test extends CptSlugMigrationTestCase
         $user = get_user_by('id', $userId);
         $this->assertNotFalse($user);
         $this->assertTrue(in_array('sc_cart_manager', (array) $user->roles, true));
-        $this->assertFalse(in_array('ppcart_cart_manager', (array) $user->roles, true));
+        $this->assertFalse(in_array('ppcart_manager', (array) $user->roles, true));
 
         $state = ppcart_cpt_slug_migration_get_state();
         $this->assertSame('idle', $state['step2']);

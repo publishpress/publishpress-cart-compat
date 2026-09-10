@@ -172,7 +172,7 @@ if (! function_exists('ncs_cart_legacy_to_canonical_hook_name')) {
         $config = ncs_cart_get_legacy_hook_map_config();
 
         if (isset($config['override'][ $legacy ])) {
-            return $config['override'][ $legacy ];
+            return ncs_cart_collapse_doubled_cart_hook_prefix($config['override'][ $legacy ]);
         }
 
         if (ncs_cart_hook_name_is_excluded($legacy)) {
@@ -180,7 +180,7 @@ if (! function_exists('ncs_cart_legacy_to_canonical_hook_name')) {
         }
 
         if (isset($config['cron'][ $legacy ])) {
-            return $config['cron'][ $legacy ];
+            return ncs_cart_collapse_doubled_cart_hook_prefix($config['cron'][ $legacy ]);
         }
 
         if (0 === strpos($legacy, '_sc_')) {
@@ -188,19 +188,19 @@ if (! function_exists('ncs_cart_legacy_to_canonical_hook_name')) {
         }
 
         if (0 === strpos($legacy, 'sc_')) {
-            return 'ppcart_' . substr($legacy, 3);
+            return ncs_cart_collapse_doubled_cart_hook_prefix('ppcart_' . substr($legacy, 3));
         }
 
         if (0 === strpos($legacy, 'ncs_')) {
-            return 'ppcart_' . substr($legacy, 4);
+            return ncs_cart_collapse_doubled_cart_hook_prefix('ppcart_' . substr($legacy, 4));
         }
 
         if (0 === strpos($legacy, 'nsc_')) {
-            return 'ppcart_' . substr($legacy, 4);
+            return ncs_cart_collapse_doubled_cart_hook_prefix('ppcart_' . substr($legacy, 4));
         }
 
         if (0 === strpos($legacy, 'studiocart_')) {
-            return 'ppcart_' . substr($legacy, 11);
+            return ncs_cart_collapse_doubled_cart_hook_prefix('ppcart_' . substr($legacy, 11));
         }
 
         if (0 === strpos($legacy, 'ncs-cart-')) {
@@ -209,10 +209,26 @@ if (! function_exists('ncs_cart_legacy_to_canonical_hook_name')) {
 
         $derived = ncs_cart_rewrite_derived_cpt_hook($legacy, true);
         if (null !== $derived) {
-            return $derived;
+            return ncs_cart_collapse_doubled_cart_hook_prefix($derived);
         }
 
         return null;
+    }
+}
+if (! function_exists('ncs_cart_collapse_doubled_cart_hook_prefix')) {
+    /**
+     * sc_cart_* / ncs_cart_* mechanically become ppcart_cart_*; canonical drops the extra cart_.
+     *
+     * @param string $canonical Mapped hook name.
+     * @return string
+     */
+    function ncs_cart_collapse_doubled_cart_hook_prefix($canonical)
+    {
+        if (! is_string($canonical) || 0 !== strpos($canonical, 'ppcart_cart_')) {
+            return $canonical;
+        }
+
+        return 'ppcart_' . substr($canonical, 12);
     }
 }
 if (! function_exists('ncs_cart_canonical_to_legacy_hook_names')) {
@@ -251,7 +267,9 @@ if (! function_exists('ncs_cart_canonical_to_legacy_hook_names')) {
             $suffix = substr($canonical, 7);
             $candidates = [
                 'sc_' . $suffix,
+                'sc_cart_' . $suffix,
                 'ncs_' . $suffix,
+                'ncs_cart_' . $suffix,
                 'nsc_' . $suffix,
                 'studiocart_' . $suffix,
             ];

@@ -82,7 +82,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
      */
     public static function init()
     {
-        add_filter('ppcart_cart_supports_feature', [ self::class, 'supports_feature' ], 20, 2);
+        add_filter('ppcart_supports_feature', [ self::class, 'supports_feature' ], 20, 2);
         add_action('plugins_loaded', [ self::class, 'maybe_register_ajax' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_request_fields' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_stripe_metadata' ], 0);

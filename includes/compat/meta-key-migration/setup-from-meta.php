@@ -33,8 +33,12 @@ function ppcartcomp_setup_product_from_leftover_meta($arr, $meta, $id)
             continue;
         }
 
-        $value = array_shift($meta[ $k ]);
-        $arr[ substr($k, 4) ] = maybe_unserialize($value);
+        $value  = array_shift($meta[ $k ]);
+        $suffix = substr($k, 4);
+        if (function_exists('ppcartcomp_canonical_meta_suffix')) {
+            $suffix = ppcartcomp_canonical_meta_suffix($suffix);
+        }
+        $arr[ $suffix ] = maybe_unserialize($value);
     }
 
     return $arr;
@@ -70,8 +74,12 @@ function ppcartcomp_setup_order_from_leftover_meta($arr, $meta, $id)
             continue;
         }
 
-        $value = array_shift($meta[ $k ]);
-        $arr[ substr($k, 4) ] = maybe_unserialize($value);
+        $value  = array_shift($meta[ $k ]);
+        $suffix = substr($k, 4);
+        if (function_exists('ppcartcomp_canonical_meta_suffix')) {
+            $suffix = ppcartcomp_canonical_meta_suffix($suffix);
+        }
+        $arr[ $suffix ] = maybe_unserialize($value);
     }
 
     return $arr;

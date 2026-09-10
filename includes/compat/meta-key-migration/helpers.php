@@ -5,6 +5,52 @@ if (! defined('ABSPATH')) {
 }
 
 /**
+ * Leftover checkout-window suffixes → canonical suffixes.
+ *
+ * StudioCart stored `_sc_cart_open` (and siblings). Canonical keys drop the
+ * extra cart_ segment and use starts/ends instead of open/close.
+ *
+ * @return array<string, string>
+ */
+function ppcartcomp_checkout_window_suffix_aliases()
+{
+    return [
+        'cart_open'           => 'checkout_starts',
+        'cart_close'          => 'checkout_ends',
+        'cart_close_action'   => 'checkout_ended_action',
+        'cart_redirect'       => 'checkout_ended_redirect',
+        'cart_closed_message' => 'checkout_ended_message',
+    ];
+}
+
+/**
+ * @param string $suffix Meta suffix.
+ * @return string
+ */
+function ppcartcomp_canonical_meta_suffix($suffix)
+{
+    $aliases = ppcartcomp_checkout_window_suffix_aliases();
+
+    return $aliases[ $suffix ] ?? $suffix;
+}
+
+/**
+ * @param string $suffix Meta suffix.
+ * @return string
+ */
+function ppcartcomp_leftover_meta_suffix($suffix)
+{
+    $aliases = ppcartcomp_checkout_window_suffix_aliases();
+    if (isset($aliases[ $suffix ])) {
+        return $suffix;
+    }
+
+    $reverse = array_flip($aliases);
+
+    return $reverse[ $suffix ] ?? $suffix;
+}
+
+/**
  * Canonical post/user-meta key for a suffix or leftover/canonical name.
  *
  * @param string $name Suffix (`amount`), leftover (`_sc_amount`), or canonical (`_ppcart_amount`).
@@ -12,7 +58,7 @@ if (! defined('ABSPATH')) {
  */
 function ppcart_meta_key($name)
 {
-    return '_ppcart_' . ppcart_meta_key_suffix($name);
+    return '_ppcart_' . ppcartcomp_canonical_meta_suffix(ppcart_meta_key_suffix($name));
 }
 
 /**
@@ -23,7 +69,7 @@ function ppcart_meta_key($name)
  */
 function ppcart_legacy_meta_key($name)
 {
-    return '_sc_' . ppcart_meta_key_suffix($name);
+    return '_sc_' . ppcartcomp_leftover_meta_suffix(ppcart_meta_key_suffix($name));
 }
 
 /**

@@ -116,8 +116,8 @@ class GutenbergBlockTest extends WPTestCase
             ppcart_update_post_meta($productId, 'plan_heading', 'Payment Plan');
             ppcart_update_post_meta($productId, 'button_color', '#000000');
             ppcart_update_post_meta($productId, 'button_text', 'Order Now');
-            ppcart_update_post_meta($productId, 'cart_close_action', 'message');
-            ppcart_update_post_meta($productId, 'cart_closed_message', 'Sorry, this product is no longer for sale.');
+            ppcart_update_post_meta($productId, 'checkout_ended_action', 'message');
+            ppcart_update_post_meta($productId, 'checkout_ended_message', 'Sorry, this product is no longer for sale.');
         }
 
         update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');

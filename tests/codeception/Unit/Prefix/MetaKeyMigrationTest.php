@@ -77,6 +77,15 @@ class MetaKeyMigrationTest extends Unit
         $this->assertTrue(ppcart_is_meta_field_id('_ppcart_hide_plans', 'hide_plans'));
         $this->assertTrue(ppcart_is_meta_field_id('_sc_hide_plans', 'hide_plans'));
         $this->assertTrue(ppcart_is_meta_field_id('hide_plans', 'hide_plans'));
+        $this->assertSame('_ppcart_checkout_starts', ppcart_meta_key('checkout_starts'));
+        $this->assertSame('_ppcart_checkout_starts', ppcart_meta_key('_sc_cart_open'));
+        $this->assertSame('_ppcart_checkout_starts', ppcart_meta_key('cart_open'));
+        $this->assertSame('_sc_cart_open', ppcart_legacy_meta_key('checkout_starts'));
+        $this->assertSame('_sc_cart_open', ppcart_legacy_meta_key('_ppcart_checkout_starts'));
+        $this->assertSame('_ppcart_checkout_ended_redirect', ppcart_meta_key('_sc_cart_redirect'));
+        $this->assertSame('_sc_cart_redirect', ppcart_legacy_meta_key('checkout_ended_redirect'));
+        $this->assertTrue(ppcart_is_meta_field_id('_sc_cart_open', 'checkout_starts'));
+        $this->assertTrue(ppcart_is_meta_field_id('_ppcart_checkout_starts', 'checkout_starts'));
     }
 
     /**

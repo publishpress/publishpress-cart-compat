@@ -75,7 +75,7 @@ class StudiocartCompatibilityModeTest extends WPTestCase
         );
         $this->assertNotFalse(
             has_filter(
-                'ppcart_cart_supports_feature',
+                'ppcart_supports_feature',
                 [ PPCartComp_Studiocart_Compatibility_Mode::class, 'supports_feature' ]
             )
         );
@@ -87,7 +87,7 @@ class StudiocartCompatibilityModeTest extends WPTestCase
     public function test_IT_162_shipped_class_aliases_stay_unregistered_while_compatibility_mode_is_off(): void
     {
         $this->assertFalse(PPCartComp_Studiocart_Compatibility_Mode::is_enabled());
-        $this->assertFalse(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
+        $this->assertFalse(ppcart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
 
         foreach ($this->shippedAliasMap() as $canonical => $legacy_names) {
             if (! class_exists($canonical, false)) {
@@ -116,17 +116,17 @@ class StudiocartCompatibilityModeTest extends WPTestCase
         }
     }
 
-    public function test_IT_164_ppcart_cart_supports_follows_the_compatibility_mode_option(): void
+    public function test_IT_164_ppcart_supports_follows_the_compatibility_mode_option(): void
     {
-        $pro_before = ppcart_cart_supports('pro');
+        $pro_before = ppcart_supports('pro');
 
         update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
-        $this->assertTrue(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
-        $this->assertSame($pro_before, ppcart_cart_supports('pro'));
+        $this->assertTrue(ppcart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
+        $this->assertSame($pro_before, ppcart_supports('pro'));
 
         update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '0');
-        $this->assertFalse(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
-        $this->assertSame($pro_before, ppcart_cart_supports('pro'));
+        $this->assertFalse(ppcart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
+        $this->assertSame($pro_before, ppcart_supports('pro'));
     }
 
     /**
@@ -166,8 +166,8 @@ class StudiocartCompatibilityModeTest extends WPTestCase
     {
         update_option(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME, '1');
 
-        $this->assertTrue(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
-        $this->assertTrue(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_FEATURE_ID));
+        $this->assertTrue(ppcart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
+        $this->assertTrue(ppcart_supports(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_FEATURE_ID));
         $this->assertFalse(get_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, false));
         $this->assertSame(
             '1',
@@ -176,8 +176,8 @@ class StudiocartCompatibilityModeTest extends WPTestCase
 
         update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '0');
 
-        $this->assertFalse(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
-        $this->assertFalse(ppcart_cart_supports(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_FEATURE_ID));
+        $this->assertFalse(ppcart_supports(PPCartComp_Studiocart_Compatibility_Mode::FEATURE_ID));
+        $this->assertFalse(ppcart_supports(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_FEATURE_ID));
         $this->assertSame(
             '1',
             get_option(PPCartComp_Studiocart_Compatibility_Mode::LEGACY_OPTION_NAME, false)
