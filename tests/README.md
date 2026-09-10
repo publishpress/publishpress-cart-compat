@@ -10,6 +10,11 @@ composer test:unit
 
 # PHP integration tests (WordPress + WPLoader; needs .env like Cart)
 composer test:integration
+
+# Parallel Codeception (optional). UNIT_WORKERS / INTEGRATION_WORKERS
+# default to 1. Integration shares one WordPress + DB — keep it at 1
+# unless you are experimenting.
+UNIT_WORKERS=8 composer test:unit
 ```
 
 Filter a single test:

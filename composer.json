@@ -42,7 +42,7 @@
         "plugin-composer-package": "publishpress/publishpress-cart-compat"
     },
     "scripts": {
-        "test:unit": "vendor/bin/codecept run Unit",
+        "test:unit": "bash tests/bin/run-codecept-suite.sh Unit UNIT_WORKERS",
         "test:integration": "bash tests/bin/run-integration-tests.sh",
         "test:all": [
             "@test:unit",

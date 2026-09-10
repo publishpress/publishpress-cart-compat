@@ -17,7 +17,7 @@ if [[ -z "${TEST_MEMORY_UNCAP:-}" ]] && command -v systemd-run >/dev/null 2>&1 \
   exec systemd-run --user --scope --quiet --collect --same-dir \
     -p MemoryMax="$max" \
     -p MemorySwapMax=0 \
-    -- vendor/bin/codecept run Integration "$@"
+    -- bash "$ROOT/tests/bin/run-codecept-suite.sh" Integration INTEGRATION_WORKERS "$@"
 fi
 
-exec vendor/bin/codecept run Integration "$@"
+exec bash "$ROOT/tests/bin/run-codecept-suite.sh" Integration INTEGRATION_WORKERS "$@"
