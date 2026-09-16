@@ -296,9 +296,9 @@ class Seeder
                         'order_bump'     => '1',
                         'ob_product'     => (string) $bump,
                         'ob_price'       => '5',
-                        'ob_headline'    => 'Add this bonus',
-                        'ob_description' => 'Seed leftover order bump',
-                        'ob_cb_label'    => 'Yes, add this bump',
+                        'ob_headline'    => 'Add Atlas Local Pack',
+                        'ob_description' => 'Local SEO add-on for this Atlas SEO license',
+                        'ob_cb_label'    => 'Yes, add Local Pack',
                     ],
                 ]
             );
@@ -338,19 +338,19 @@ class Seeder
      */
     private function seed_pages(array $product_map, array &$summary)
     {
-        $store_id = $this->insert_page('Seed Store', 'seed-store', '[' . Catalog::STORE_SHORTCODE . ']');
+        $store_id = $this->insert_page('Northstar Plugins', 'seed-store', '[' . Catalog::STORE_SHORTCODE . ']');
         if ($store_id > 0) {
             $summary['pages']['store'] = $store_id;
         }
 
-        $account_id = $this->insert_page('Seed Account', 'seed-account', '[' . Catalog::ACCOUNT_SHORTCODE . ']');
+        $account_id = $this->insert_page('Northstar Account', 'seed-account', '[' . Catalog::ACCOUNT_SHORTCODE . ']');
         if ($account_id > 0) {
             $summary['pages']['account'] = $account_id;
             update_option('_sc_myaccount_page_id', $account_id, false);
             update_option('_my_account', $account_id, false);
         }
 
-        $receipt_id = $this->insert_page('Seed Receipt', 'seed-receipt', '[' . Catalog::RECEIPT_SHORTCODE . ']');
+        $receipt_id = $this->insert_page('Northstar Receipt', 'seed-receipt', '[' . Catalog::RECEIPT_SHORTCODE . ']');
         if ($receipt_id > 0) {
             $summary['pages']['receipt'] = $receipt_id;
         }
@@ -696,7 +696,7 @@ class Seeder
             $meta['_sc_order_bumps'] = [
                 [
                     'amount' => 5,
-                    'name'   => 'Bonus PDF',
+                    'name'   => 'Atlas Local Pack',
                 ],
             ];
             $meta['_sc_invoice_total'] = $amount + 5;

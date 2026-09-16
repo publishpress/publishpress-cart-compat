@@ -8,6 +8,10 @@ if (! defined('ABSPATH')) {
 
 /**
  * Leftover StudioCart shapes for the local/test store seed. Not plugin code.
+ *
+ * Display copy is a fictitious WordPress-plugin shop (Northstar) so the
+ * seeded admin/storefront looks like a merchant catalog, not "Offer 3".
+ * Internal `key` values stay stable for the seeder (bumps, coupons, amounts).
  */
 class Catalog
 {
@@ -70,7 +74,7 @@ class Catalog
      */
     public static function categories()
     {
-        return [ 'Courses', 'Memberships', 'Workshops', 'Downloads' ];
+        return [ 'Editorial', 'SEO', 'Commerce', 'Memberships' ];
     }
 
     /**
@@ -78,7 +82,7 @@ class Catalog
      */
     public static function tags()
     {
-        return [ 'Beginner', 'Pro', 'Sale', 'Evergreen', 'Cohort' ];
+        return [ 'Lite', 'Pro', 'Sale', 'Gutenberg', 'WooCommerce' ];
     }
 
     /**
@@ -89,57 +93,57 @@ class Catalog
         return [
             [
                 'key'      => 'intro',
-                'title'    => 'Intro Course',
-                'slug'     => 'seed-intro-course',
+                'title'    => 'Quill — Editorial Calendar',
+                'slug'     => 'seed-quill-editorial-calendar',
                 'type'     => 'one-time',
-                'category' => 'Courses',
-                'tag'      => 'Beginner',
+                'category' => 'Editorial',
+                'tag'      => 'Gutenberg',
                 'meta'     => [
-                    '_sc_pay_options' => [ self::one_time_plan('intro_plan', 'One payment of $49', '49') ],
+                    '_sc_pay_options' => [ self::one_time_plan('intro_plan', 'Single-site license — $49', '49') ],
                 ],
             ],
             [
                 'key'      => 'membership',
-                'title'    => 'Pro Membership',
-                'slug'     => 'seed-pro-membership',
+                'title'    => 'Quill Club',
+                'slug'     => 'seed-quill-club',
                 'type'     => 'recurring',
                 'category' => 'Memberships',
                 'tag'      => 'Pro',
                 'meta'     => [
-                    '_sc_pay_options' => [ self::recurring_plan('membership_plan', 'Monthly membership', '29') ],
+                    '_sc_pay_options' => [ self::recurring_plan('membership_plan', 'Monthly club membership — $29', '29') ],
                 ],
             ],
             [
                 'key'      => 'coaching',
-                'title'    => 'Monthly Coaching',
-                'slug'     => 'seed-monthly-coaching',
+                'title'    => 'Willow Support Desk',
+                'slug'     => 'seed-willow-support-desk',
                 'type'     => 'recurring',
                 'category' => 'Memberships',
-                'tag'      => 'Cohort',
+                'tag'      => 'Pro',
                 'meta'     => [
-                    '_sc_pay_options' => [ self::recurring_plan('coaching_plan', 'Monthly coaching', '99', '6') ],
+                    '_sc_pay_options' => [ self::recurring_plan('coaching_plan', 'Monthly support — 6 months', '99', '6') ],
                 ],
             ],
             [
                 'key'      => 'workshop',
-                'title'    => 'Free Workshop',
-                'slug'     => 'seed-free-workshop',
+                'title'    => 'Quill Lite',
+                'slug'     => 'seed-quill-lite',
                 'type'     => 'free',
-                'category' => 'Workshops',
-                'tag'      => 'Beginner',
+                'category' => 'Editorial',
+                'tag'      => 'Lite',
                 'meta'     => [
-                    '_sc_pay_options' => [ self::free_plan('workshop_plan', 'Free access') ],
+                    '_sc_pay_options' => [ self::free_plan('workshop_plan', 'Free lite license') ],
                 ],
             ],
             [
                 'key'      => 'coupon',
-                'title'    => 'Starter Kit',
-                'slug'     => 'seed-starter-kit',
+                'title'    => 'Harbor Forms',
+                'slug'     => 'seed-harbor-forms',
                 'type'     => 'one-time',
-                'category' => 'Downloads',
-                'tag'      => 'Beginner',
+                'category' => 'Commerce',
+                'tag'      => 'Sale',
                 'meta'     => [
-                    '_sc_pay_options'       => [ self::one_time_plan('starter_plan', 'One payment of $19', '19') ],
+                    '_sc_pay_options'       => [ self::one_time_plan('starter_plan', 'Single-site license — $19', '19') ],
                     '_sc_show_coupon_field' => '1',
                     '_sc_coupons'           => [
                         self::coupon(self::COUPON_CODE, 'cart-percent', '100'),
@@ -150,108 +154,108 @@ class Catalog
             ],
             [
                 'key'      => 'taxable',
-                'title'    => 'Taxable Course',
-                'slug'     => 'seed-taxable-course',
+                'title'    => 'Ledger Invoices',
+                'slug'     => 'seed-ledger-invoices',
                 'type'     => 'one-time',
-                'category' => 'Courses',
-                'tag'      => 'Pro',
+                'category' => 'Commerce',
+                'tag'      => 'WooCommerce',
                 'meta'     => [
-                    '_sc_pay_options'         => [ self::one_time_plan('taxable_plan', 'One payment of $79', '79') ],
+                    '_sc_pay_options'         => [ self::one_time_plan('taxable_plan', 'Single-site license — $79', '79') ],
                     '_sc_product_taxable'     => 'tax',
                     '_sc_show_address_fields' => '1',
                 ],
             ],
             [
                 'key'      => 'bump-offer',
-                'title'    => 'Bonus PDF',
-                'slug'     => 'seed-bonus-pdf',
+                'title'    => 'Atlas Local Pack',
+                'slug'     => 'seed-atlas-local-pack',
                 'type'     => 'one-time',
-                'category' => 'Downloads',
-                'tag'      => 'Evergreen',
+                'category' => 'SEO',
+                'tag'      => 'Gutenberg',
                 'meta'     => [
-                    '_sc_pay_options' => [ self::one_time_plan('bump_plan', 'Bump offer $5', '5') ],
+                    '_sc_pay_options' => [ self::one_time_plan('bump_plan', 'Add-on license — $5', '5') ],
                 ],
             ],
             [
                 'key'      => 'bump-main',
-                'title'    => 'Launch Blueprint',
-                'slug'     => 'seed-launch-blueprint',
+                'title'    => 'Atlas SEO',
+                'slug'     => 'seed-atlas-seo',
                 'type'     => 'one-time',
-                'category' => 'Courses',
+                'category' => 'SEO',
                 'tag'      => 'Pro',
                 'meta'     => [
-                    '_sc_pay_options' => [ self::one_time_plan('blueprint_plan', 'One payment of $149', '149') ],
+                    '_sc_pay_options' => [ self::one_time_plan('blueprint_plan', 'Single-site license — $149', '149') ],
                     '_sc_order_bump'  => '1',
                 ],
             ],
             [
                 'key'      => 'annual',
-                'title'    => 'Annual Pass',
-                'slug'     => 'seed-annual-pass',
+                'title'    => 'Atlas SEO Club',
+                'slug'     => 'seed-atlas-seo-club',
                 'type'     => 'recurring',
                 'category' => 'Memberships',
-                'tag'      => 'Evergreen',
+                'tag'      => 'Gutenberg',
                 'meta'     => [
-                    '_sc_pay_options' => [ self::recurring_plan('annual_plan', 'Billed yearly', '199', '-1', 'year') ],
+                    '_sc_pay_options' => [ self::recurring_plan('annual_plan', 'Annual club membership — $199', '199', '-1', 'year') ],
                 ],
             ],
             [
                 'key'      => 'sale',
-                'title'    => 'Launch Sale Workshop',
-                'slug'     => 'seed-launch-sale',
+                'title'    => 'Compass Redirects',
+                'slug'     => 'seed-compass-redirects',
                 'type'     => 'one-time',
-                'category' => 'Workshops',
+                'category' => 'SEO',
                 'tag'      => 'Sale',
                 'meta'     => [
-                    '_sc_pay_options' => [ self::sale_plan('sale_plan', 'Workshop seat', '99', '69') ],
+                    '_sc_pay_options' => [ self::sale_plan('sale_plan', 'Single-site license', '99', '69') ],
                 ],
             ],
             [
                 'key'      => 'team',
-                'title'    => 'Team License',
-                'slug'     => 'seed-team-license',
+                'title'    => 'Beacon Analytics',
+                'slug'     => 'seed-beacon-analytics',
                 'type'     => 'one-time',
-                'category' => 'Downloads',
+                'category' => 'Commerce',
                 'tag'      => 'Pro',
                 'meta'     => [
                     '_sc_pay_options' => [
-                        self::one_time_plan('team_once', 'One payment of $249', '249'),
-                        self::recurring_plan('team_monthly', 'Team monthly', '29'),
+                        self::one_time_plan('team_once', 'Agency license — $249', '249'),
+                        self::recurring_plan('team_monthly', 'Monthly agency seat — $29', '29'),
                     ],
                 ],
             ],
             [
                 'key'      => 'pwyw',
-                'title'    => 'Office Hours',
-                'slug'     => 'seed-office-hours',
+                'title'    => 'Beacon Tip Jar',
+                'slug'     => 'seed-beacon-tip-jar',
                 'type'     => 'pwyw',
-                'category' => 'Workshops',
-                'tag'      => 'Evergreen',
+                'category' => 'Commerce',
+                'tag'      => 'Lite',
                 'meta'     => [
                     '_sc_pay_options' => [ self::pwyw_plan('pwyw_plan', 'Pay what you want', '25') ],
                 ],
             ],
             [
                 'key'      => 'closed',
-                'title'    => 'Closed Cohort',
-                'slug'     => 'seed-closed-cohort',
+                'title'    => 'Nightwatch Security',
+                'slug'     => 'seed-nightwatch-security',
                 'type'     => 'one-time',
-                'category' => 'Courses',
-                'tag'      => 'Cohort',
+                'category' => 'Memberships',
+                'tag'      => 'Pro',
                 'meta'     => [
-                    '_sc_pay_options'      => [ self::one_time_plan('closed_plan', 'Cohort seat $399', '399') ],
+                    '_sc_pay_options'      => [ self::one_time_plan('closed_plan', 'Invite-only license — $399', '399') ],
                     '_sc_hide_product_page' => '1',
                 ],
             ],
             [
                 'key'      => 'terms',
-                'title'    => 'Terms Masterclass',
-                'slug'     => 'seed-terms-masterclass',
+                'title'    => 'Signpost Legal Pages',
+                'slug'     => 'seed-signpost-legal',
                 'type'     => 'one-time',
-                'category' => 'Courses',
-                'tag'      => 'Pro',
+                'category' => 'Editorial',
+                'tag'      => 'Gutenberg',
                 'meta'     => [
-                    '_sc_pay_options' => [ self::one_time_plan('terms_plan', 'One payment of $129', '129') ],
+                    '_sc_pay_options' => [ self::one_time_plan('terms_plan', 'Single-site license — $129', '129') ],
                 ],
             ],
         ];
@@ -266,30 +270,66 @@ class Catalog
         $catalog  = self::product_catalog();
         $count    = max(1, (int) $count);
         $selected = array_slice($catalog, 0, min($count, count($catalog)));
-        $cats     = self::categories();
-        $tags     = self::tags();
+        $extras   = self::extra_product_catalog();
+        $editions = [ '', ' Pro', ' Agency', ' Cloud', ' Studio' ];
 
         for ($i = count($selected); $i < $count; $i++) {
-            $n          = $i + 1;
-            $recurring  = (0 === $i % 2);
+            $n         = $i + 1;
+            $extra_i   = $i - count($catalog);
+            $base      = $extras[ $extra_i % count($extras) ];
+            $edition   = (int) floor($extra_i / count($extras));
+            $cycle     = (int) floor($edition / count($editions));
+            $title     = $base['title'] . $editions[ $edition % count($editions) ];
+            if ($cycle > 0) {
+                $title .= ' ' . ( $cycle + 1 );
+            }
+            $recurring = 'recurring' === $base['type'];
+            $price     = (string) ( (int) $base['price'] + ( $edition * 10 ) );
             $selected[] = [
-                'key'      => 'offer-' . $n,
-                'title'    => 'Offer ' . $n,
-                'slug'     => 'seed-offer-' . $n,
-                'type'     => $recurring ? 'recurring' : 'one-time',
-                'category' => $cats[ $i % count($cats) ],
-                'tag'      => $tags[ $i % count($tags) ],
+                'key'      => 'extra-' . $n,
+                'title'    => $title,
+                'slug'     => 'seed-extra-' . $n,
+                'type'     => $base['type'],
+                'category' => $base['category'],
+                'tag'      => $base['tag'],
                 'meta'     => [
                     '_sc_pay_options' => [
                         $recurring
-                            ? self::recurring_plan('offer_' . $n, 'Monthly offer ' . $n, (string) (19 + $n))
-                            : self::one_time_plan('offer_' . $n, 'One payment', (string) (19 + $n)),
+                            ? self::recurring_plan('extra_' . $n, 'Monthly license — $' . $price, $price)
+                            : self::one_time_plan('extra_' . $n, 'Single-site license — $' . $price, $price),
                     ],
                 ],
             ];
         }
 
         return $selected;
+    }
+
+    /**
+     * Named overflow plugins when `--products` exceeds the core catalog.
+     *
+     * @return array<int, array<string, string>>
+     */
+    public static function extra_product_catalog()
+    {
+        return [
+            [ 'title' => 'Maple Comments', 'type' => 'one-time', 'category' => 'Editorial', 'tag' => 'Gutenberg', 'price' => '29' ],
+            [ 'title' => 'Pebble Breadcrumbs', 'type' => 'one-time', 'category' => 'SEO', 'tag' => 'Gutenberg', 'price' => '19' ],
+            [ 'title' => 'Finch Social Proof', 'type' => 'one-time', 'category' => 'Commerce', 'tag' => 'WooCommerce', 'price' => '39' ],
+            [ 'title' => 'Oak Schema', 'type' => 'one-time', 'category' => 'SEO', 'tag' => 'Pro', 'price' => '49' ],
+            [ 'title' => 'Pine Cache', 'type' => 'recurring', 'category' => 'Commerce', 'tag' => 'Pro', 'price' => '15' ],
+            [ 'title' => 'Moss SMTP', 'type' => 'one-time', 'category' => 'Editorial', 'tag' => 'Lite', 'price' => '19' ],
+            [ 'title' => 'Cedar Backups', 'type' => 'recurring', 'category' => 'Commerce', 'tag' => 'Pro', 'price' => '25' ],
+            [ 'title' => 'Drift Related Posts', 'type' => 'one-time', 'category' => 'Editorial', 'tag' => 'Gutenberg', 'price' => '29' ],
+            [ 'title' => 'River Table of Contents', 'type' => 'one-time', 'category' => 'Editorial', 'tag' => 'Gutenberg', 'price' => '19' ],
+            [ 'title' => 'Cinder Image SEO', 'type' => 'one-time', 'category' => 'SEO', 'tag' => 'Gutenberg', 'price' => '35' ],
+            [ 'title' => 'Lark Popups', 'type' => 'one-time', 'category' => 'Commerce', 'tag' => 'Sale', 'price' => '45' ],
+            [ 'title' => 'Heron Multilingual', 'type' => 'recurring', 'category' => 'Editorial', 'tag' => 'Pro', 'price' => '29' ],
+            [ 'title' => 'Ibis Accessibility', 'type' => 'one-time', 'category' => 'Editorial', 'tag' => 'Gutenberg', 'price' => '59' ],
+            [ 'title' => 'Tern Media Library', 'type' => 'one-time', 'category' => 'Editorial', 'tag' => 'Pro', 'price' => '79' ],
+            [ 'title' => 'Vole A/B Tests', 'type' => 'recurring', 'category' => 'Commerce', 'tag' => 'Pro', 'price' => '49' ],
+            [ 'title' => 'Bramble Webhooks', 'type' => 'recurring', 'category' => 'Commerce', 'tag' => 'Pro', 'price' => '19' ],
+        ];
     }
 
     /**
@@ -336,13 +376,28 @@ class Catalog
 
         $first = [ 'Alex', 'Jordan', 'Taylor', 'Casey', 'Riley', 'Morgan', 'Avery', 'Quinn', 'Jamie', 'Drew', 'Skyler', 'Reese', 'Cameron', 'Hayden', 'Rowan', 'Parker' ];
         $last  = [ 'Rivera', 'Kim', 'Brooks', 'Nguyen', 'Patel', 'Chen', 'Johnson', 'Martinez', 'Wilson', 'Thompson', 'Lopez', 'Adams', 'Singh', 'Garcia', 'Khan', 'Okafor' ];
-        $out   = $base;
-        for ($i = count($base); $i < $count; $i++) {
-            $out[] = self::customer_profile_with_address(
-                $first[ $i % count($first) ],
-                $last[ (int) floor($i / count($first)) % count($last) ] . ' ' . ( $i + 1 ),
-                $i
-            );
+        $used  = [];
+        foreach ($base as $profile) {
+            $used[ $profile['first_name'] . '|' . $profile['last_name'] ] = true;
+        }
+
+        $out = $base;
+        $i   = 0;
+        $cap = count($first) * count($last);
+        while (count($out) < $count) {
+            if ($i >= $cap) {
+                $out[] = self::customer_profile_with_address('Northstar', 'Buyer ' . count($out), count($out));
+                continue;
+            }
+            $first_name = $first[ $i % count($first) ];
+            $last_name  = $last[ (int) floor($i / count($first)) % count($last) ];
+            ++$i;
+            $pair = $first_name . '|' . $last_name;
+            if (isset($used[ $pair ])) {
+                continue;
+            }
+            $used[ $pair ] = true;
+            $out[] = self::customer_profile_with_address($first_name, $last_name, count($out));
         }
 
         return $out;

@@ -68,7 +68,17 @@ class StoreSeederCatalogTest extends Unit
         $this->assertSame('recurring', $recurring['product_type']);
         $this->assertSame('month', $recurring['interval']);
 
-        $this->assertGreaterThanOrEqual(14, count(Catalog::product_catalog()));
+        $core    = Catalog::product_catalog();
+        $extras  = Catalog::extra_product_catalog();
+        $this->assertGreaterThanOrEqual(14, count($core));
+        $overflow = Catalog::product_catalog_for_count(count($core) + 6);
+        $this->assertCount(count($core) + 6, $overflow);
+        for ($i = 0; $i < 6; $i++) {
+            $this->assertSame($extras[ $i ]['title'], $overflow[ count($core) + $i ]['title']);
+        }
+        $wrapped = array_column(Catalog::product_catalog_for_count(100), 'title');
+        $this->assertCount(100, $wrapped);
+        $this->assertCount(100, array_unique($wrapped));
         $sale = Catalog::sale_plan('s', 'Seat', '99', '69');
         $this->assertSame('69', $sale['sale_price']);
         $yearly = Catalog::recurring_plan('y', 'Yearly', '199', '-1', 'year');
