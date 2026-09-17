@@ -93,6 +93,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
 
         add_action('init', [ self::class, 'maybe_register_gutenberg_blocks' ], 11);
         add_action('enqueue_block_editor_assets', [ self::class, 'enqueue_legacy_gutenberg_editor_assets' ], 20);
+        add_action('rest_api_init', [ self::class, 'maybe_register_rest_namespaces' ], 99);
 
         add_action('ppcart_before_load', [ self::class, 'maybe_register_aliases' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_functions' ], PHP_INT_MAX);
@@ -501,6 +502,30 @@ class PPCartComp_Studiocart_Compatibility_Mode
         }
 
         ppcart_register_legacy_gutenberg_blocks();
+    }
+
+    /**
+     * Dual-register leftover Pro REST `sc/v1` when Compatibility Mode is on.
+     *
+     * Runs after canonical `rest_api_init` registrations (Pro developer REST
+     * and Free Gutenberg). Copies only mapped Pro prefixes; Gutenberg stays
+     * canonical-only.
+     *
+     * @return void
+     */
+    public static function maybe_register_rest_namespaces()
+    {
+        if (! function_exists('ppcart_register_legacy_rest_namespaces')) {
+            return;
+        }
+
+        if (! self::is_enabled()) {
+            // Leftover routes live for this request only. Do not reflect-unregister
+            // on the production off path (would wipe a third-party sc/v1 namespace).
+            return;
+        }
+
+        ppcart_register_legacy_rest_namespaces();
     }
 
     /**

@@ -308,6 +308,10 @@ class StudiocartCompatibilityModeTest extends Unit
      */
     public function test_UT_187_legacy_function_wrappers_load_only_when_compatibility_mode_is_on(): void
     {
+        if (defined('PPCART_STUDIOCART_COMPATIBILITY_MODE')) {
+            $this->markTestSkipped('PPCART_STUDIOCART_COMPATIBILITY_MODE is already defined in this process.');
+        }
+
         WordPressStubContext::setState(
             'options',
             array(

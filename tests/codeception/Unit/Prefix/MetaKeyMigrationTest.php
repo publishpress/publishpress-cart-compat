@@ -50,6 +50,13 @@ class MetaKeyMigrationTest extends Unit
             }
         );
 
+        WordPressStubContext::set(
+            'add_filter',
+            static function () {
+                return true;
+            }
+        );
+
         if (! function_exists('ppcart_meta_key')) {
             require_once PPCARTCOMP_PLUGIN_ROOT . 'includes/compat/meta-key-migration/helpers.php';
         }
