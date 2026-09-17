@@ -24,5 +24,6 @@ require_once __DIR__ . '/shortcode-detectors.php';
 require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/globals.php';
 require_once __DIR__ . '/class-ppcartcomp-studiocart-public-query-compatibility.php';
+require_once __DIR__ . '/class-ppcartcomp-studiocart-admin-page-compatibility.php';
 
 PPCartComp_Studiocart_Compatibility_Mode::init();

@@ -143,6 +143,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
 
         if (class_exists('PPCartComp_Studiocart_Public_Query_Compatibility', false)) {
             PPCartComp_Studiocart_Public_Query_Compatibility::init();
+            PPCartComp_Studiocart_Admin_Page_Compatibility::init();
         }
     }
 
