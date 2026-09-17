@@ -63,6 +63,12 @@ if (! function_exists('sc_payment_methods')) {
         return ppcart_payment_methods();
     }
 }
+if (! function_exists('scrt_payment_methods')) {
+    function scrt_payment_methods()
+    {
+        return ppcart_payment_methods();
+    }
+}
 if (! function_exists('sc_payment_plan_options')) {
     function sc_payment_plan_options($post_id, $hide_labels, $plan = false, $include_coupon = true)
     {
