@@ -114,10 +114,10 @@ if (! function_exists('ppcart_register_legacy_shortcodes')) {
 
             $callback = null;
 
-            if (isset($shortcode_tags[ $canonical ])) {
-                $callback = $shortcode_tags[ $canonical ];
-            } elseif ('' !== $normalized['callback'] && function_exists($normalized['callback'])) {
+            if ('' !== $normalized['callback'] && function_exists($normalized['callback'])) {
                 $callback = $normalized['callback'];
+            } elseif (isset($shortcode_tags[ $canonical ])) {
+                $callback = $shortcode_tags[ $canonical ];
             }
 
             if (null === $callback) {
@@ -153,3 +153,29 @@ if (! function_exists('ppcart_unregister_legacy_shortcodes')) {
         $registered = [];
     }
 }
+
+if (! function_exists('ppcartcomp_legacy_wpdomainchecker_shortcode')) {
+    /**
+     * Leftover [sc_wpdomainchecker sc_item_id="…"] → canonical handler.
+     *
+     * @param mixed $atts Shortcode attributes.
+     * @return mixed
+     */
+    function ppcartcomp_legacy_wpdomainchecker_shortcode($atts, $content = '', $tag = '')
+    {
+        global $shortcode_tags;
+
+        if (! isset($shortcode_tags['ppcart_wpdomainchecker'])) {
+            return '';
+        }
+
+        $atts = (array) $atts;
+
+        if (empty($atts['ppcart_item_id']) && ! empty($atts['sc_item_id'])) {
+            $atts['ppcart_item_id'] = $atts['sc_item_id'];
+        }
+
+        return call_user_func($shortcode_tags['ppcart_wpdomainchecker'], $atts, $content, 'ppcart_wpdomainchecker');
+    }
+}
+

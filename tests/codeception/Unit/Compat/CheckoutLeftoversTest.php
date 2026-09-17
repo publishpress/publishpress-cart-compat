@@ -21,5 +21,6 @@ class CheckoutLeftoversTest extends Unit
 
         $this->assertArrayNotHasKey('action', $map);
         $this->assertSame([ 'sc_qty' ], $map['ppcart_qty']);
+        $this->assertSame([ 'sc_d' ], $map['ppcart_d']);
     }
 }

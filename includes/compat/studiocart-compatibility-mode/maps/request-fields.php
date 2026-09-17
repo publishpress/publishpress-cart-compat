@@ -109,6 +109,7 @@ return [
     'ppcart_profile_nonce' => [ 'sc_profile_nonce' ],
     'ppcart_purchase_amount' => [ 'sc_purchase_amount' ],
     'ppcart_qty' => [ 'sc_qty' ],
+    'ppcart_d' => [ 'sc_d' ],
     'ppcart_refund_amount' => [ 'sc_refund_amount' ],
     'ppcart_related_product' => [ 'sc_related_product' ],
     'ppcart_reset_debug_log_nonce' => [ 'sc_reset_debug_log_nonce' ],

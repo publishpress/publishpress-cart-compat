@@ -33,6 +33,7 @@ class ShortcodesTest extends Unit
         'ppcart_product'                     => 'sc_product',
         'ppcart_affiliate_dashboard'         => 'sc_affiliate_dashboard',
         'ppcart_affiliate_signup'            => 'sc_affiliate_signup',
+        'ppcart_wpdomainchecker'               => 'sc_wpdomainchecker',
         'ppcart_order_summary_items_view'    => 'sc_order_summary_items_view',
     ];
 
@@ -79,7 +80,7 @@ class ShortcodesTest extends Unit
     {
         $map = ncs_cart_get_legacy_shortcode_map();
 
-        $this->assertCount(16, $map);
+        $this->assertCount(17, $map);
         foreach ($this->expectedPairs as $canonical => $legacy) {
             $this->assertArrayHasKey($canonical, $map);
             $this->assertSame($legacy, ncs_cart_legacy_shortcode_tag($map[ $canonical ]));
@@ -88,6 +89,10 @@ class ShortcodesTest extends Unit
         $this->assertSame(
             'ppcart_order_summary_shortcode',
             $map['ppcart_order_summary_items_view']['callback']
+        );
+        $this->assertSame(
+            'ppcartcomp_legacy_wpdomainchecker_shortcode',
+            $map['ppcart_wpdomainchecker']['callback']
         );
         $this->assertNotSame(
             $this->expectedPairs['ppcart_account_order_detail'],
