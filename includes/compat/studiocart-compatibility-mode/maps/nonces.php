@@ -19,6 +19,7 @@ return [
         'ppcart_dismiss_secrets_notice'               => [ 'sc_dismiss_secrets_notice' ],
         'ppcart_download_debug_log'                   => [ 'sc_download_debug_log' ],
         'ppcart_download_stripe_webhook_log'          => [ 'sc_download_stripe_webhook_log' ],
+        'ppcart_import_upload'                        => [ 'import-sc-upload' ],
         'ppcart_migrate_secrets'                      => [ 'sc_migrate_secrets' ],
         'ppcart_price_format'                         => [ 'sc-price-format' ],
         'ppcart_purchase_nonce'                       => [ 'sc_purchase_nonce' ],

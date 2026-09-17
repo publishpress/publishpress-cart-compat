@@ -94,6 +94,13 @@ class RequestFieldsTest extends Unit
         $this->assertSame([ 'sc_custom_fields' ], $map['ppcart_custom_fields']);
         $this->assertSame([ 'sc_product_duplicated' ], $map['ppcart_product_duplicated']);
         $this->assertSame([ 'sc_temp_order_id' ], $map['ppcart_temp_order_id']);
+        $this->assertSame([ 'sc-mollie' ], $map['ppcart-mollie']);
+        $this->assertSame([ 'sc-mollie-order' ], $map['ppcart-mollie-order']);
+        $this->assertSame([ 'sc-square' ], $map['ppcart-square']);
+        $this->assertSame([ 'sc-squarepay-order' ], $map['ppcart-squarepay-order']);
+        $this->assertSame([ 'sc-razorpay' ], $map['ppcart-razorpay']);
+        $this->assertSame([ 'sc-razorpay-order' ], $map['ppcart-razorpay-order']);
+        $this->assertSame([ 'sc-edit-collection' ], $map['ppcart-edit-collection']);
 
         foreach ($map as $canonical => $leftovers) {
             $this->assertNotSame('action', $canonical);
@@ -110,16 +117,27 @@ class RequestFieldsTest extends Unit
         $_POST = [
             'sc-nonce' => 'legacy-nonce',
             'sc-orderbump' => [ 'main' => '1' ],
+            'sc-edit-collection' => '1',
             'action' => 'sc_save_order_to_db',
         ];
-        $_GET = [ 'sc_product_duplicated' => '41' ];
+        $_GET = [
+            'sc_product_duplicated' => '41',
+            'sc-mollie' => '1',
+            'sc-mollie-order' => '41',
+            'sc-square' => '1',
+            'sc-squarepay-order' => '42',
+            'sc-razorpay' => '1',
+            'sc-razorpay-order' => '43',
+        ];
         $_REQUEST = $_POST + $_GET;
 
         ppcart_copy_legacy_request_fields();
 
         $this->assertArrayNotHasKey('ppcart-nonce', $_POST);
         $this->assertArrayNotHasKey('ppcart-orderbump', $_POST);
+        $this->assertArrayNotHasKey('ppcart-edit-collection', $_POST);
         $this->assertArrayNotHasKey('ppcart_product_duplicated', $_GET);
+        $this->assertArrayNotHasKey('ppcart-mollie', $_GET);
         $this->assertSame('sc_save_order_to_db', $_POST['action']);
 
         WordPressStubContext::setState(
@@ -132,9 +150,18 @@ class RequestFieldsTest extends Unit
             'sc-nonce' => 'legacy-nonce',
             'ppcart-nonce' => 'canonical-nonce',
             'sc-orderbump' => [ 'main' => '1' ],
+            'sc-edit-collection' => '1',
             'action' => 'sc_save_order_to_db',
         ];
-        $_GET = [ 'sc_product_duplicated' => '41' ];
+        $_GET = [
+            'sc_product_duplicated' => '41',
+            'sc-mollie' => '1',
+            'sc-mollie-order' => '41',
+            'sc-square' => '1',
+            'sc-squarepay-order' => '42',
+            'sc-razorpay' => '1',
+            'sc-razorpay-order' => '43',
+        ];
         $_REQUEST = $_POST + $_GET;
 
         ppcart_copy_legacy_request_fields();
@@ -145,6 +172,14 @@ class RequestFieldsTest extends Unit
         $this->assertSame([ 'main' => '1' ], $_POST['sc-orderbump']);
         $this->assertSame('41', $_GET['ppcart_product_duplicated']);
         $this->assertSame('41', $_GET['sc_product_duplicated']);
+        $this->assertSame('1', $_GET['ppcart-mollie']);
+        $this->assertSame('41', $_GET['ppcart-mollie-order']);
+        $this->assertSame('1', $_GET['ppcart-square']);
+        $this->assertSame('42', $_GET['ppcart-squarepay-order']);
+        $this->assertSame('1', $_GET['ppcart-razorpay']);
+        $this->assertSame('43', $_GET['ppcart-razorpay-order']);
+        $this->assertSame('1', $_POST['ppcart-edit-collection']);
+        $this->assertSame('1', $_POST['sc-edit-collection']);
         $this->assertSame('sc_save_order_to_db', $_POST['action']);
         $this->assertArrayNotHasKey('ppcart_save_order_to_db', $_POST);
     }

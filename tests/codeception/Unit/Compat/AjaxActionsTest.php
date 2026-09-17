@@ -151,6 +151,7 @@ class AjaxActionsTest extends Unit
 
         $this->assertSame([ 'sc_purchase_nonce' ], $map['exact']['ppcart_purchase_nonce']);
         $this->assertSame([ 'sc-ajax-nonce' ], $map['exact']['ppcart_ajax_nonce']);
+        $this->assertSame([ 'import-sc-upload' ], $map['exact']['ppcart_import_upload']);
         $this->assertSame(
             [ 'ncs_cart_search_report_customers' ],
             $map['exact']['ppcart_search_report_customers']
