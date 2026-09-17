@@ -87,3 +87,15 @@ function ppcart_cpt_slug_migration_maps()
 
     return $maps;
 }
+
+/**
+ * Free + Pro leftover CPT pairs for Data migration walks and leftover admin redirects.
+ *
+ * @return array<string, array{legacy: string, canonical: string}>
+ */
+function ppcart_cpt_slug_migration_all_post_type_pairs()
+{
+    $maps = ppcart_cpt_slug_migration_maps();
+
+    return array_merge($maps['post_types'], $maps['pro_post_types']);
+}

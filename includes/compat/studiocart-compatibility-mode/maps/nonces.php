@@ -22,6 +22,7 @@ return [
         'ppcart_migrate_secrets'                      => [ 'sc_migrate_secrets' ],
         'ppcart_price_format'                         => [ 'sc-price-format' ],
         'ppcart_purchase_nonce'                       => [ 'sc_purchase_nonce' ],
+        'ppcart_pro_toggle_extension'                 => [ 'sc_pro_toggle_extension' ],
         'ppcart_related_product'                      => [ 'sc_related_product' ],
         'ppcart_resend_purchase_confirmation_email'  => [ 'sc-resend-purchase-confirmation-email' ],
         'ppcart_reset_debug_log'                      => [ 'sc_reset_debug_log' ],

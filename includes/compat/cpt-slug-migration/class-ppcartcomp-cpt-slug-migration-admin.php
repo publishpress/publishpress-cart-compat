@@ -105,7 +105,7 @@ class PPCartComp_Cpt_Slug_Migration_Admin
 
         if (isset($get['post_type']) && is_string($get['post_type'])) {
             $post_type = sanitize_key(wp_unslash($get['post_type']));
-            foreach ($maps['post_types'] as $pair) {
+            foreach (ppcart_cpt_slug_migration_all_post_type_pairs() as $pair) {
                 if ($post_type === $pair['legacy']) {
                     $args['post_type'] = $pair['canonical'];
                     break;

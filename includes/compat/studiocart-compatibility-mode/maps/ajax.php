@@ -192,4 +192,49 @@ return [
         'auth'   => true,
         'nopriv' => false,
     ],
+    'ppcart_validate_coupon' => [
+        'legacy' => [ 'sc_validate_coupon' ],
+        'auth'   => true,
+        'nopriv' => true,
+    ],
+    'ppcart_process_upsell' => [
+        'legacy' => [ 'sc_process_upsell' ],
+        'auth'   => true,
+        'nopriv' => true,
+    ],
+    'ppcart_check_vat_applicable' => [
+        'legacy' => [ 'sc_check_vat_applicable' ],
+        'auth'   => true,
+        'nopriv' => true,
+    ],
+    'ppcart_mollie_request' => [
+        'legacy' => [ 'sc_mollie_request' ],
+        'auth'   => true,
+        'nopriv' => true,
+    ],
+    'ppcart_mollie_method_change_request' => [
+        'legacy' => [ 'sc_mollie_method_change_request' ],
+        'auth'   => true,
+        'nopriv' => true,
+    ],
+    'ppcart_squarepay_request' => [
+        'legacy' => [ 'sc_squarepay_request' ],
+        'auth'   => true,
+        'nopriv' => true,
+    ],
+    'ppcart_squarepay_method_change_request' => [
+        'legacy' => [ 'sc_squarepay_method_change_request' ],
+        'auth'   => true,
+        'nopriv' => true,
+    ],
+    'ppcart_razorpay_request' => [
+        'legacy' => [ 'sc_razorpay_request' ],
+        'auth'   => true,
+        'nopriv' => true,
+    ],
+    'ppcart_razorpay_method_change_request' => [
+        'legacy' => [ 'sc_razorpay_method_change_request' ],
+        'auth'   => true,
+        'nopriv' => true,
+    ],
 ];

@@ -64,6 +64,10 @@ if (! function_exists('ppcart_register_legacy_cpt_taxonomy_bridges')) {
         if (! has_action('init', 'ppcart_register_legacy_taxonomy_rewrite_aliases')) {
             add_action('init', 'ppcart_register_legacy_taxonomy_rewrite_aliases', 11);
         }
+
+        if (! has_action('init', 'ppcart_register_legacy_pro_post_types')) {
+            add_action('init', 'ppcart_register_legacy_pro_post_types', 100);
+        }
     }
 }
 
@@ -80,7 +84,16 @@ if (! function_exists('ppcart_unregister_legacy_cpt_taxonomy_bridges')) {
         }
 
         remove_action('init', 'ppcart_register_legacy_taxonomy_rewrite_aliases', 11);
+        remove_action('init', 'ppcart_register_legacy_pro_post_types', 100);
         remove_action('init', 'ppcart_register_legacy_fse_product_templates', 1001);
+
+        if (function_exists('unregister_post_type') && function_exists('ppcart_cpt_slug_migration_maps')) {
+            foreach (ppcart_cpt_slug_migration_maps()['pro_post_types'] as $pair) {
+                if (! empty($pair['legacy']) && post_type_exists($pair['legacy'])) {
+                    unregister_post_type($pair['legacy']);
+                }
+            }
+        }
     }
 }
 
@@ -178,6 +191,67 @@ if (! function_exists('ppcart_register_legacy_taxonomy_rewrite_aliases')) {
                 '^' . preg_quote($legacy, '/') . '/([^/]+)/?$',
                 'index.php?' . $canonical . '=$matches[1]',
                 'top'
+            );
+        }
+    }
+}
+
+if (! function_exists('ppcart_register_legacy_pro_post_types')) {
+    /**
+     * Leftover Pro CPT slugs while Compatibility Mode is on.
+     *
+     * Clones a canonical Pro CPT when it exists. Skips missing families
+     * (membership may be unregistered). show_ui stays off.
+     *
+     * @return void
+     */
+    function ppcart_register_legacy_pro_post_types()
+    {
+        if (
+            ! class_exists('PPCartComp_Studiocart_Compatibility_Mode', false)
+            || ! PPCartComp_Studiocart_Compatibility_Mode::is_enabled()
+        ) {
+            return;
+        }
+
+        if (! function_exists('ppcart_cpt_slug_migration_maps')) {
+            return;
+        }
+
+        foreach (ppcart_cpt_slug_migration_maps()['pro_post_types'] as $pair) {
+            $canonical = isset($pair['canonical']) ? $pair['canonical'] : '';
+            $legacy    = isset($pair['legacy']) ? $pair['legacy'] : '';
+            if ('' === $canonical || '' === $legacy) {
+                continue;
+            }
+            if (post_type_exists($legacy) || ! post_type_exists($canonical)) {
+                continue;
+            }
+
+            $object = get_post_type_object($canonical);
+            if (! $object instanceof WP_Post_Type) {
+                continue;
+            }
+
+            $supports = get_all_post_type_supports($canonical);
+            register_post_type(
+                $legacy,
+                [
+                    'label'              => $object->label,
+                    'labels'             => get_object_vars($object->labels),
+                    'public'             => false,
+                    'publicly_queryable' => (bool) $object->publicly_queryable,
+                    'show_ui'            => false,
+                    'show_in_menu'       => false,
+                    'show_in_admin_bar'  => false,
+                    'show_in_rest'       => false,
+                    'capability_type'    => $object->capability_type,
+                    'map_meta_cap'       => (bool) $object->map_meta_cap,
+                    'hierarchical'       => (bool) $object->hierarchical,
+                    'supports'           => is_array($supports) ? array_keys($supports) : [],
+                    'has_archive'        => false,
+                    'rewrite'            => false,
+                ]
             );
         }
     }

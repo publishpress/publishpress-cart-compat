@@ -133,8 +133,13 @@ class AjaxActionsTest extends Unit
         $this->assertTrue($map['ppcart_capture_lead']['auth']);
         $this->assertTrue($map['ppcart_capture_lead']['nopriv']);
 
-        $this->assertArrayNotHasKey('ppcart_validate_coupon', $map);
-        $this->assertArrayNotHasKey('ppcart_process_upsell', $map);
+        $this->assertSame([ 'sc_validate_coupon' ], $map['ppcart_validate_coupon']['legacy']);
+        $this->assertTrue($map['ppcart_validate_coupon']['auth']);
+        $this->assertTrue($map['ppcart_validate_coupon']['nopriv']);
+
+        $this->assertSame([ 'sc_process_upsell' ], $map['ppcart_process_upsell']['legacy']);
+        $this->assertTrue($map['ppcart_process_upsell']['auth']);
+        $this->assertTrue($map['ppcart_process_upsell']['nopriv']);
     }
 
     /**

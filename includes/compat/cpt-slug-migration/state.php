@@ -104,7 +104,7 @@ function ppcart_cpt_slug_migration_has_leftover_rows()
 
     $maps       = ppcart_cpt_slug_migration_maps();
     $post_types = [];
-    foreach ($maps['post_types'] as $pair) {
+    foreach (ppcart_cpt_slug_migration_all_post_type_pairs() as $pair) {
         $post_types[] = $pair['legacy'];
     }
     $placeholders = implode(',', array_fill(0, count($post_types), '%s'));

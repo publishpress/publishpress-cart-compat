@@ -87,6 +87,8 @@ class RequestFieldsTest extends Unit
 
         $this->assertArrayNotHasKey('action', $map);
         $this->assertSame([ 'sc-nonce' ], $map['ppcart-nonce']);
+        $this->assertSame([ 'sc-order' ], $map['ppcart-order']);
+        $this->assertSame([ 'sc-s' ], $map['ppcart-s']);
         $this->assertSame([ 'sc_product_id' ], $map['ppcart_product_id']);
         $this->assertSame([ 'sc-orderbump' ], $map['ppcart-orderbump']);
         $this->assertSame([ 'sc_custom_fields' ], $map['ppcart_custom_fields']);

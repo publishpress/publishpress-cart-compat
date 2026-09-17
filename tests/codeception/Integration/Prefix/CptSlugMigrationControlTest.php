@@ -161,6 +161,10 @@ class CptSlugMigrationControlTest extends CptSlugMigrationTestCase
             PPCartComp_Cpt_Slug_Migration_Admin::legacy_admin_query_args([ 'post_type' => 'sc_product' ])
         );
         $this->assertSame(
+            [ 'post_type' => 'ppcart_collection' ],
+            PPCartComp_Cpt_Slug_Migration_Admin::legacy_admin_query_args([ 'post_type' => 'sc_collection' ])
+        );
+        $this->assertSame(
             [ 'taxonomy' => 'ppcart_product_cat' ],
             PPCartComp_Cpt_Slug_Migration_Admin::legacy_admin_query_args([ 'taxonomy' => 'sc_product_cat' ])
         );

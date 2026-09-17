@@ -138,9 +138,9 @@ if (! function_exists('ncs_cart_rewrite_derived_cpt_hook')) {
             [ 'sc_order', 'ppcart_order' ],
             [ 'sc_subscription', 'ppcart_subscription' ],
         ];
-        if (function_exists('ppcart_cpt_slug_migration_maps')) {
+        if (function_exists('ppcart_cpt_slug_migration_all_post_type_pairs')) {
             $pairs = [];
-            foreach (ppcart_cpt_slug_migration_maps()['post_types'] as $pair) {
+            foreach (ppcart_cpt_slug_migration_all_post_type_pairs() as $pair) {
                 $pairs[] = [ $pair['legacy'], $pair['canonical'] ];
             }
         }

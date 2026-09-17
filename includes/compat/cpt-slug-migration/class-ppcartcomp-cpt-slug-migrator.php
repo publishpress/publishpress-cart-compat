@@ -205,7 +205,7 @@ class PPCartComp_Cpt_Slug_Migrator
 
         $maps       = ppcart_cpt_slug_migration_maps();
         $post_types = [];
-        foreach ($maps['post_types'] as $pair) {
+        foreach (ppcart_cpt_slug_migration_all_post_type_pairs() as $pair) {
             $post_types[] = $pair['legacy'];
         }
         $placeholders = implode(',', array_fill(0, count($post_types), '%s'));
@@ -243,8 +243,7 @@ class PPCartComp_Cpt_Slug_Migrator
     {
         global $wpdb;
 
-        $maps = ppcart_cpt_slug_migration_maps();
-        foreach ($maps['post_types'] as $pair) {
+        foreach (ppcart_cpt_slug_migration_all_post_type_pairs() as $pair) {
             $ids = $wpdb->get_col(
                 $wpdb->prepare(
                     "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s ORDER BY ID ASC LIMIT %d",

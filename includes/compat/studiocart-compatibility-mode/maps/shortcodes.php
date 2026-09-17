@@ -26,6 +26,8 @@ return [
     'ppcart_order_detail'                  => 'sc_order_detail',
     'ppcart_plan'                          => 'sc_plan',
     'ppcart_product'                       => 'sc_product',
+    'ppcart_affiliate_dashboard'           => 'sc_affiliate_dashboard',
+    'ppcart_affiliate_signup'              => 'sc_affiliate_signup',
     'ppcart_order_summary_items_view'      => [
         'legacy'   => 'sc_order_summary_items_view',
         'callback' => 'ppcart_order_summary_shortcode',

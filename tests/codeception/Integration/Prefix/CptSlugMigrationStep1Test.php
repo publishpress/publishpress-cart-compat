@@ -17,6 +17,7 @@ class CptSlugMigrationStep1Test extends CptSlugMigrationTestCase
 
         $orderId        = $this->insertLeftoverPost('sc_order', 'Leftover order');
         $subscriptionId = $this->insertLeftoverPost('sc_subscription', 'Leftover subscription');
+        $collectionId   = $this->insertLeftoverPost('sc_collection', 'Leftover collection');
         $catTtId        = $this->insertLeftoverTerm('sc_product_cat', 'Leftover category');
         $tagTtId        = $this->insertLeftoverTerm('sc_product_tag', 'Leftover tag');
         $templateId     = $this->insertLeftoverProductTemplate();
@@ -25,10 +26,11 @@ class CptSlugMigrationStep1Test extends CptSlugMigrationTestCase
         $result = $this->runStep1UntilDone();
         $this->assertTrue(! empty($result['done']), wp_json_encode($result));
 
-        $this->cleanPostCaches([ $orderId, $subscriptionId, $templateId ]);
+        $this->cleanPostCaches([ $orderId, $subscriptionId, $collectionId, $templateId ]);
 
         $this->assertSame('ppcart_order', get_post_type($orderId));
         $this->assertSame('ppcart_subscription', get_post_type($subscriptionId));
+        $this->assertSame('ppcart_collection', get_post_type($collectionId));
         $this->assertSame('ppcart_product_cat', $this->termTaxonomySlug($catTtId));
         $this->assertSame('ppcart_product_tag', $this->termTaxonomySlug($tagTtId));
         $this->assertSame('single-ppcart_product', get_post_field('post_name', $templateId));
@@ -49,16 +51,19 @@ class CptSlugMigrationStep1Test extends CptSlugMigrationTestCase
     {
         $this->saveLegacyIdleState();
 
-        $orderId      = $this->insertLeftoverPost('sc_order', 'Mapped leftover order');
-        $collectionId = $this->insertLeftoverPost('sc_collection', 'Unmapped collection');
+        $orderId    = $this->insertLeftoverPost('sc_order', 'Mapped leftover order');
+        register_post_type('sc_unmapped_fixture', [ 'public' => false, 'label' => 'Unmapped fixture' ]);
+        $unmappedId = $this->insertLeftoverPost('sc_unmapped_fixture', 'Unmapped fixture post');
 
         $result = $this->runStep1UntilDone();
         $this->assertTrue(! empty($result['done']), wp_json_encode($result));
 
-        $this->cleanPostCaches([ $orderId, $collectionId ]);
+        $this->cleanPostCaches([ $orderId, $unmappedId ]);
 
         $this->assertSame('ppcart_order', get_post_type($orderId));
-        $this->assertSame('sc_collection', get_post_type($collectionId));
+        $this->assertSame('sc_unmapped_fixture', get_post_type($unmappedId));
         $this->assertGreaterThan(0, $this->backupRowCount());
+
+        unregister_post_type('sc_unmapped_fixture');
     }
 }

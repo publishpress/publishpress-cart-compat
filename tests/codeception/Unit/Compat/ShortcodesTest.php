@@ -31,6 +31,8 @@ class ShortcodesTest extends Unit
         'ppcart_order_detail'                => 'sc_order_detail',
         'ppcart_plan'                        => 'sc_plan',
         'ppcart_product'                     => 'sc_product',
+        'ppcart_affiliate_dashboard'         => 'sc_affiliate_dashboard',
+        'ppcart_affiliate_signup'            => 'sc_affiliate_signup',
         'ppcart_order_summary_items_view'    => 'sc_order_summary_items_view',
     ];
 
@@ -73,11 +75,11 @@ class ShortcodesTest extends Unit
     /**
      * @test-id UT-204
      */
-    public function test_UT_204_shortcode_map_covers_all_fourteen_pairs(): void
+    public function test_UT_204_shortcode_map_covers_all_sixteen_pairs(): void
     {
         $map = ncs_cart_get_legacy_shortcode_map();
 
-        $this->assertCount(14, $map);
+        $this->assertCount(16, $map);
         foreach ($this->expectedPairs as $canonical => $legacy) {
             $this->assertArrayHasKey($canonical, $map);
             $this->assertSame($legacy, ncs_cart_legacy_shortcode_tag($map[ $canonical ]));
