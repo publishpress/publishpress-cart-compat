@@ -17,6 +17,11 @@ return [
         'auth'   => true,
         'nopriv' => false,
     ],
+    'ppcart_affiliate_track_visit' => [
+        'legacy' => [ 'sc-aff_track_visit' ],
+        'auth'   => true,
+        'nopriv' => true,
+    ],
     'ppcart_capture_lead' => [
         'legacy' => [ 'sc_capture_lead' ],
         'auth'   => true,
