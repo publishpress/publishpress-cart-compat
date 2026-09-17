@@ -94,6 +94,9 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('init', [ self::class, 'maybe_register_gutenberg_blocks' ], 11);
         add_action('enqueue_block_editor_assets', [ self::class, 'enqueue_legacy_gutenberg_editor_assets' ], 20);
         add_action('rest_api_init', [ self::class, 'maybe_register_rest_namespaces' ], 99);
+        add_action('elementor/widgets/register', [ self::class, 'maybe_register_elementor_widgets' ], 20);
+        add_action('et_builder_ready', [ self::class, 'maybe_register_divi_modules' ], 20);
+        add_action('divi_extensions_init', [ self::class, 'maybe_register_divi_modules' ], 20);
 
         add_action('ppcart_before_load', [ self::class, 'maybe_register_aliases' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_functions' ], PHP_INT_MAX);
@@ -526,6 +529,53 @@ class PPCartComp_Studiocart_Compatibility_Mode
         }
 
         ppcart_register_legacy_rest_namespaces();
+    }
+
+    /**
+     * Dual-register leftover Pro Elementor widget names when Compatibility Mode is on.
+     *
+     * Runs after Pro registers canonical widgets (priority 10).
+     *
+     * @param object|null $widgets_manager Elementor widgets manager.
+     * @return void
+     */
+    public static function maybe_register_elementor_widgets($widgets_manager = null)
+    {
+        if (! function_exists('ppcart_register_legacy_elementor_widgets')) {
+            return;
+        }
+
+        if (! self::is_enabled()) {
+            if (function_exists('ppcart_unregister_legacy_elementor_widgets')) {
+                ppcart_unregister_legacy_elementor_widgets($widgets_manager);
+            }
+
+            return;
+        }
+
+        ppcart_register_legacy_elementor_widgets($widgets_manager);
+    }
+
+    /**
+     * Dual-register leftover Pro Divi module slug when Compatibility Mode is on.
+     *
+     * @return void
+     */
+    public static function maybe_register_divi_modules()
+    {
+        if (! function_exists('ppcart_register_legacy_divi_modules')) {
+            return;
+        }
+
+        if (! self::is_enabled()) {
+            if (function_exists('ppcart_unregister_legacy_divi_modules')) {
+                ppcart_unregister_legacy_divi_modules();
+            }
+
+            return;
+        }
+
+        ppcart_register_legacy_divi_modules();
     }
 
     /**

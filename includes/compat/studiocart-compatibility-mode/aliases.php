@@ -51,7 +51,7 @@ if (! function_exists('ncs_cart_get_legacy_class_alias_map')) {
         sort($map_files);
 
         foreach ($map_files as $map_file) {
-            if (in_array(basename($map_file), [ 'index.php', 'options.php', 'hooks.php', 'constants.php', 'shortcodes.php', 'ajax.php', 'nonces.php', 'request-fields.php', 'stripe-metadata.php', 'cpt-taxonomy.php', 'integration-repeater-fields.php', 'integration-service-ids.php', 'invoice-format-values.php', 'tax-rate-inner-keys.php', 'theme-template-dirs.php', 'gutenberg-blocks.php', 'rest-namespaces.php' ], true)) {
+            if (in_array(basename($map_file), [ 'index.php', 'options.php', 'hooks.php', 'constants.php', 'shortcodes.php', 'ajax.php', 'nonces.php', 'request-fields.php', 'stripe-metadata.php', 'cpt-taxonomy.php', 'integration-repeater-fields.php', 'integration-service-ids.php', 'invoice-format-values.php', 'tax-rate-inner-keys.php', 'theme-template-dirs.php', 'gutenberg-blocks.php', 'rest-namespaces.php', 'elementor-widgets.php', 'divi-modules.php' ], true)) {
                 continue;
             }
 
