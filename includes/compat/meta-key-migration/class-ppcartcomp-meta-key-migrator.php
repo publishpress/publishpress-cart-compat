@@ -91,6 +91,10 @@ class PPCartComp_Meta_Key_Migrator
         );
 
         $moved = self::migrate_chunk();
+        if (empty(ppcart_meta_key_migration_get_state()['inner_keys']) && function_exists('ppcart_migrate_integration_repeater_inner_keys')) {
+            ppcart_migrate_integration_repeater_inner_keys();
+            ppcart_meta_key_migration_save_state([ 'inner_keys' => 'complete' ]);
+        }
         delete_transient(self::STEP1_LOCK);
 
         $remaining = self::count_remaining();
@@ -119,20 +123,21 @@ class PPCartComp_Meta_Key_Migrator
         global $wpdb;
 
         $like = $wpdb->esc_like('_sc_') . '%';
+        list($where, $params) = self::leftover_meta_key_sql($like);
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Remaining leftover-key count.
         $postmeta = (int) $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key LIKE %s",
-                $like
+                "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE {$where}",
+                $params
             )
         );
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Remaining leftover-key count.
         $usermeta = (int) $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->usermeta} WHERE meta_key LIKE %s",
-                $like
+                "SELECT COUNT(*) FROM {$wpdb->usermeta} WHERE {$where}",
+                $params
             )
         );
 
@@ -166,14 +171,15 @@ class PPCartComp_Meta_Key_Migrator
         $is_user = 'user' === $kind;
         $table   = $is_user ? $wpdb->usermeta : $wpdb->postmeta;
         $id_col  = $is_user ? 'umeta_id' : 'meta_id';
-        $like    = $wpdb->esc_like('_sc_') . '%';
+        $like = $wpdb->esc_like('_sc_') . '%';
+        list($where, $params) = self::leftover_meta_key_sql($like);
+        $params[] = self::CHUNK_SIZE;
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Chunked leftover-key scan.
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT {$id_col} AS meta_id, meta_key FROM {$table} WHERE meta_key LIKE %s ORDER BY {$id_col} ASC LIMIT %d",
-                $like,
-                self::CHUNK_SIZE
+                "SELECT {$id_col} AS meta_id, meta_key FROM {$table} WHERE {$where} ORDER BY {$id_col} ASC LIMIT %d",
+                $params
             ),
             ARRAY_A
         );
@@ -203,11 +209,18 @@ class PPCartComp_Meta_Key_Migrator
     {
         global $wpdb;
 
-        if (! function_exists('ppcart_meta_key') || ! ppcart_is_legacy_meta_key($legacy)) {
+        $pro_canonical = function_exists('ncs_cart_legacy_to_canonical_pro_meta_key')
+            ? ncs_cart_legacy_to_canonical_pro_meta_key($legacy)
+            : null;
+        $is_legacy_sc  = function_exists('ppcart_is_legacy_meta_key') && ppcart_is_legacy_meta_key($legacy);
+
+        if (null === $pro_canonical && ! $is_legacy_sc) {
             return;
         }
 
-        $canonical = ppcart_meta_key($legacy);
+        $canonical = is_string($pro_canonical) && '' !== $pro_canonical
+            ? $pro_canonical
+            : ppcart_meta_key($legacy);
         if ($canonical === $legacy) {
             return;
         }
@@ -362,5 +375,26 @@ class PPCartComp_Meta_Key_Migrator
         $wpdb->query("DROP TABLE IF EXISTS {$table}");
 
         return [ 'ok' => true ];
+    }
+
+    /**
+     * Leftover `_sc_*` keys plus explicit Pro keys that skip that prefix.
+     *
+     * @param string $like Escaped `_sc_%` LIKE value.
+     * @return array{0: string, 1: array<int, string>}
+     */
+    private static function leftover_meta_key_sql($like)
+    {
+        $where  = 'meta_key LIKE %s';
+        $params = [ $like ];
+        $explicit = function_exists('ncs_cart_pro_meta_leftover_keys') ? ncs_cart_pro_meta_leftover_keys() : [];
+
+        if ([] !== $explicit) {
+            $placeholders = implode(',', array_fill(0, count($explicit), '%s'));
+            $where       .= " OR meta_key IN ({$placeholders})";
+            $params       = array_merge($params, $explicit);
+        }
+
+        return [ $where, $params ];
     }
 }

@@ -42,6 +42,7 @@ class IntegrationRepeaterFieldsTest extends WPTestCase
                     'sc_sub_prod_id' => '10',
                     'sc_sub_plan_id' => 'plan_a',
                     'sc_sub_cancel' => 'yes',
+                    'sc_refund_prod_id' => '77',
                 ],
             ]
         );
@@ -70,6 +71,7 @@ class IntegrationRepeaterFieldsTest extends WPTestCase
         $this->assertArrayNotHasKey('ppcart_sub_prod_id', $off[0]);
         $this->assertArrayNotHasKey('ppcart_sub_plan_id', $off[0]);
         $this->assertArrayNotHasKey('ppcart_sub_cancel', $off[0]);
+        $this->assertArrayNotHasKey('ppcart_refund_prod_id', $off[0]);
 
         update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
 
@@ -78,10 +80,29 @@ class IntegrationRepeaterFieldsTest extends WPTestCase
         $this->assertSame('10', $on[0]['ppcart_sub_prod_id']);
         $this->assertSame('plan_a', $on[0]['ppcart_sub_plan_id']);
         $this->assertSame('yes', $on[0]['ppcart_sub_cancel']);
+        $this->assertSame('77', $on[0]['ppcart_refund_prod_id']);
         $this->assertSame('10', $on[0]['sc_sub_prod_id']);
 
         $stored = get_post_meta($this->productId, '_ppcart_integrations', true);
         $this->assertSame('10', $stored[0]['sc_sub_prod_id']);
+        $this->assertSame('77', $stored[0]['sc_refund_prod_id']);
         $this->assertArrayNotHasKey('ppcart_sub_prod_id', $stored[0]);
+        $this->assertArrayNotHasKey('ppcart_refund_prod_id', $stored[0]);
+    }
+
+    /**
+     * @test-id IT-339
+     */
+    public function test_IT_339_merchant_data_migration_copies_inner_keys_without_deleting_leftover(): void
+    {
+        $moved = ppcart_migrate_integration_repeater_inner_keys();
+
+        $this->assertSame(1, $moved);
+
+        $stored = get_post_meta($this->productId, '_ppcart_integrations', true);
+        $this->assertSame('77', $stored[0]['ppcart_refund_prod_id']);
+        $this->assertSame('77', $stored[0]['sc_refund_prod_id']);
+        $this->assertSame('10', $stored[0]['ppcart_sub_prod_id']);
+        $this->assertSame('10', $stored[0]['sc_sub_prod_id']);
     }
 }

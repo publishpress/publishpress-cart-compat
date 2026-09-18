@@ -16,4 +16,5 @@ return [
     'ppcart_sub_prod_id' => [ 'sc_sub_prod_id' ],
     'ppcart_sub_plan_id' => [ 'sc_sub_plan_id' ],
     'ppcart_sub_cancel' => [ 'sc_sub_cancel' ],
+    'ppcart_refund_prod_id' => [ 'sc_refund_prod_id' ],
 ];

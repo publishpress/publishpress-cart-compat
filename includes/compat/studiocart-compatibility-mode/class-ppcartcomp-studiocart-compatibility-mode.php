@@ -32,6 +32,13 @@ class PPCartComp_Studiocart_Compatibility_Mode
      */
     private static $option_storage_bridges_registered = false;
 
+    /**
+     * Whether leftover Pro meta storage read-through was registered this request.
+     *
+     * @var bool
+     */
+    private static $pro_meta_storage_bridges_registered = false;
+
 
     /**
      * Whether leftover meta-key API bridges were registered this request.
@@ -85,6 +92,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_filter('ppcart_supports_feature', [ self::class, 'supports_feature' ], 20, 2);
         add_action('plugins_loaded', [ self::class, 'maybe_register_ajax' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_request_fields' ], 0);
+        add_action('plugins_loaded', [ self::class, 'maybe_register_cookies' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_stripe_metadata' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_cpt_taxonomy' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_download_upload_directory' ], 0);
@@ -102,11 +110,13 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('ppcart_before_load', [ self::class, 'maybe_register_functions' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_ajax' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_request_fields' ], PHP_INT_MAX);
+        add_action('ppcart_before_load', [ self::class, 'maybe_register_cookies' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_stripe_metadata' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_cpt_taxonomy' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_download_upload_directory' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_shortcodes' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_option_storage_bridges' ], PHP_INT_MAX);
+        add_action('ppcart_before_load', [ self::class, 'maybe_register_pro_meta_storage_bridges' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_options' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_metadata_bridges' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_hooks' ], PHP_INT_MAX);
@@ -116,6 +126,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('elementor/widgets/register', [ self::class, 'maybe_register_functions' ], 11);
         add_action('elementor/widgets/register', [ self::class, 'maybe_register_shortcodes' ], 11);
         add_action('elementor/widgets/register', [ self::class, 'maybe_register_option_storage_bridges' ], 11);
+        add_action('elementor/widgets/register', [ self::class, 'maybe_register_pro_meta_storage_bridges' ], 11);
         add_action('elementor/widgets/register', [ self::class, 'maybe_register_options' ], 11);
         add_action('elementor/widgets/register', [ self::class, 'maybe_register_metadata_bridges' ], 11);
         add_action('elementor/widgets/register', [ self::class, 'maybe_register_hooks' ], 11);
@@ -125,6 +136,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('ppcart_run_price_formatting', [ self::class, 'maybe_register_functions' ], 0);
         add_action('ppcart_run_price_formatting', [ self::class, 'maybe_register_shortcodes' ], 0);
         add_action('ppcart_run_price_formatting', [ self::class, 'maybe_register_option_storage_bridges' ], 0);
+        add_action('ppcart_run_price_formatting', [ self::class, 'maybe_register_pro_meta_storage_bridges' ], 0);
         add_action('ppcart_run_price_formatting', [ self::class, 'maybe_register_options' ], 0);
         add_action('ppcart_run_price_formatting', [ self::class, 'maybe_register_metadata_bridges' ], 0);
         add_action('ppcart_run_price_formatting', [ self::class, 'maybe_register_hooks' ], 0);
@@ -136,10 +148,12 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('ppcart_enqueue_frontend_assets', [ self::class, 'enqueue_legacy_public_styles' ], 11);
 
         self::maybe_register_option_storage_bridges();
+        self::maybe_register_pro_meta_storage_bridges();
         self::maybe_register_metadata_bridges();
         self::maybe_register_cron_hook_bridges();
         self::maybe_register_ajax();
         self::maybe_register_request_fields();
+        self::maybe_register_cookies();
         self::maybe_register_stripe_metadata();
         self::maybe_register_cpt_taxonomy();
         self::maybe_register_download_upload_directory();
@@ -257,6 +271,22 @@ class PPCartComp_Studiocart_Compatibility_Mode
     }
 
     /**
+     * Register leftover Pro meta storage read-through (no row copy or delete).
+     *
+     * @return void
+     */
+    public static function maybe_register_pro_meta_storage_bridges()
+    {
+        if (self::$pro_meta_storage_bridges_registered || ! function_exists('ppcart_register_pro_meta_storage_bridges')) {
+            return;
+        }
+
+        ppcart_register_pro_meta_storage_bridges();
+
+        self::$pro_meta_storage_bridges_registered = true;
+    }
+
+    /**
      * Register legacy option API bridges when Compatibility Mode is on.
      *
      * @return void
@@ -292,6 +322,9 @@ class PPCartComp_Studiocart_Compatibility_Mode
         }
 
         ppcart_register_legacy_metadata_api_bridges();
+        if (function_exists('ppcart_register_legacy_pro_meta_api_bridges')) {
+            ppcart_register_legacy_pro_meta_api_bridges();
+        }
         self::$legacy_metadata_registered = true;
     }
 
@@ -313,6 +346,16 @@ class PPCartComp_Studiocart_Compatibility_Mode
     public static function option_storage_bridges_registered()
     {
         return self::$option_storage_bridges_registered;
+    }
+
+    /**
+     * Whether leftover Pro meta storage read-through was registered for this request.
+     *
+     * @return bool
+     */
+    public static function pro_meta_storage_bridges_registered()
+    {
+        return self::$pro_meta_storage_bridges_registered;
     }
 
     /**
@@ -388,6 +431,20 @@ class PPCartComp_Studiocart_Compatibility_Mode
         }
 
         ppcart_register_legacy_request_field_bridges();
+    }
+
+    /**
+     * Copy leftover affiliate cookies onto the canonical name when the mode is on.
+     *
+     * @return void
+     */
+    public static function maybe_register_cookies()
+    {
+        if (! self::is_enabled() || ! function_exists('ppcart_register_legacy_cookie_bridges')) {
+            return;
+        }
+
+        ppcart_register_legacy_cookie_bridges();
     }
 
     /**

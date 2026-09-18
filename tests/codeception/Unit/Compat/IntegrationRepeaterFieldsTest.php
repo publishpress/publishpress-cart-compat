@@ -22,6 +22,7 @@ class IntegrationRepeaterFieldsTest extends Unit
         $this->assertSame([ 'sc_sub_prod_id' ], $map['ppcart_sub_prod_id']);
         $this->assertSame([ 'sc_sub_plan_id' ], $map['ppcart_sub_plan_id']);
         $this->assertSame([ 'sc_sub_cancel' ], $map['ppcart_sub_cancel']);
+        $this->assertSame([ 'sc_refund_prod_id' ], $map['ppcart_refund_prod_id']);
 
         $copied = ppcart_copy_legacy_integration_repeater_rows(
             [
@@ -30,6 +31,7 @@ class IntegrationRepeaterFieldsTest extends Unit
                     'sc_sub_prod_id' => '10',
                     'sc_sub_plan_id' => 'plan_a',
                     'sc_sub_cancel' => 'yes',
+                    'sc_refund_prod_id' => '77',
                 ],
             ]
         );
@@ -37,6 +39,8 @@ class IntegrationRepeaterFieldsTest extends Unit
         $this->assertSame('10', $copied[0]['ppcart_sub_prod_id']);
         $this->assertSame('plan_a', $copied[0]['ppcart_sub_plan_id']);
         $this->assertSame('yes', $copied[0]['ppcart_sub_cancel']);
+        $this->assertSame('77', $copied[0]['ppcart_refund_prod_id']);
         $this->assertSame('10', $copied[0]['sc_sub_prod_id']);
+        $this->assertSame('77', $copied[0]['sc_refund_prod_id']);
     }
 }

@@ -10,6 +10,8 @@ require_once dirname(__DIR__) . '/option-key-migration/index.php';
 require_once __DIR__ . '/hooks.php';
 require_once __DIR__ . '/ajax.php';
 require_once __DIR__ . '/request-fields.php';
+require_once __DIR__ . '/cookies.php';
+require_once __DIR__ . '/pro-meta-keys.php';
 require_once __DIR__ . '/stripe-metadata.php';
 require_once __DIR__ . '/integration-repeater-fields.php';
 require_once __DIR__ . '/invoice-format.php';

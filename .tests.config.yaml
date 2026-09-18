@@ -122,7 +122,21 @@ modules:
     suites: [unit, integration]
     test_range: UT-263, IT-339
     features: [ppcart-compatibility-mode]
-    notes: Compatibility Mode copies leftover sc_sub_prod_id / sc_sub_plan_id / sc_sub_cancel onto ppcart_sub_* inner keys. Stored rows are not rewritten.
+    notes: Compatibility Mode copies leftover sc_sub_* and sc_refund_prod_id onto ppcart_* inner keys. In-memory copy does not rewrite stored rows; merchant Data migration copies inner keys onto canonical keys in place.
+
+  - id: prefix-pro-meta-keys
+    name: Leftover Pro meta keys without _sc_
+    suites: [unit, integration]
+    test_range: UT-311, IT-364
+    features: [ppcart-compatibility-mode]
+    notes: Always-on storage read-through for leftover sc_custom_meta / sc_sq_cc_id onto ppcart_* without copying rows.
+
+  - id: prefix-affiliate-cookies
+    name: Leftover affiliate cookie copy
+    suites: [unit, integration]
+    test_range: UT-312, IT-365
+    features: [ppcart-compatibility-mode]
+    notes: Compatibility Mode copies leftover sc_affiliate_id / affiliate_id onto ppcart_affiliate_id in $_COOKIE. No row migrator.
 
   - id: prefix-invoice-format
     name: Leftover invoice format value map
