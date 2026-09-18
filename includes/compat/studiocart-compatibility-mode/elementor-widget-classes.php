@@ -23,6 +23,24 @@ if (class_exists('\Elementor\PPCart_Pro_Elementor_Countdown_Timer', false)
         {
             return false;
         }
+
+        protected function register_controls()
+        {
+            parent::register_controls();
+            ppcartcomp_register_hidden_leftover_elementor_controls($this);
+        }
+
+        protected function get_init_settings()
+        {
+            $settings = parent::get_init_settings();
+
+            return is_array($settings)
+                ? ppcartcomp_overlay_leftover_elementor_settings(
+                    $settings,
+                    ppcartcomp_elementor_control_defaults($this)
+                )
+                : $settings;
+        }
     }
 }
 
@@ -39,6 +57,24 @@ if (class_exists('PPCart_Pro_Elementor_OrderForm', false)
         public function show_in_panel()
         {
             return false;
+        }
+
+        protected function register_controls()
+        {
+            parent::register_controls();
+            ppcartcomp_register_hidden_leftover_elementor_controls($this);
+        }
+
+        protected function get_init_settings()
+        {
+            $settings = parent::get_init_settings();
+
+            return is_array($settings)
+                ? ppcartcomp_overlay_leftover_elementor_settings(
+                    $settings,
+                    ppcartcomp_elementor_control_defaults($this)
+                )
+                : $settings;
         }
     }
 }

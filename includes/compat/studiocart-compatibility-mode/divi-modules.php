@@ -25,6 +25,38 @@ if (! function_exists('ncs_cart_get_legacy_divi_module_map')) {
     }
 }
 
+if (! function_exists('ppcartcomp_divi_canonical_field_defaults')) {
+    /**
+     * Canonical Divi field defaults from a get_fields() array. Not a map copy.
+     *
+     * @param array<string, mixed> $fields Module get_fields() result.
+     * @return array<string, mixed>
+     */
+    function ppcartcomp_divi_canonical_field_defaults(array $fields)
+    {
+        $defaults = [];
+
+        foreach (ncs_cart_get_legacy_divi_module_map() as $entry) {
+            if (! is_array($entry) || empty($entry['fields']) || ! is_array($entry['fields'])) {
+                continue;
+            }
+
+            foreach ($entry['fields'] as $canonical => $legacy) {
+                unset($legacy);
+                if (! is_string($canonical) || '' === $canonical || ! isset($fields[ $canonical ]) || ! is_array($fields[ $canonical ])) {
+                    continue;
+                }
+
+                if (array_key_exists('default', $fields[ $canonical ])) {
+                    $defaults[ $canonical ] = $fields[ $canonical ]['default'];
+                }
+            }
+        }
+
+        return $defaults;
+    }
+}
+
 if (! function_exists('ncs_cart_legacy_divi_modules_registered')) {
     /**
      * @return array<string, bool>
@@ -41,10 +73,11 @@ if (! function_exists('ppcartcomp_remap_divi_module_props')) {
     /**
      * Copy leftover Divi props onto canonical keys. In-memory only.
      *
-     * @param object $module Divi module instance.
+     * @param object               $module              Divi module instance.
+     * @param array<string, mixed> $canonical_defaults  Canonical field defaults keyed by canonical field id.
      * @return void
      */
-    function ppcartcomp_remap_divi_module_props($module)
+    function ppcartcomp_remap_divi_module_props($module, array $canonical_defaults = [])
     {
         if (! is_object($module) || ! isset($module->props) || ! is_array($module->props)) {
             return;
@@ -60,7 +93,19 @@ if (! function_exists('ppcartcomp_remap_divi_module_props')) {
                     continue;
                 }
 
-                if (isset($module->props[ $legacy ])) {
+                if (! isset($module->props[ $legacy ])) {
+                    continue;
+                }
+
+                $canonical_value = array_key_exists($canonical, $module->props) ? $module->props[ $canonical ] : null;
+                $canonical_set   = array_key_exists($canonical, $module->props)
+                    && '' !== $canonical_value
+                    && null !== $canonical_value;
+
+                $canonical_is_default = array_key_exists($canonical, $canonical_defaults)
+                    && ppcartcomp_value_equals_default($canonical_value, $canonical_defaults[ $canonical ]);
+
+                if (! $canonical_set || $canonical_is_default) {
                     $module->props[ $canonical ] = $module->props[ $legacy ];
                 }
             }
@@ -151,6 +196,17 @@ if (! function_exists('ppcart_register_legacy_divi_modules')) {
             {
                 public $slug = 'stof_studiocart_order_form';
 
+                /**
+                 * @var array<string, mixed>|null
+                 */
+                public $ppcartcomp_canonical_defaults = null;
+
+                public function init()
+                {
+                    parent::init();
+                    $this->name .= ' (' . esc_html__('legacy', 'publishpress-cart-compat') . ')';
+                }
+
                 public function get_fields()
                 {
                     $fields = parent::get_fields();
@@ -161,7 +217,10 @@ if (! function_exists('ppcart_register_legacy_divi_modules')) {
 
                     foreach ($entry as $canonical => $legacy_field) {
                         if (isset($fields[ $canonical ]) && is_string($legacy_field) && ! isset($fields[ $legacy_field ])) {
-                            $fields[ $legacy_field ] = $fields[ $canonical ];
+                            $copy          = $fields[ $canonical ];
+                            $copy['label'] = (isset($copy['label']) ? $copy['label'] : $legacy_field)
+                                . ' (' . esc_html__('legacy', 'publishpress-cart-compat') . ')';
+                            $fields[ $legacy_field ] = $copy;
                         }
                     }
 
@@ -170,7 +229,18 @@ if (! function_exists('ppcart_register_legacy_divi_modules')) {
 
                 public function render($attrs, $content = null, $render_slug = null)
                 {
-                    ppcartcomp_remap_divi_module_props($this);
+                    if (null === $this->ppcartcomp_canonical_defaults) {
+                        $fields = (isset($this->fields_unprocessed) && is_array($this->fields_unprocessed) && [] !== $this->fields_unprocessed)
+                            ? $this->fields_unprocessed
+                            : [];
+                        if ([] !== $fields) {
+                            $this->ppcartcomp_canonical_defaults = ppcartcomp_divi_canonical_field_defaults($fields);
+                        }
+                    }
+
+                    if (is_array($this->ppcartcomp_canonical_defaults)) {
+                        ppcartcomp_remap_divi_module_props($this, $this->ppcartcomp_canonical_defaults);
+                    }
 
                     return parent::render($attrs, $content, $render_slug);
                 }
