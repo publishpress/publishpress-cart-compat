@@ -43,9 +43,13 @@ class aliases, function wrappers, hook bridges, option bridges,
 constant aliases, runtime-global aliases, leftover shortcode tag registration,
 and public URL canonicalization. Leftover form `name=` / POST / GET keys copy
 onto canonical request fields while the mode is on (`request-fields.php`).
-Leftover Stripe object metadata keys (`sc_product_id`, `sc_order_id`, and
-siblings) are read through `ppcart_stripe_metadata()` only while the mode is
-on (`stripe-metadata.php`). First-party writes stay `ppcart_*`. Leftover FSE
+Leftover Stripe object metadata keys (`sc_product_id`, `sc_order_id`,
+`sc_tax_id`, and siblings) are read through `ppcart_stripe_metadata()` only
+while the mode is on (`stripe-metadata.php`). Leftover Mollie metadata
+(`sc_subscription_id`), Razorpay notes (`sc_subscription_id` / `sc_order_id` /
+`order_id`), and Square catalog prefixes (`#sc_plan_`) read through Pro
+helpers only while the mode is on (`mollie-metadata.php`, `razorpay-notes.php`,
+`square-catalog.php`). First-party writes stay `ppcart_*` / `#ppcart-plan-`. Leftover FSE
 template slug `single-sc_product` and leftover taxonomy rewrite
 (`sc_product_cat` / `sc_product_tag`) register only while the mode is on
 (`cpt-taxonomy.php`). First-party CPT/taxonomy **source** is canonical

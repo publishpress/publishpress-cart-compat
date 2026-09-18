@@ -18,4 +18,5 @@ return [
     'ppcart_product_id' => [ 'sc_product_id' ],
     'ppcart_stripe_subscription_id' => [ 'sc_stripe_subscription_id' ],
     'ppcart_subscription_id' => [ 'sc_subscription_id' ],
+    'ppcart_tax_id' => [ 'sc_tax_id' ],
 ];

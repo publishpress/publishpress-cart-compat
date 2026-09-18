@@ -171,7 +171,8 @@ includes/compat/studiocart-compatibility-mode/
   class-ppcartcomp-studiocart-compatibility-mode.php   # settings, gates, maybe_register_*
   class-ppcartcomp-studiocart-public-query-compatibility.php
   aliases.php, constants.php, globals.php
-  options.php, ajax.php, request-fields.php, stripe-metadata.php
+  options.php, ajax.php, request-fields.php, stripe-metadata.php,
+  mollie-metadata.php, razorpay-notes.php, square-catalog.php
   cpt-taxonomy.php, shortcodes.php
   functions/           # lazy-loaded ncs_* / sc_* wrappers (index.php + shards)
   hooks.php            # thin shim → hooks/index.php

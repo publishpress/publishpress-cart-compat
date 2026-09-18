@@ -221,6 +221,13 @@ modules:
     test_range: UT-235
     features: [ppcart-compatibility-mode]
 
+  - id: prefix-gateway-metadata
+    name: Leftover Mollie/Razorpay/Square/Stripe-tax processor metadata
+    suites: [unit]
+    test_range: UT-314
+    features: [ppcart-compatibility-mode]
+    notes: Compatibility Mode leftover lookups for Mollie metadata, Razorpay notes, Square catalog prefixes, and Stripe sc_tax_id. First-party writes stay canonical. No processor-side Data migration.
+
   - id: prefix-cpt-taxonomy-strings
     name: Leftover CPT/FSE maps
     suites: [integration]
