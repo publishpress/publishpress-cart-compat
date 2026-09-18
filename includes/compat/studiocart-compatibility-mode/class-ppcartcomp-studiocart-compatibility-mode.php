@@ -96,6 +96,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('plugins_loaded', [ self::class, 'maybe_register_custom_tables' ], 2);
         add_action('plugins_loaded', [ self::class, 'maybe_register_stripe_metadata' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_gateway_metadata' ], 0);
+        add_action('plugins_loaded', [ self::class, 'maybe_register_third_party_keys' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_cpt_taxonomy' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_download_upload_directory' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_shortcodes' ], 0);
@@ -116,6 +117,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('ppcart_before_load', [ self::class, 'maybe_register_custom_tables' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_stripe_metadata' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_gateway_metadata' ], PHP_INT_MAX);
+        add_action('ppcart_before_load', [ self::class, 'maybe_register_third_party_keys' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_cpt_taxonomy' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_download_upload_directory' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_shortcodes' ], PHP_INT_MAX);
@@ -161,6 +163,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
         self::maybe_register_custom_tables();
         self::maybe_register_stripe_metadata();
         self::maybe_register_gateway_metadata();
+        self::maybe_register_third_party_keys();
         self::maybe_register_cpt_taxonomy();
         self::maybe_register_download_upload_directory();
         self::maybe_register_shortcodes();
@@ -288,6 +291,9 @@ class PPCartComp_Studiocart_Compatibility_Mode
         }
 
         ppcart_register_pro_meta_storage_bridges();
+        if (function_exists('ppcart_register_affiliate_meta_storage_bridges')) {
+            ppcart_register_affiliate_meta_storage_bridges();
+        }
 
         self::$pro_meta_storage_bridges_registered = true;
     }
@@ -330,6 +336,9 @@ class PPCartComp_Studiocart_Compatibility_Mode
         ppcart_register_legacy_metadata_api_bridges();
         if (function_exists('ppcart_register_legacy_pro_meta_api_bridges')) {
             ppcart_register_legacy_pro_meta_api_bridges();
+        }
+        if (function_exists('ppcart_register_legacy_affiliate_meta_api_bridges')) {
+            ppcart_register_legacy_affiliate_meta_api_bridges();
         }
         self::$legacy_metadata_registered = true;
     }
@@ -518,6 +527,26 @@ class PPCartComp_Studiocart_Compatibility_Mode
         }
         if (function_exists('ppcart_register_legacy_square_catalog_bridges')) {
             ppcart_register_legacy_square_catalog_bridges();
+        }
+    }
+
+    /**
+     * Register leftover MemberPress trans_num lookup when the mode is on.
+     *
+     * @return void
+     */
+    public static function maybe_register_third_party_keys()
+    {
+        if (! self::is_enabled()) {
+            if (function_exists('ppcart_unregister_legacy_memberpress_trans_num_bridges')) {
+                ppcart_unregister_legacy_memberpress_trans_num_bridges();
+            }
+
+            return;
+        }
+
+        if (function_exists('ppcart_register_legacy_memberpress_trans_num_bridges')) {
+            ppcart_register_legacy_memberpress_trans_num_bridges();
         }
     }
 

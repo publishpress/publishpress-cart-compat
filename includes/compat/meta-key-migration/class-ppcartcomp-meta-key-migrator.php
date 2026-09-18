@@ -95,6 +95,10 @@ class PPCartComp_Meta_Key_Migrator
             ppcart_migrate_integration_repeater_inner_keys();
             ppcart_meta_key_migration_save_state([ 'inner_keys' => 'complete' ]);
         }
+        if (empty(ppcart_meta_key_migration_get_state()['third_party_keys']) && function_exists('ppcart_migrate_third_party_stored_keys')) {
+            ppcart_migrate_third_party_stored_keys();
+            ppcart_meta_key_migration_save_state([ 'third_party_keys' => 'complete' ]);
+        }
         delete_transient(self::STEP1_LOCK);
 
         $remaining = self::count_remaining();
