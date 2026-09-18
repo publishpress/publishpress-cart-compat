@@ -93,6 +93,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('plugins_loaded', [ self::class, 'maybe_register_ajax' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_request_fields' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_cookies' ], 0);
+        add_action('plugins_loaded', [ self::class, 'maybe_register_custom_tables' ], 2);
         add_action('plugins_loaded', [ self::class, 'maybe_register_stripe_metadata' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_cpt_taxonomy' ], 0);
         add_action('plugins_loaded', [ self::class, 'maybe_register_download_upload_directory' ], 0);
@@ -111,6 +112,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('ppcart_before_load', [ self::class, 'maybe_register_ajax' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_request_fields' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_cookies' ], PHP_INT_MAX);
+        add_action('ppcart_before_load', [ self::class, 'maybe_register_custom_tables' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_stripe_metadata' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_cpt_taxonomy' ], PHP_INT_MAX);
         add_action('ppcart_before_load', [ self::class, 'maybe_register_download_upload_directory' ], PHP_INT_MAX);
@@ -154,6 +156,7 @@ class PPCartComp_Studiocart_Compatibility_Mode
         self::maybe_register_ajax();
         self::maybe_register_request_fields();
         self::maybe_register_cookies();
+        self::maybe_register_custom_tables();
         self::maybe_register_stripe_metadata();
         self::maybe_register_cpt_taxonomy();
         self::maybe_register_download_upload_directory();
@@ -445,6 +448,20 @@ class PPCartComp_Studiocart_Compatibility_Mode
         }
 
         ppcart_register_legacy_cookie_bridges();
+    }
+
+    /**
+     * Rewrite leftover custom table names in SQL when the mode is on.
+     *
+     * @return void
+     */
+    public static function maybe_register_custom_tables()
+    {
+        if (! self::is_enabled() || ! function_exists('ppcart_register_legacy_custom_table_bridges')) {
+            return;
+        }
+
+        ppcart_register_legacy_custom_table_bridges();
     }
 
     /**

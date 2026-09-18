@@ -21,6 +21,7 @@ class CustomTableHelpersTest extends Unit
     protected function _before(): void
     {
         WordPressStubContext::clear();
+        WordPressStubContext::setState('options', []);
         WordPressStubContext::set('apply_filters', static function ($hook, $value) {
             return $value;
         });
@@ -30,6 +31,14 @@ class CustomTableHelpersTest extends Unit
         WordPressStubContext::set('add_filter', static function () {
             return true;
         });
+        WordPressStubContext::set(
+            'get_option',
+            static function ($option, $default = false) {
+                $options = WordPressStubContext::getState('options', []);
+
+                return array_key_exists($option, $options) ? $options[ $option ] : $default;
+            }
+        );
 
         global $wpdb;
         $this->previousWpdb = isset($wpdb) ? $wpdb : null;
@@ -70,6 +79,65 @@ class CustomTableHelpersTest extends Unit
         $this->assertSame('ncs_order_item', ppcart_live_metadata_type());
         $this->assertSame('ncs_order_item_id', ppcart_live_order_item_id_column());
         $this->assertSame('ncs_tax_rate', ppcart_live_table_suffix('tax_rate'));
+    }
+
+    /**
+     * @test-id UT-313
+     */
+    public function test_UT_313_live_table_uses_leftover_pro_families_when_only_leftover_exists(): void
+    {
+        $this->setTables([
+            'wp_ncs_affiliates',
+            'wp_ncs_affiliatemeta',
+            'wp_ncs_affiliate_commissions',
+            'wp_ncs_affiliate_payouts',
+            'wp_ncs_affiliate_visits',
+            'wp_ncs_affiliate_product_rel',
+        ]);
+
+        $this->assertSame('wp_ncs_affiliates', ppcart_live_table('affiliates'));
+        $this->assertSame('wp_ncs_affiliatemeta', ppcart_live_table('affiliatemeta'));
+        $this->assertSame('wp_ncs_affiliate_commissions', ppcart_live_table('affiliate_commissions'));
+        $this->assertSame('wp_ncs_affiliate_payouts', ppcart_live_table('affiliate_payouts'));
+        $this->assertSame('wp_ncs_affiliate_visits', ppcart_live_table('affiliate_visits'));
+        $this->assertSame('wp_ncs_affiliate_product_rel', ppcart_live_table('affiliate_product_rel'));
+        $this->assertSame('ncs_affiliate', ppcart_live_affiliate_metadata_type());
+        $this->assertSame('ncs_affiliate_id', ppcart_live_affiliate_id_column());
+    }
+
+    /**
+     * @test-id UT-313
+     */
+    public function test_UT_313_live_table_uses_canonical_pro_families_when_canonical_exists(): void
+    {
+        $this->setTables([
+            'wp_ncs_affiliates',
+            'wp_ppcart_affiliates',
+            'wp_ppcart_affiliatemeta',
+            'wp_ppcart_affiliate_commissions',
+            'wp_ppcart_affiliate_payouts',
+            'wp_ppcart_affiliate_visits',
+            'wp_ppcart_affiliate_product_rel',
+        ]);
+
+        $this->assertSame('wp_ppcart_affiliates', ppcart_live_table('affiliates'));
+        $this->assertSame('wp_ppcart_affiliatemeta', ppcart_live_table('affiliatemeta'));
+        $this->assertSame('ppcart_affiliate', ppcart_live_affiliate_metadata_type());
+        $this->assertSame('ppcart_affiliate_id', ppcart_live_affiliate_id_column());
+    }
+
+    /**
+     * @test-id UT-313
+     */
+    public function test_UT_313_live_table_uses_canonical_pro_families_when_no_tables_exist(): void
+    {
+        $this->setTables([]);
+
+        $this->assertSame('wp_ppcart_affiliates', ppcart_live_table('affiliates'));
+        $this->assertSame('wp_ppcart_affiliatemeta', ppcart_live_table('affiliatemeta'));
+        $this->assertSame('wp_ppcart_affiliate_commissions', ppcart_live_table('affiliate_commissions'));
+        $this->assertSame('ppcart_affiliate', ppcart_live_affiliate_metadata_type());
+        $this->assertSame('ppcart_affiliate_id', ppcart_live_affiliate_id_column());
     }
 
     public function test_UT_220_live_table_uses_canonical_when_canonical_exists(): void

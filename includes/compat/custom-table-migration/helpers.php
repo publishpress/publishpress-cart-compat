@@ -10,10 +10,10 @@ if (! defined('ABSPATH')) {
  * Leftover installs keep leftover names until Data migration runs.
  * Fresh installs (no leftover table) use canonical names.
  *
- * Pro `PPCart_Tax` must call this with `'tax_rate'` instead of hardcoding
- * leftover or canonical table names.
+ * Pro `PPCart_Tax` and affiliate SQL must call this (via `ppcart_pro_live_table()`)
+ * instead of hardcoding leftover or canonical table names.
  *
- * @param string $family Family key: tax_rate, order_items, order_itemmeta, downloads.
+ * @param string $family Family key from ppcart_custom_table_family_map().
  * @return string Prefixed table name, or empty string for an unknown family.
  */
 function ppcart_live_table($family)
@@ -113,7 +113,8 @@ function ppcart_live_order_item_id_column()
  * Registers $wpdb->{live_type}meta for the WordPress metadata API.
  *
  * Unsets the unused leftover/canonical property so a post-migration request
- * cannot keep a stale pointer. There is no Compatibility Mode table-name shim.
+ * cannot keep a stale pointer. Compatibility Mode may re-add leftover
+ * `$wpdb` properties for third-party leftover SQL after migration.
  *
  * @return void
  */
@@ -135,4 +136,82 @@ function ppcart_register_live_meta_table()
 
     $property = $live . 'meta';
     $wpdb->$property = $table;
+
+    ppcart_register_live_affiliate_meta_table();
+}
+
+/**
+ * Live metadata type for affiliate meta.
+ *
+ * @return string
+ */
+function ppcart_live_affiliate_metadata_type()
+{
+    $map   = ppcart_custom_table_affiliate_metadata_type_map();
+    $names = ppcart_custom_table_prefixed_names('affiliatemeta');
+    if (! $names) {
+        return $map['canonical'];
+    }
+
+    if (ppcart_custom_table_exists($names['canonical'])) {
+        return $map['canonical'];
+    }
+
+    if (ppcart_custom_table_exists($names['leftover'])) {
+        return $map['leftover'];
+    }
+
+    return $map['canonical'];
+}
+
+/**
+ * Live object-id column on the affiliate meta table.
+ *
+ * @return string
+ */
+function ppcart_live_affiliate_id_column()
+{
+    $spec = ppcart_custom_table_family('affiliatemeta');
+    $map  = $spec && isset($spec['object_id_column']) ? $spec['object_id_column'] : [
+        'leftover'  => 'ncs_affiliate_id',
+        'canonical' => 'ppcart_affiliate_id',
+    ];
+
+    return 'ncs_affiliate' === ppcart_live_affiliate_metadata_type()
+        ? $map['leftover']
+        : $map['canonical'];
+}
+
+/**
+ * Registers $wpdb->{live_affiliate_type}meta for the WordPress metadata API.
+ *
+ * @return void
+ */
+function ppcart_register_live_affiliate_meta_table()
+{
+    global $wpdb;
+
+    if (! isset($wpdb) || ! is_object($wpdb)) {
+        return;
+    }
+
+    $map   = ppcart_custom_table_affiliate_metadata_type_map();
+    $live  = ppcart_live_affiliate_metadata_type();
+    $table = ppcart_live_table('affiliatemeta');
+
+    foreach ([ $map['leftover'] . 'meta', $map['canonical'] . 'meta' ] as $property) {
+        unset($wpdb->$property);
+    }
+
+    $property = $live . 'meta';
+    $wpdb->$property = $table;
+
+    if (
+        class_exists('PPCartComp_Studiocart_Compatibility_Mode', false)
+        && PPCartComp_Studiocart_Compatibility_Mode::is_enabled()
+        && $map['leftover'] !== $live
+    ) {
+        $leftover_property = $map['leftover'] . 'meta';
+        $wpdb->$leftover_property = $table;
+    }
 }

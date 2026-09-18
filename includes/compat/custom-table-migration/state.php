@@ -23,6 +23,7 @@ function ppcart_flush_live_table_cache()
 {
     unset($GLOBALS['ppcart_custom_table_list_cache']);
     unset($GLOBALS['ppcart_live_table_cache']);
+    unset($GLOBALS['ppcart_legacy_custom_table_rewrite_pairs_cache']);
 }
 
 /**
@@ -137,15 +138,22 @@ function ppcart_custom_table_needs_migration()
         return true;
     }
 
-    $names = ppcart_custom_table_prefixed_names('order_itemmeta');
-    if (! $names) {
-        return false;
+    foreach (ppcart_custom_table_family_map() as $family => $spec) {
+        if (empty($spec['object_id_column']['leftover'])) {
+            continue;
+        }
+
+        $names = ppcart_custom_table_prefixed_names($family);
+        if (! $names) {
+            continue;
+        }
+
+        if (ppcart_custom_table_column_exists($names['canonical'], $spec['object_id_column']['leftover'])) {
+            return true;
+        }
     }
 
-    $spec = ppcart_custom_table_family('order_itemmeta');
-    $leftover_column = $spec['object_id_column']['leftover'];
-
-    return ppcart_custom_table_column_exists($names['canonical'], $leftover_column);
+    return false;
 }
 
 /**

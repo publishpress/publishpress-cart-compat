@@ -89,8 +89,10 @@ class CustomTableMigrationTest extends NoTransactionWPTestCase
         $this->assertSame($this->canonicalTables()['order_items'], ppcart_live_table('order_items'));
         $this->assertSame($this->canonicalTables()['order_itemmeta'], ppcart_live_table('order_itemmeta'));
         $this->assertSame($this->canonicalTables()['downloads'], ppcart_live_table('downloads'));
+        $this->assertSame($this->canonicalTables()['affiliates'], ppcart_live_table('affiliates'));
         $this->assertArrayHasKey('tax_rate', $result['renamed']);
         $this->assertArrayHasKey('downloads', $result['renamed']);
+        $this->assertArrayHasKey('affiliates', $result['renamed']);
     }
 
     public function test_IT_302_migrate_alters_order_item_meta_object_id_column(): void
@@ -202,6 +204,92 @@ class CustomTableMigrationTest extends NoTransactionWPTestCase
     }
 
     /**
+     * @test-id IT-366
+     */
+    public function test_IT_366_migrate_renames_leftover_pro_affiliate_tables_and_compat_rewrites_sql(): void
+    {
+        global $wpdb;
+
+        $this->installLeftoverCustomTables();
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Test fixture.
+        $wpdb->insert($this->leftoverTables()['affiliates'], [ 'email' => 'slice21@example.com' ]);
+
+        $result = ppcart_migrate_custom_tables();
+        $this->flushLive();
+
+        $pro_families = [
+            'affiliates',
+            'affiliatemeta',
+            'affiliate_commissions',
+            'affiliate_payouts',
+            'affiliate_visits',
+            'affiliate_product_rel',
+        ];
+        foreach ($pro_families as $family) {
+            $this->assertFalse($this->tableExists($this->leftoverTables()[ $family ]), 'leftover Pro table must be renamed: ' . $family);
+            $this->assertTrue($this->tableExists($this->canonicalTables()[ $family ]), 'canonical Pro table must exist: ' . $family);
+            $this->assertArrayHasKey($family, $result['renamed']);
+        }
+        $this->assertSame('renamed', $result['affiliate_column']['status']);
+        $this->assertTrue($this->columnExists($this->canonicalTables()['affiliatemeta'], 'ppcart_affiliate_id'));
+        $this->assertFalse($this->columnExists($this->canonicalTables()['affiliatemeta'], 'ncs_affiliate_id'));
+
+        $email = $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT email FROM %i WHERE email = %s',
+                $this->canonicalTables()['affiliates'],
+                'slice21@example.com'
+            )
+        );
+        $this->assertSame('slice21@example.com', $email);
+
+        $sql = 'SELECT email FROM ' . $this->leftoverTables()['affiliates'];
+        $this->assertSame($sql, ppcart_rewrite_legacy_custom_table_sql($sql));
+
+        update_option(\PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+        $this->assertSame(
+            'SELECT email FROM ' . $this->canonicalTables()['affiliates'],
+            ppcart_rewrite_legacy_custom_table_sql($sql)
+        );
+        delete_option(\PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME);
+    }
+
+    /**
+     * @test-id IT-366
+     */
+    public function test_IT_366_migrate_with_compatibility_mode_on_renames_affiliate_id_column(): void
+    {
+        global $wpdb;
+
+        $this->installLeftoverCustomTables();
+        update_option(\PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+        $this->flushLive();
+        \PPCartComp_Studiocart_Compatibility_Mode::maybe_register_custom_tables();
+
+        $result = ppcart_migrate_custom_tables();
+        $this->flushLive();
+
+        $this->assertSame('renamed', $result['affiliate_column']['status']);
+        $this->assertTrue($this->columnExists($this->canonicalTables()['affiliatemeta'], 'ppcart_affiliate_id'));
+        $this->assertFalse($this->columnExists($this->canonicalTables()['affiliatemeta'], 'ncs_affiliate_id'));
+
+        $column = $wpdb->get_row(
+            $wpdb->prepare(
+                'SHOW COLUMNS FROM %i LIKE %s',
+                $this->canonicalTables()['affiliatemeta'],
+                'ppcart_affiliate_id'
+            )
+        );
+        $this->assertNotEmpty($column);
+        $this->assertStringContainsString('unsigned', strtolower((string) $column->Type));
+
+        if (function_exists('ppcart_unregister_legacy_custom_table_bridges')) {
+            ppcart_unregister_legacy_custom_table_bridges();
+        }
+        delete_option(\PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME);
+    }
+
+    /**
      * @return void
      */
     private function flushLive(): void
@@ -232,6 +320,12 @@ class CustomTableMigrationTest extends NoTransactionWPTestCase
             'order_items'    => $prefix . 'ncs_order_items',
             'order_itemmeta' => $prefix . 'ncs_order_itemmeta',
             'downloads'      => $prefix . 'ncs_downloads',
+            'affiliates'     => $prefix . 'ncs_affiliates',
+            'affiliatemeta'  => $prefix . 'ncs_affiliatemeta',
+            'affiliate_commissions' => $prefix . 'ncs_affiliate_commissions',
+            'affiliate_payouts' => $prefix . 'ncs_affiliate_payouts',
+            'affiliate_visits' => $prefix . 'ncs_affiliate_visits',
+            'affiliate_product_rel' => $prefix . 'ncs_affiliate_product_rel',
         ];
     }
 
@@ -247,6 +341,12 @@ class CustomTableMigrationTest extends NoTransactionWPTestCase
             'order_items'    => $prefix . 'ppcart_order_items',
             'order_itemmeta' => $prefix . 'ppcart_order_itemmeta',
             'downloads'      => $prefix . 'ppcart_downloads',
+            'affiliates'     => $prefix . 'ppcart_affiliates',
+            'affiliatemeta'  => $prefix . 'ppcart_affiliatemeta',
+            'affiliate_commissions' => $prefix . 'ppcart_affiliate_commissions',
+            'affiliate_payouts' => $prefix . 'ppcart_affiliate_payouts',
+            'affiliate_visits' => $prefix . 'ppcart_affiliate_visits',
+            'affiliate_product_rel' => $prefix . 'ppcart_affiliate_product_rel',
         ];
     }
 
@@ -318,6 +418,42 @@ class CustomTableMigrationTest extends NoTransactionWPTestCase
                 downloads_remaining varchar(20),
                 downloads varchar(2000),
                 PRIMARY KEY (download_id)
+            ) $collate",
+            "CREATE TABLE IF NOT EXISTS {$tables['affiliates']} (
+                id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                email varchar(100) NOT NULL,
+                PRIMARY KEY (id)
+            ) $collate",
+            "CREATE TABLE IF NOT EXISTS {$tables['affiliatemeta']} (
+                meta_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                ncs_affiliate_id bigint(20) unsigned NOT NULL,
+                meta_key varchar(255) DEFAULT NULL,
+                meta_value longtext DEFAULT NULL,
+                PRIMARY KEY (meta_id)
+            ) $collate",
+            "CREATE TABLE IF NOT EXISTS {$tables['affiliate_commissions']} (
+                id mediumint(9) NOT NULL AUTO_INCREMENT,
+                affiliate_id bigint(20) NOT NULL,
+                commission_price varchar(50) NOT NULL,
+                PRIMARY KEY (id)
+            ) $collate",
+            "CREATE TABLE IF NOT EXISTS {$tables['affiliate_payouts']} (
+                id mediumint(9) NOT NULL AUTO_INCREMENT,
+                affiliate_id bigint(20) NOT NULL,
+                payout_amount decimal(10,2) NOT NULL,
+                PRIMARY KEY (id)
+            ) $collate",
+            "CREATE TABLE IF NOT EXISTS {$tables['affiliate_visits']} (
+                id mediumint(9) NOT NULL AUTO_INCREMENT,
+                affiliate_id bigint(20) NOT NULL,
+                page_url varchar(255) NOT NULL,
+                PRIMARY KEY (id)
+            ) $collate",
+            "CREATE TABLE IF NOT EXISTS {$tables['affiliate_product_rel']} (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                affiliate_id bigint(20) NOT NULL,
+                product_id bigint(20) NOT NULL,
+                PRIMARY KEY (id)
             ) $collate",
         ];
 

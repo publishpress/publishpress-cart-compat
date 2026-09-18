@@ -72,6 +72,7 @@ function ppcart_migrate_custom_tables()
     ppcart_flush_live_table_cache();
 
     $column = ppcart_migrate_order_item_id_column();
+    $affiliate_column = ppcart_migrate_object_id_column('affiliatemeta');
     ppcart_flush_live_table_cache();
     ppcart_register_live_meta_table();
 
@@ -81,6 +82,7 @@ function ppcart_migrate_custom_tables()
         'skipped'      => $skipped,
         'errors'       => $errors,
         'column'       => $column,
+        'affiliate_column' => $affiliate_column,
     ];
     update_option(ppcart_custom_table_migration_option(), $state, false);
 
@@ -97,11 +99,25 @@ function ppcart_migrate_custom_tables()
  */
 function ppcart_migrate_order_item_id_column()
 {
+    return ppcart_migrate_object_id_column('order_itemmeta');
+}
+
+/**
+ * Renames leftover object-id column → canonical on the canonical table only.
+ *
+ * Does not ALTER a leftover table. Metadata type and object-id column stay paired
+ * until the meta table itself has been renamed.
+ *
+ * @param string $family Family key with an object_id_column spec.
+ * @return array<string, mixed>
+ */
+function ppcart_migrate_object_id_column($family)
+{
     global $wpdb;
 
-    $spec  = ppcart_custom_table_family('order_itemmeta');
-    $names = ppcart_custom_table_prefixed_names('order_itemmeta');
-    if (! $spec || ! $names) {
+    $spec  = ppcart_custom_table_family($family);
+    $names = ppcart_custom_table_prefixed_names($family);
+    if (! $spec || ! $names || empty($spec['object_id_column'])) {
         return [ 'status' => 'skipped', 'reason' => 'missing_map' ];
     }
 
@@ -121,10 +137,17 @@ function ppcart_migrate_order_item_id_column()
         return [ 'status' => 'skipped', 'reason' => 'leftover_column_missing' ];
     }
 
+    $definition = ppcart_custom_table_column_change_definition($canonical_table, $leftover_column);
+    if ('' === $definition) {
+        $definition = ('affiliatemeta' === $family)
+            ? 'bigint(20) unsigned NOT NULL'
+            : 'bigint(20) NOT NULL';
+    }
+
     $table_sql = ppcart_custom_table_quote_identifier($canonical_table);
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Opt-in merchant migration of plugin-owned leftover column.
     $result = $wpdb->query(
-        'ALTER TABLE ' . $table_sql . ' CHANGE `' . $leftover_column . '` `' . $canonical_column . '` bigint(20) NOT NULL'
+        'ALTER TABLE ' . $table_sql . ' CHANGE `' . $leftover_column . '` `' . $canonical_column . '` ' . $definition
     );
 
     if (false === $result) {
@@ -140,6 +163,39 @@ function ppcart_migrate_order_item_id_column()
         'to'     => $canonical_column,
         'table'  => $canonical_table,
     ];
+}
+
+/**
+ * Type clause for ALTER TABLE ... CHANGE, copied from the leftover column.
+ *
+ * @param string $table  Prefixed table name.
+ * @param string $column Column name.
+ * @return string Empty when the definition cannot be trusted.
+ */
+function ppcart_custom_table_column_change_definition($table, $column)
+{
+    global $wpdb;
+
+    if (! isset($wpdb) || ! is_object($wpdb) || ! method_exists($wpdb, 'get_row') || ! method_exists($wpdb, 'prepare')) {
+        return '';
+    }
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema inspection of a plugin-owned leftover column.
+    $row = $wpdb->get_row($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $table, $column));
+    if (! is_object($row) || empty($row->Type) || ! is_string($row->Type)) {
+        return '';
+    }
+
+    if (! preg_match('/^[a-z0-9]+(?:\([0-9,]+(?:\s+unsigned)?\))?(?:\s+unsigned)?$/i', trim($row->Type))) {
+        return '';
+    }
+
+    $sql = trim($row->Type);
+    if (isset($row->Null) && 'NO' === strtoupper((string) $row->Null)) {
+        $sql .= ' NOT NULL';
+    }
+
+    return $sql;
 }
 
 /**
