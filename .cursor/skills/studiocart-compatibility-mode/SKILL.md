@@ -132,8 +132,10 @@ registration, legacy recognition, or Compatibility Mode bridge.
 Public URLs use a different approved strategy. Canonical core registers only
 `ppcart-preview`, `ppcart-order`, `ppcart-plan`, `ppcart-manage`, and
 `ppcart-download` plus `%ppcart-download%`. While Compatibility Mode is on,
-this package recognizes the equivalent explicit `sc-*` query vars and issues
-one same-site temporary 302 redirect to the canonical query keys. Existing
+this package recognizes leftover `sc-*` query vars plus leftover checkout
+`coupon` / `plan` and issues one same-site temporary 302 redirect to the
+canonical query keys (`ppcart-coupon` / `ppcart-pay-plan` for checkout;
+`ppcart-plan` stays the account subscription key). Existing
 canonical values take precedence, unrelated arguments and scalar values
 (including `0`) are preserved, and arrays are ignored. The redirect skips
 admin, AJAX, REST, POST, and canonical-only requests. The canonical pretty

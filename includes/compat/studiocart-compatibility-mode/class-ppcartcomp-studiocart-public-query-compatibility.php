@@ -54,6 +54,8 @@ final class PPCartComp_Studiocart_Public_Query_Compatibility
             'sc-csv-export'  => 'ppcart-csv-export',
             'sc-api'         => 'ppcart-api',
             'sc-invoice'     => 'ppcart-invoice',
+            'coupon'         => 'ppcart-coupon',
+            'plan'           => 'ppcart-pay-plan',
         ];
     }
 

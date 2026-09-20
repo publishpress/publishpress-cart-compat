@@ -77,6 +77,10 @@ class PublicQueryVarsTest extends WPTestCase
         );
 
         foreach (array_keys(PPCartComp_Studiocart_Public_Query_Compatibility::legacy_query_var_map()) as $legacy) {
+            // Cart still registers leftover coupon/plan until publishpress-cart#753.
+            if (in_array($legacy, [ 'coupon', 'plan' ], true)) {
+                continue;
+            }
             $this->assertNotContains($legacy, $query_vars);
         }
 
@@ -447,6 +451,74 @@ class PublicQueryVarsTest extends WPTestCase
             PPCartComp_Studiocart_Public_Query_Compatibility::get_legacy_redirect_url(
                 home_url('/?ppcart-api=stripe'),
                 [ 'ppcart-api' => 'stripe' ]
+            )
+        );
+    }
+
+    /**
+     * @test-id IT-368
+     */
+    public function test_IT_368_leftover_checkout_coupon_and_plan_redirect_only_when_compatibility_mode_is_on(): void
+    {
+        $this->assertSame(
+            [ 'ppcart-coupon', 'ppcart-pay-plan' ],
+            PPCartComp_Studiocart_Public_Query_Compatibility::register_legacy_query_vars(
+                [ 'ppcart-coupon', 'ppcart-pay-plan' ]
+            )
+        );
+
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+
+        $registered = PPCartComp_Studiocart_Public_Query_Compatibility::register_legacy_query_vars(
+            [ 'ppcart-coupon', 'ppcart-pay-plan' ]
+        );
+        $this->assertContains('coupon', $registered);
+        $this->assertContains('plan', $registered);
+        $this->assertContains('ppcart-coupon', $registered);
+        $this->assertContains('ppcart-pay-plan', $registered);
+
+        $request_url = home_url('/checkout/?coupon=20off&plan=pro-annual&keep=value');
+        $redirect_url = PPCartComp_Studiocart_Public_Query_Compatibility::get_legacy_redirect_url(
+            $request_url,
+            [
+                'coupon' => '20off',
+                'plan'   => 'pro-annual',
+                'keep'   => 'value',
+            ]
+        );
+
+        $this->assertIsString($redirect_url);
+
+        $query_args = [];
+        wp_parse_str((string) wp_parse_url($redirect_url, PHP_URL_QUERY), $query_args);
+
+        $this->assertSame('20off', $query_args['ppcart-coupon']);
+        $this->assertSame('pro-annual', $query_args['ppcart-pay-plan']);
+        $this->assertSame('value', $query_args['keep']);
+        $this->assertArrayNotHasKey('coupon', $query_args);
+        $this->assertArrayNotHasKey('plan', $query_args);
+
+        $both_url = PPCartComp_Studiocart_Public_Query_Compatibility::get_legacy_redirect_url(
+            home_url('/checkout/?plan=pro-annual&sc-plan=42'),
+            [
+                'plan'    => 'pro-annual',
+                'sc-plan' => '42',
+            ]
+        );
+        $both_args = [];
+        wp_parse_str((string) wp_parse_url($both_url, PHP_URL_QUERY), $both_args);
+        $this->assertSame('pro-annual', $both_args['ppcart-pay-plan']);
+        $this->assertSame('42', $both_args['ppcart-plan']);
+        $this->assertArrayNotHasKey('plan', $both_args);
+        $this->assertArrayNotHasKey('sc-plan', $both_args);
+
+        $this->assertNull(
+            PPCartComp_Studiocart_Public_Query_Compatibility::get_legacy_redirect_url(
+                home_url('/checkout/?ppcart-coupon=20off&ppcart-pay-plan=pro-annual'),
+                [
+                    'ppcart-coupon'   => '20off',
+                    'ppcart-pay-plan' => 'pro-annual',
+                ]
             )
         );
     }

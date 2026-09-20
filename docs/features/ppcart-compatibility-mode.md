@@ -102,7 +102,8 @@ to `ppcart_page_*`; old screen IDs are neither recognized nor bridged.
 
 Core registers only the canonical public query vars `ppcart-preview`,
 `ppcart-order`, `ppcart-plan`, `ppcart-manage`, and `ppcart-download`. Secure
-downloads use the canonical `%ppcart-download%` rewrite tag.
+downloads use the canonical `%ppcart-download%` rewrite tag. After Cart
+issue 753, checkout also uses `ppcart-coupon` and `ppcart-pay-plan`.
 
 When Compatibility Mode is on, the package also recognizes the equivalent
 legacy map:
@@ -112,6 +113,9 @@ legacy map:
 - `sc-plan` → `ppcart-plan`
 - `sc-manage` → `ppcart-manage`
 - `sc-download` → `ppcart-download`
+- `coupon` → `ppcart-coupon` (leftover checkout coupon URL param)
+- `plan` → `ppcart-pay-plan` (leftover checkout payment-plan URL param;
+  distinct from account `sc-plan` → `ppcart-plan`)
 
 A safe public GET/HEAD request is redirected once to a same-site URL containing
 the canonical keys. The temporary 302 status avoids permanently caching order,
