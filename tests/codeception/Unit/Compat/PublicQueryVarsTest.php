@@ -50,6 +50,8 @@ class PublicQueryVarsTest extends Unit
                 'sc-csv-export'  => 'ppcart-csv-export',
                 'sc-api'         => 'ppcart-api',
                 'sc-invoice'     => 'ppcart-invoice',
+                'coupon'         => 'ppcart-coupon',
+                'plan'           => 'ppcart-pay-plan',
             ],
             PPCartComp_Studiocart_Public_Query_Compatibility::legacy_query_var_map()
         );
@@ -86,6 +88,8 @@ class PublicQueryVarsTest extends Unit
                 'sc-csv-export',
                 'sc-api',
                 'sc-invoice',
+                'coupon',
+                'plan',
             ],
             $registered
         );
@@ -283,5 +287,52 @@ class PublicQueryVarsTest extends Unit
         );
         $this->assertSame('stripe', $copied['ppcart-api']);
         $this->assertSame('stripe', $copied['sc-api']);
+    }
+
+    /**
+     * @test-id UT-316
+     */
+    public function test_UT_316_maps_leftover_checkout_coupon_and_plan_without_colliding_with_account_plan(): void
+    {
+        $mapped = PPCartComp_Studiocart_Public_Query_Compatibility::map_legacy_query_args(
+            [
+                'coupon'  => '20off',
+                'plan'    => 'pro-annual',
+                'sc-plan' => '42',
+            ]
+        );
+
+        $this->assertSame(
+            [
+                'ppcart-plan'     => '42',
+                'ppcart-coupon'   => '20off',
+                'ppcart-pay-plan' => 'pro-annual',
+            ],
+            $mapped['canonical_args']
+        );
+        $this->assertSame(
+            [ 'sc-plan', 'coupon', 'plan' ],
+            $mapped['legacy_args']
+        );
+        $this->assertTrue($mapped['should_redirect']);
+    }
+
+    /**
+     * @test-id UT-316
+     */
+    public function test_UT_316_canonical_checkout_query_keys_win_over_leftover_coupon_and_plan(): void
+    {
+        $mapped = PPCartComp_Studiocart_Public_Query_Compatibility::map_legacy_query_args(
+            [
+                'ppcart-coupon'   => 'canonical-coupon',
+                'coupon'          => 'legacy-coupon',
+                'ppcart-pay-plan' => 'canonical-plan',
+                'plan'            => 'legacy-plan',
+            ]
+        );
+
+        $this->assertSame([], $mapped['canonical_args']);
+        $this->assertSame([ 'coupon', 'plan' ], $mapped['legacy_args']);
+        $this->assertTrue($mapped['should_redirect']);
     }
 }
