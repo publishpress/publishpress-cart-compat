@@ -155,4 +155,52 @@ class CptSlugMigrationTest extends WPTestCase
 
         remove_role('sc_cart_manager');
     }
+
+    /**
+     * @test-id IT-369
+     */
+    public function test_IT_369_step1_prefixes_leftover_order_post_status(): void
+    {
+        $this->postId = wp_insert_post(
+            [
+                'post_title'  => 'Leftover paid order',
+                'post_type'   => 'sc_order',
+                'post_status' => 'paid',
+            ]
+        );
+
+        $this->assertNotEmpty($this->postId);
+        $this->assertSame('sc_order', get_post_type($this->postId));
+        $this->assertSame('paid', get_post_status($this->postId));
+
+        ppcart_cpt_slug_migration_save_state(
+            [
+                'ack'            => '',
+                'mode'           => 'legacy',
+                'step1'          => 'idle',
+                'step2'          => 'idle',
+                'stop_requested' => false,
+                'cursor'         => null,
+            ]
+        );
+
+        for ($i = 0; $i < 20; $i++) {
+            $result = PPCartComp_Cpt_Slug_Migrator::run_step1_chunk();
+            $this->assertTrue($result['ok']);
+            if ('ppcart_order' === get_post_type($this->postId)) {
+                break;
+            }
+            if (! empty($result['done'])) {
+                break;
+            }
+        }
+
+        $this->assertSame('ppcart_order', get_post_type($this->postId));
+        $this->assertSame('ppcart_paid', get_post_status($this->postId));
+
+        $restore = PPCartComp_Cpt_Slug_Migrator::restore_step1();
+        $this->assertTrue($restore['ok']);
+        $this->assertSame('sc_order', get_post_type($this->postId));
+        $this->assertSame('paid', get_post_status($this->postId));
+    }
 }

@@ -274,10 +274,54 @@ class PPCartComp_Cpt_Slug_Migrator
         global $wpdb;
 
         self::insert_backup('post', (string) $id, $legacy, $canonical, 1);
-        $wpdb->update($wpdb->posts, [ 'post_type' => $canonical ], [ 'ID' => $id ], [ '%s' ], [ '%d' ]);
+        $fields = array_merge([ 'post_type' => $canonical ], self::maybe_status_field_for_type((int) $id, $canonical));
+        $formats = array_fill(0, count($fields), '%s');
+        $wpdb->update($wpdb->posts, $fields, [ 'ID' => $id ], $formats, [ '%d' ]);
         if (function_exists('clean_post_cache')) {
             clean_post_cache($id);
         }
+    }
+
+    /**
+     * Prefix or unprefix order/subscription post_status when merchant CPT migration
+     * moves a row onto or off a canonical slug. No-op for products and unmapped statuses.
+     *
+     * @param int    $id          Post ID.
+     * @param string $target_type Destination post type.
+     * @return array<string, string>
+     */
+    private static function maybe_status_field_for_type($id, $target_type)
+    {
+        if (! class_exists('PPCart_Status_Labels') || ! method_exists('PPCart_Status_Labels', 'registered_slug')) {
+            return [];
+        }
+
+        $post = get_post($id);
+        if (! $post) {
+            return [];
+        }
+
+        $maps = function_exists('ppcart_cpt_slug_migration_maps') ? ppcart_cpt_slug_migration_maps() : [];
+        $order_canonical = isset($maps['post_types']['order']['canonical']) ? $maps['post_types']['order']['canonical'] : 'ppcart_order';
+        $sub_canonical   = isset($maps['post_types']['subscription']['canonical']) ? $maps['post_types']['subscription']['canonical'] : 'ppcart_subscription';
+        $order_legacy    = isset($maps['post_types']['order']['legacy']) ? $maps['post_types']['order']['legacy'] : 'sc_order';
+        $sub_legacy      = isset($maps['post_types']['subscription']['legacy']) ? $maps['post_types']['subscription']['legacy'] : 'sc_subscription';
+
+        $status_types = [ $order_canonical, $sub_canonical, $order_legacy, $sub_legacy ];
+        if (! in_array($target_type, $status_types, true) || ! PPCart_Status_Labels::is_mapped($post->post_status)) {
+            return [];
+        }
+
+        $canonical_types = [ $order_canonical, $sub_canonical ];
+        $next            = in_array($target_type, $canonical_types, true)
+            ? PPCart_Status_Labels::registered_slug($post->post_status)
+            : PPCart_Status_Labels::logical_slug($post->post_status);
+
+        if ($next === $post->post_status) {
+            return [];
+        }
+
+        return [ 'post_status' => $next ];
     }
 
     /**
