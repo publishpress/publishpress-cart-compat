@@ -75,7 +75,7 @@ modules:
   - id: prefix-public-query-vars
     name: Leftover public query-var redirects
     suites: [unit, integration]
-    test_range: UT-198, IT-267
+    test_range: UT-198, UT-316, IT-267, IT-368
     features: [ppcart-compatibility-mode]
 
   - id: prefix-ajax-actions
