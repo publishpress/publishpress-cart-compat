@@ -133,7 +133,9 @@ trait PPCartComp_Cpt_Slug_Migrator_Restore_Trait
         $old  = (string) $row->old_value;
 
         if ('post' === $kind) {
-            $wpdb->update($wpdb->posts, [ 'post_type' => $old ], [ 'ID' => (int) $id ], [ '%s' ], [ '%d' ]);
+            $fields  = array_merge([ 'post_type' => $old ], self::maybe_status_field_for_type((int) $id, $old));
+            $formats = array_fill(0, count($fields), '%s');
+            $wpdb->update($wpdb->posts, $fields, [ 'ID' => (int) $id ], $formats, [ '%d' ]);
             if (function_exists('clean_post_cache')) {
                 clean_post_cache((int) $id);
             }

@@ -318,7 +318,7 @@ modules:
   - id: prefix-cpt-slugs
     name: CPT, taxonomy, and capability slug migration
     suites: [unit, integration]
-    test_range: UT-200, IT-269–IT-274
+    test_range: UT-200, IT-269–IT-274, IT-369
     features: [data-migration]
 
   - id: prefix-public
