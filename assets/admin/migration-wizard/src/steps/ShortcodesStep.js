@@ -13,7 +13,7 @@ export default function ShortcodesStep({ status, busy }) {
             <h3>{__('Shortcode tags in content and emails', 'publishpress-cart-compat')}</h3>
             <p className="description">
                 {__(
-                    'Rewrites leftover StudioCart shortcode tags in post content, excerpts, email options, and product notification HTML.',
+                    'Rewrites leftover StudioCart shortcode tags in post content, excerpts, Elementor data, email options, and product notification HTML.',
                     'publishpress-cart-compat'
                 )}
             </p>
@@ -31,6 +31,10 @@ export default function ShortcodesStep({ status, busy }) {
                     Number(remaining.postmeta || 0) +
                     ' ' +
                     __('notification rows', 'publishpress-cart-compat') +
+                    ', ' +
+                    Number(remaining.elementor || 0) +
+                    ' ' +
+                    __('Elementor rows', 'publishpress-cart-compat') +
                     '.'}
             </p>
             <p className="description">

@@ -10,17 +10,18 @@ $step1_done = ppcart_shortcode_tag_migration_complete();
 <div class="ppcart-shortcode-tag-migration__block">
     <h3><?php esc_html_e('Shortcode tags in content and emails', 'publishpress-cart'); ?></h3>
     <p class="description">
-        <?php esc_html_e('Rewrites leftover StudioCart shortcode tags in post content, excerpts, email template options, and product notification HTML to ppcart_* tags. Compatibility Mode still registers leftover tags for unmigrated content. This does not run until you start it.', 'publishpress-cart'); ?>
+        <?php esc_html_e('Rewrites leftover StudioCart shortcode tags in post content, excerpts, Elementor data, email template options, and product notification HTML to ppcart_* tags. Compatibility Mode still registers leftover tags for unmigrated content. This does not run until you start it.', 'publishpress-cart'); ?>
     </p>
     <p>
         <?php
         echo esc_html(
             sprintf(
-                /* translators: 1: leftover posts, 2: leftover email options, 3: leftover notification meta */
-                __('Remaining: %1$d posts, %2$d email options, %3$d notification rows.', 'publishpress-cart'),
+                /* translators: 1: leftover posts, 2: leftover email options, 3: leftover notification meta, 4: leftover Elementor data rows */
+                __('Remaining: %1$d posts, %2$d email options, %3$d notification rows, %4$d Elementor rows.', 'publishpress-cart'),
                 isset($remaining['posts']) ? (int) $remaining['posts'] : 0,
                 isset($remaining['options']) ? (int) $remaining['options'] : 0,
-                isset($remaining['postmeta']) ? (int) $remaining['postmeta'] : 0
+                isset($remaining['postmeta']) ? (int) $remaining['postmeta'] : 0,
+                isset($remaining['elementor']) ? (int) $remaining['elementor'] : 0
             )
         );
         ?>

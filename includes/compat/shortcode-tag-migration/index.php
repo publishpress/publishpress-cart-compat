@@ -8,6 +8,7 @@ require_once __DIR__ . '/maps.php';
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/state.php';
 require_once __DIR__ . '/class-ppcartcomp-shortcode-tag-migrator.php';
+require_once __DIR__ . '/class-ppcartcomp-shortcode-tag-elementor.php';
 require_once __DIR__ . '/class-ppcartcomp-shortcode-tag-migration-admin.php';
 
 /**

@@ -78,7 +78,7 @@ function ppcart_shortcode_tag_migration_has_leftover_rows()
     if (class_exists('PPCartComp_Shortcode_Tag_Migrator', false)) {
         $remaining = PPCartComp_Shortcode_Tag_Migrator::count_remaining();
 
-        return ( $remaining['posts'] + $remaining['options'] + $remaining['postmeta'] ) > 0;
+        return ( $remaining['posts'] + $remaining['options'] + $remaining['postmeta'] + $remaining['elementor'] ) > 0;
     }
 
     return false;

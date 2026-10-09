@@ -117,6 +117,46 @@ class ShortcodeTagMigrationTest extends WPTestCase
     }
 
     /**
+     * @test-id IT-371
+     */
+    public function test_IT_371_migrates_leftover_tags_in_elementor_data_and_restores(): void
+    {
+        $id   = $this->insertPage('');
+        $json = (string) wp_json_encode(
+            [
+                [
+                    'id'         => 'a1',
+                    'elType'     => 'widget',
+                    'widgetType' => 'shortcode',
+                    'settings'   => [ 'shortcode' => '[studiocart-form id="9"]' ],
+                ],
+                [
+                    'id'         => 'a2',
+                    'elType'     => 'widget',
+                    'widgetType' => 'text-editor',
+                    'settings'   => [ 'editor' => '<p>[studiocart-order-downloads]</p>' ],
+                ],
+            ]
+        );
+        update_post_meta($id, '_elementor_data', wp_slash($json));
+        update_post_meta($id, '_elementor_element_cache', 'cached');
+
+        $this->assertSame(1, PPCartComp_Shortcode_Tag_Migrator::count_remaining()['elementor']);
+
+        $this->runMigrationUntilDone();
+
+        $data = json_decode((string) get_post_meta($id, '_elementor_data', true), true);
+        $this->assertSame('[ppcart_form id="9"]', $data[0]['settings']['shortcode']);
+        $this->assertSame('<p>[ppcart_order_downloads]</p>', $data[1]['settings']['editor']);
+        $this->assertSame('', get_post_meta($id, '_elementor_element_cache', true));
+        $this->assertSame(0, PPCartComp_Shortcode_Tag_Migrator::count_remaining()['elementor']);
+
+        PPCartComp_Shortcode_Tag_Migrator::restore();
+
+        $this->assertSame($json, get_post_meta($id, '_elementor_data', true));
+    }
+
+    /**
      * @return void
      */
     private function runMigrationUntilDone()

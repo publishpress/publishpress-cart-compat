@@ -37,9 +37,10 @@ class PPCartComp_Shortcode_Tag_Migration_Admin
 
         $state     = ppcart_shortcode_tag_migration_get_state();
         $remaining = [
-            'posts'    => 0,
-            'options'  => 0,
-            'postmeta' => 0,
+            'posts'     => 0,
+            'options'   => 0,
+            'postmeta'  => 0,
+            'elementor' => 0,
         ];
         if (class_exists('PPCartComp_Shortcode_Tag_Migrator', false) && isset($GLOBALS['wpdb'])) {
             $remaining = PPCartComp_Shortcode_Tag_Migrator::count_remaining();
