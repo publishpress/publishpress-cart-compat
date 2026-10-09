@@ -187,14 +187,69 @@ class CustomTableHelpersTest extends Unit
     }
 
     /**
+     * @test-id UT-317
+     */
+    public function test_UT_317_leftover_stays_live_beside_empty_canonical_table(): void
+    {
+        $this->setTables(
+            [
+                'wp_ncs_order_items',
+                'wp_ncs_order_itemmeta',
+                'wp_ppcart_order_items',
+                'wp_ppcart_order_itemmeta',
+            ],
+            [
+                'wp_ncs_order_items'    => true,
+                'wp_ncs_order_itemmeta' => true,
+            ]
+        );
+
+        $this->assertSame('wp_ncs_order_items', ppcart_live_table('order_items'));
+        $this->assertSame('wp_ncs_order_itemmeta', ppcart_live_table('order_itemmeta'));
+        $this->assertSame('ncs_order_item', ppcart_live_metadata_type());
+        $this->assertSame('ncs_order_item_id', ppcart_live_order_item_id_column());
+        $this->assertSame([ 'order_items', 'order_itemmeta' ], ppcart_custom_table_pending_families());
+        $this->assertTrue(ppcart_custom_table_needs_migration());
+    }
+
+    /**
+     * @test-id UT-317
+     */
+    public function test_UT_317_canonical_with_rows_wins_over_leftover(): void
+    {
+        $this->setTables(
+            [ 'wp_ncs_order_items', 'wp_ppcart_order_items' ],
+            [
+                'wp_ncs_order_items'    => true,
+                'wp_ppcart_order_items' => true,
+            ]
+        );
+
+        $this->assertSame('wp_ppcart_order_items', ppcart_live_table('order_items'));
+        $this->assertSame([], ppcart_custom_table_pending_families());
+    }
+
+    /**
+     * @test-id UT-317
+     */
+    public function test_UT_317_canonical_wins_when_both_tables_are_empty(): void
+    {
+        $this->setTables([ 'wp_ncs_order_items', 'wp_ppcart_order_items' ], []);
+
+        $this->assertSame('wp_ppcart_order_items', ppcart_live_table('order_items'));
+        $this->assertSame([], ppcart_custom_table_pending_families());
+    }
+
+    /**
      * @param string[] $tables
+     * @param array<string, bool>|null $rows Tables with rows. Null leaves get_var() off.
      * @return void
      */
-    private function setTables(array $tables): void
+    private function setTables(array $tables, ?array $rows = null): void
     {
         global $wpdb;
 
-        $wpdb = new class($tables) {
+        $wpdb = null === $rows ? new class($tables) {
             /**
              * @var string
              */
@@ -238,6 +293,76 @@ class CustomTableHelpersTest extends Unit
              */
             public function prepare($query, ...$args)
             {
+                return $query;
+            }
+        } : new class($tables, $rows) {
+            /**
+             * @var string
+             */
+            public $prefix = 'wp_';
+
+            /**
+             * @var string[]
+             */
+            public $tables;
+
+            /**
+             * @var array<string, bool>
+             */
+            public $rows;
+
+            /**
+             * @param string[]            $tables
+             * @param array<string, bool> $rows
+             */
+            public function __construct(array $tables, array $rows)
+            {
+                $this->tables = $tables;
+                $this->rows   = $rows;
+            }
+
+            /**
+             * @param string $query
+             * @return string[]
+             */
+            public function get_col($query)
+            {
+                return $this->tables;
+            }
+
+            /**
+             * @param string $query
+             * @return null
+             */
+            public function get_row($query)
+            {
+                return null;
+            }
+
+            /**
+             * @param string $query
+             * @return string|null
+             */
+            public function get_var($query)
+            {
+                if (preg_match('/FROM (\S+)/', $query, $match) && ! empty($this->rows[ $match[1] ])) {
+                    return '1';
+                }
+
+                return null;
+            }
+
+            /**
+             * @param string $query
+             * @param mixed  ...$args
+             * @return string
+             */
+            public function prepare($query, ...$args)
+            {
+                foreach ($args as $arg) {
+                    $query = preg_replace('/%[is]/', (string) $arg, $query, 1);
+                }
+
                 return $query;
             }
         };
