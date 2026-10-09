@@ -141,7 +141,7 @@ class ShortcodeTagMigrationTest extends WPTestCase
         update_post_meta($id, '_elementor_data', wp_slash($json));
         update_post_meta($id, '_elementor_element_cache', 'cached');
 
-        $this->assertSame(1, PPCartComp_Shortcode_Tag_Migrator::count_remaining()['elementor']);
+        $this->assertGreaterThan(0, PPCartComp_Shortcode_Tag_Migrator::count_remaining()['elementor']);
 
         $this->runMigrationUntilDone();
 

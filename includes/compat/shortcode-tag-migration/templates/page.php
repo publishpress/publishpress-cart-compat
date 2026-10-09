@@ -16,8 +16,8 @@ $step1_done = ppcart_shortcode_tag_migration_complete();
         <?php
         echo esc_html(
             sprintf(
-                /* translators: 1: leftover posts, 2: leftover email options, 3: leftover notification meta, 4: leftover Elementor data rows */
-                __('Remaining: %1$d posts, %2$d email options, %3$d notification rows, %4$d Elementor rows.', 'publishpress-cart'),
+                /* translators: 1: leftover posts, 2: leftover email options, 3: leftover notification meta, 4: Elementor data rows not scanned yet */
+                __('Remaining: %1$d posts, %2$d email options, %3$d notification rows, %4$d Elementor rows to scan.', 'publishpress-cart'),
                 isset($remaining['posts']) ? (int) $remaining['posts'] : 0,
                 isset($remaining['options']) ? (int) $remaining['options'] : 0,
                 isset($remaining['postmeta']) ? (int) $remaining['postmeta'] : 0,

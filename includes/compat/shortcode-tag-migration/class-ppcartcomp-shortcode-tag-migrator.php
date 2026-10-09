@@ -147,7 +147,7 @@ class PPCartComp_Shortcode_Tag_Migrator
             return $moved;
         }
 
-        return PPCartComp_Shortcode_Tag_Elementor::migrate_chunk(self::CHUNK_SIZE);
+        return PPCartComp_Shortcode_Tag_Elementor::migrate_chunk();
     }
 
     /**
@@ -433,10 +433,11 @@ class PPCartComp_Shortcode_Tag_Migrator
 
         ppcart_shortcode_tag_migration_save_state(
             [
-                'step1'          => 'idle',
-                'mode'           => 'legacy',
-                'stop_requested' => false,
-                'cursor'         => null,
+                'step1'            => 'idle',
+                'mode'             => 'legacy',
+                'stop_requested'   => false,
+                'cursor'           => null,
+                'elementor_cursor' => 0,
             ]
         );
 

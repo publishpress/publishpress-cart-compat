@@ -4,62 +4,73 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- LIKE fragments are built from escaped patterns.
-
 /**
  * Leftover shortcode tags inside Elementor `_elementor_data` post meta.
  *
- * Elementor renders from this JSON, not from post_content. Rows are read and
- * written raw by meta_id: update_post_meta() would unslash the JSON.
+ * Elementor renders from this JSON, not from post_content. Rows are scanned
+ * by meta_id cursor and matched in PHP: a LIKE scan over large Elementor
+ * stores is too slow for one AJAX chunk. Rows are written raw by meta_id
+ * because update_post_meta() would unslash the JSON.
  */
 class PPCartComp_Shortcode_Tag_Elementor
 {
     public const META_KEY    = '_elementor_data';
     public const BACKUP_KIND = 'elementor_data';
+    public const BATCH_SIZE  = 200;
 
     /**
-     * Rewrites one chunk and writes a reverse-map backup per row.
+     * Scans one batch after the cursor and rewrites rows with leftover tags.
      *
-     * @param int $limit Rows per chunk.
-     * @return int Rows rewritten.
+     * @return int Rows scanned. 0 when the scan is finished.
      */
-    public static function migrate_chunk($limit)
+    public static function migrate_chunk()
     {
-        $moved = 0;
-        foreach (self::query_rows($limit) as $row) {
+        $state  = ppcart_shortcode_tag_migration_get_state();
+        $cursor = (int) $state['elementor_cursor'];
+        $rows   = self::query_rows($cursor, self::BATCH_SIZE);
+        if ([] === $rows) {
+            return 0;
+        }
+
+        foreach ($rows as $row) {
             $meta_id = (int) $row['meta_id'];
-            $post_id = (int) $row['post_id'];
             $value   = (string) $row['meta_value'];
             $next    = ppcart_rewrite_leftover_shortcode_tags($value);
+            $cursor  = $meta_id;
             if ($next === $value) {
                 continue;
             }
 
             PPCartComp_Shortcode_Tag_Migrator::insert_backup(self::BACKUP_KIND, (string) $meta_id, $value, 'rewritten');
-            self::write($meta_id, $post_id, $next);
-            ++$moved;
+            self::write($meta_id, (int) $row['post_id'], $next);
         }
 
-        return $moved;
+        ppcart_shortcode_tag_migration_save_state([ 'elementor_cursor' => $cursor ]);
+
+        return count($rows);
     }
 
     /**
+     * Elementor rows not scanned yet.
+     *
      * @return int
      */
     public static function count_remaining()
     {
         global $wpdb;
 
-        $like = self::like_sql();
-        if ('' === $like || empty($wpdb->postmeta)) {
+        if (empty($wpdb->postmeta)) {
             return 0;
         }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Leftover-tag count.
+        $state = ppcart_shortcode_tag_migration_get_state();
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Indexed count of rows after the cursor.
         return (int) $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = %s AND ({$like})",
-                self::META_KEY
+                "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_id > %d",
+                self::META_KEY,
+                (int) $state['elementor_cursor']
             )
         );
     }
@@ -102,43 +113,25 @@ class PPCartComp_Shortcode_Tag_Elementor
     }
 
     /**
-     * @param int $limit Limit.
+     * @param int $cursor Last scanned meta_id.
+     * @param int $limit  Limit.
      * @return array<int, array{meta_id: string, post_id: string, meta_value: string}>
      */
-    private static function query_rows($limit)
+    private static function query_rows($cursor, $limit)
     {
         global $wpdb;
 
-        $like = self::like_sql();
-        if ('' === $like) {
-            return [];
-        }
-
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Leftover-tag scan uses escaped LIKE fragments.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Cursor batch over Elementor rows.
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT meta_id, post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s AND ({$like}) ORDER BY meta_id ASC LIMIT %d",
+                "SELECT meta_id, post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_id > %d ORDER BY meta_id ASC LIMIT %d",
                 self::META_KEY,
+                $cursor,
                 $limit
             ),
             ARRAY_A
         );
 
         return is_array($rows) ? $rows : [];
-    }
-
-    /**
-     * @return string
-     */
-    private static function like_sql()
-    {
-        global $wpdb;
-
-        $parts = [];
-        foreach (ppcart_shortcode_tag_migration_like_patterns() as $pattern) {
-            $parts[] = $wpdb->prepare('meta_value LIKE %s', $pattern);
-        }
-
-        return implode(' OR ', $parts);
     }
 }

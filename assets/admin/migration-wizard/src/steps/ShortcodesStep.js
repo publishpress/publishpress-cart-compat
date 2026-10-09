@@ -34,7 +34,7 @@ export default function ShortcodesStep({ status, busy }) {
                     ', ' +
                     Number(remaining.elementor || 0) +
                     ' ' +
-                    __('Elementor rows', 'publishpress-cart-compat') +
+                    __('Elementor rows to scan', 'publishpress-cart-compat') +
                     '.'}
             </p>
             <p className="description">
