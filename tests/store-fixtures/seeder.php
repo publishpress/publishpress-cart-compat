@@ -46,6 +46,7 @@ class Seeder
         $this->seed_taxonomies($summary);
         $product_map = $this->seed_products($products_count, $summary);
         $this->seed_pages($product_map, $summary);
+        $this->seed_elementor_pages($product_map, $summary);
         $this->seed_leftover_shortcode_surfaces($product_map);
         $customers = $this->seed_customers($customers_count, $summary);
         $this->seed_orders($orders_count, $product_map, $customers, $summary);
@@ -329,6 +330,43 @@ class Seeder
                 ],
             ]
         );
+    }
+
+    /**
+     * Elementor-built pages whose leftover shortcodes live only in `_elementor_data`.
+     *
+     * @param array<string, int>   $product_map Product IDs.
+     * @param array<string, mixed> $summary     Summary.
+     * @return void
+     */
+    private function seed_elementor_pages(array $product_map, array &$summary)
+    {
+        $pages = [
+            'elementor-account' => [
+                'title'   => 'Northstar Account (Elementor)',
+                'widgets' => Catalog::elementor_account_widgets(),
+            ],
+        ];
+
+        $first = reset($product_map);
+        if ($first) {
+            $pages['elementor-checkout'] = [
+                'title'   => get_the_title($first) . ' Checkout (Elementor)',
+                'widgets' => Catalog::elementor_checkout_widgets((int) $first),
+            ];
+        }
+
+        foreach ($pages as $key => $page) {
+            $page_id = $this->insert_page($page['title'], 'seed-' . $key, '');
+            if ($page_id <= 0) {
+                continue;
+            }
+
+            update_post_meta($page_id, '_elementor_edit_mode', 'builder');
+            update_post_meta($page_id, '_elementor_template_type', 'wp-page');
+            update_post_meta($page_id, '_elementor_data', wp_slash((string) wp_json_encode(Catalog::elementor_data($page['widgets']))));
+            $summary['pages'][ $key ] = $page_id;
+        }
     }
 
     /**
