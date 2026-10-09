@@ -68,14 +68,14 @@ function ppcart_third_party_affiliatemeta_table()
 {
     global $wpdb;
 
-    if (function_exists('ppcart_custom_table_prefixed_names') && function_exists('ppcart_custom_table_exists')) {
+    if (function_exists('ppcart_custom_table_prefixed_names') && function_exists('ppcart_custom_table_leftover_is_live')) {
         $names = ppcart_custom_table_prefixed_names('affiliatemeta');
         if (is_array($names)) {
+            if (ppcart_custom_table_leftover_is_live('affiliatemeta')) {
+                return $names['leftover'];
+            }
             if (! empty($names['canonical']) && ppcart_custom_table_exists($names['canonical'])) {
                 return $names['canonical'];
-            }
-            if (! empty($names['leftover']) && ppcart_custom_table_exists($names['leftover'])) {
-                return $names['leftover'];
             }
         }
     }

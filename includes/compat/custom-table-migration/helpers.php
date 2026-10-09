@@ -8,7 +8,8 @@ if (! defined('ABSPATH')) {
  * Prefixed live table name for a custom-table family.
  *
  * Leftover installs keep leftover names until Data migration runs.
- * Fresh installs (no leftover table) use canonical names.
+ * Fresh installs (no leftover table) use canonical names. An empty canonical
+ * table beside a leftover table with rows does not count as migrated.
  *
  * Pro `PPCart_Tax` and affiliate SQL must call this (via `ppcart_pro_live_table()`)
  * instead of hardcoding leftover or canonical table names.
@@ -29,13 +30,9 @@ function ppcart_live_table($family)
         return '';
     }
 
-    if (ppcart_custom_table_exists($names['canonical'])) {
-        $live = $names['canonical'];
-    } elseif (ppcart_custom_table_exists($names['leftover'])) {
-        $live = $names['leftover'];
-    } else {
-        $live = $names['canonical'];
-    }
+    $live = ppcart_custom_table_leftover_is_live($family)
+        ? $names['leftover']
+        : $names['canonical'];
 
     if (! isset($GLOBALS['ppcart_live_table_cache']) || ! is_array($GLOBALS['ppcart_live_table_cache'])) {
         $GLOBALS['ppcart_live_table_cache'] = [];
@@ -74,21 +71,11 @@ function ppcart_live_table_suffix($family)
  */
 function ppcart_live_metadata_type()
 {
-    $map   = ppcart_custom_table_metadata_type_map();
-    $names = ppcart_custom_table_prefixed_names('order_itemmeta');
-    if (! $names) {
-        return $map['canonical'];
-    }
+    $map = ppcart_custom_table_metadata_type_map();
 
-    if (ppcart_custom_table_exists($names['canonical'])) {
-        return $map['canonical'];
-    }
-
-    if (ppcart_custom_table_exists($names['leftover'])) {
-        return $map['leftover'];
-    }
-
-    return $map['canonical'];
+    return ppcart_custom_table_leftover_is_live('order_itemmeta')
+        ? $map['leftover']
+        : $map['canonical'];
 }
 
 /**
@@ -147,21 +134,11 @@ function ppcart_register_live_meta_table()
  */
 function ppcart_live_affiliate_metadata_type()
 {
-    $map   = ppcart_custom_table_affiliate_metadata_type_map();
-    $names = ppcart_custom_table_prefixed_names('affiliatemeta');
-    if (! $names) {
-        return $map['canonical'];
-    }
+    $map = ppcart_custom_table_affiliate_metadata_type_map();
 
-    if (ppcart_custom_table_exists($names['canonical'])) {
-        return $map['canonical'];
-    }
-
-    if (ppcart_custom_table_exists($names['leftover'])) {
-        return $map['leftover'];
-    }
-
-    return $map['canonical'];
+    return ppcart_custom_table_leftover_is_live('affiliatemeta')
+        ? $map['leftover']
+        : $map['canonical'];
 }
 
 /**

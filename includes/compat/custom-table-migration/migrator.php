@@ -36,14 +36,37 @@ function ppcart_migrate_custom_tables()
             continue;
         }
 
-        if ($canonical_exists) {
+        if ($canonical_exists && ppcart_custom_table_leftover_is_live($family)) {
+            $result = ppcart_custom_table_replace_empty_canonical($leftover, $canonical);
+            if (is_wp_error($result) && 'ppcart_custom_table_replaced_has_rows' !== $result->get_error_code()) {
+                $errors[ $family ] = $result->get_error_message();
+                continue;
+            }
+
+            $renamed[ $family ] = [
+                'from'           => $leftover,
+                'to'             => $canonical,
+                'replaced_empty' => true,
+            ];
+            if (is_wp_error($result)) {
+                $errors[ $family ] = $result->get_error_message();
+            }
+            continue;
+        }
+
+        if ($canonical_exists && ppcart_custom_table_has_rows($canonical) && ppcart_custom_table_has_rows($leftover)) {
             $skipped[ $family ] = 'conflict_both_exist';
             $errors[ $family ]  = sprintf(
                 /* translators: 1: leftover table, 2: canonical table. */
-                __('Skipped %1$s because %2$s already exists.', 'publishpress-cart'),
+                __('Skipped %1$s because %2$s already has rows.', 'publishpress-cart'),
                 $leftover,
                 $canonical
             );
+            continue;
+        }
+
+        if ($canonical_exists) {
+            $skipped[ $family ] = 'leftover_empty';
             continue;
         }
 
@@ -87,6 +110,70 @@ function ppcart_migrate_custom_tables()
     update_option(ppcart_custom_table_migration_option(), $state, false);
 
     return $state;
+}
+
+/**
+ * Swaps an empty canonical table out and renames the leftover table in.
+ *
+ * Cart activation creates empty canonical tables beside the leftover ones.
+ * One RENAME TABLE moves both, so no request sees a missing table. The old
+ * canonical table is dropped only if it is still empty.
+ *
+ * @param string $leftover  Prefixed leftover table name.
+ * @param string $canonical Prefixed canonical table name.
+ * @return true|WP_Error `ppcart_custom_table_replaced_has_rows` means the swap
+ *                       ran but `*_replaced` was kept.
+ */
+function ppcart_custom_table_replace_empty_canonical($leftover, $canonical)
+{
+    global $wpdb;
+
+    $from = ppcart_custom_table_quote_identifier($leftover);
+    $to   = ppcart_custom_table_quote_identifier($canonical);
+    if ('' === $from || '' === $to) {
+        return new WP_Error('ppcart_custom_table_not_allowed', __('Refusing to rename a table whose name is not in the allowlist.', 'publishpress-cart'));
+    }
+
+    $replaced     = $canonical . '_replaced';
+    $replaced_sql = '`' . str_replace('`', '', $replaced) . '`';
+
+    ppcart_flush_live_table_cache();
+    if (ppcart_custom_table_exists($replaced)) {
+        return new WP_Error(
+            'ppcart_custom_table_replaced_exists',
+            sprintf(
+                /* translators: %s: table name. */
+                __('Skipped because %s already exists. Check it and drop it, then run this step again.', 'publishpress-cart'),
+                $replaced
+            )
+        );
+    }
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Opt-in merchant migration of plugin-owned tables.
+    $result = $wpdb->query('RENAME TABLE ' . $to . ' TO ' . $replaced_sql . ', ' . $from . ' TO ' . $to);
+    if (false === $result) {
+        return new WP_Error(
+            'ppcart_custom_table_rename_failed',
+            $wpdb->last_error ? $wpdb->last_error : __('RENAME TABLE failed.', 'publishpress-cart')
+        );
+    }
+
+    ppcart_flush_live_table_cache();
+    if (ppcart_custom_table_has_rows($replaced)) {
+        return new WP_Error(
+            'ppcart_custom_table_replaced_has_rows',
+            sprintf(
+                /* translators: %s: table name. */
+                __('Kept %s because it has rows. Check it before you drop it.', 'publishpress-cart'),
+                $replaced
+            )
+        );
+    }
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Drops the empty canonical table this step just swapped out.
+    $wpdb->query('DROP TABLE ' . $replaced_sql);
+
+    return true;
 }
 
 /**

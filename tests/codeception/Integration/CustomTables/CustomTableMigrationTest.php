@@ -292,6 +292,158 @@ class CustomTableMigrationTest extends NoTransactionWPTestCase
     /**
      * @return void
      */
+    /**
+     * @test-id IT-370
+     */
+    public function test_IT_370_migrate_replaces_empty_canonical_order_item_tables(): void
+    {
+        global $wpdb;
+
+        $this->installLeftoverCustomTables();
+        $this->insertLeftoverMarkers();
+        $wpdb->insert(
+            $this->leftoverTables()['order_itemmeta'],
+            [
+                'ncs_order_item_id' => 42,
+                'meta_key'          => 'unit_price',
+                'meta_value'        => '9.99',
+            ]
+        );
+        $this->createEmptyCanonicalOrderItemTables();
+        $this->flushLive();
+
+        $this->assertSame($this->leftoverTables()['order_items'], ppcart_live_table('order_items'));
+        $this->assertSame('ncs_order_item', ppcart_live_metadata_type());
+        $this->assertContains('order_items', ppcart_custom_table_pending_families());
+
+        $result = ppcart_migrate_custom_tables();
+        $this->flushLive();
+
+        $this->assertArrayNotHasKey('order_items', $result['errors']);
+        $this->assertArrayNotHasKey('order_itemmeta', $result['errors']);
+        $this->assertTrue($result['renamed']['order_items']['replaced_empty']);
+        $this->assertFalse($this->tableExists($this->leftoverTables()['order_items']));
+        $this->assertFalse($this->tableExists($this->leftoverTables()['order_itemmeta']));
+        $this->assertFalse($this->tableExists($this->canonicalTables()['order_items'] . '_replaced'));
+        $this->assertFalse($this->tableExists($this->canonicalTables()['order_itemmeta'] . '_replaced'));
+        $this->assertSame($this->canonicalTables()['order_items'], ppcart_live_table('order_items'));
+        $this->assertSame('ppcart_order_item_id', ppcart_live_order_item_id_column());
+
+        $name = $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT product_name FROM %i WHERE order_item_id = %d',
+                $this->canonicalTables()['order_items'],
+                42
+            )
+        );
+        $this->assertSame('Slice 16 Item', $name);
+        $this->assertSame('9.99', get_metadata('ppcart_order_item', 42, 'unit_price', true));
+    }
+
+    /**
+     * @test-id IT-370
+     */
+    public function test_IT_370_migrate_keeps_conflict_when_canonical_has_rows(): void
+    {
+        global $wpdb;
+
+        $this->installLeftoverCustomTables();
+        $this->insertLeftoverMarkers();
+        $this->createEmptyCanonicalOrderItemTables();
+        $wpdb->query(
+            $wpdb->prepare(
+                'INSERT INTO %i SELECT * FROM %i',
+                $this->canonicalTables()['order_items'],
+                $this->leftoverTables()['order_items']
+            )
+        );
+        $this->flushLive();
+
+        $this->assertSame($this->canonicalTables()['order_items'], ppcart_live_table('order_items'));
+
+        $result = ppcart_migrate_custom_tables();
+        $this->flushLive();
+
+        $this->assertSame('conflict_both_exist', $result['skipped']['order_items']);
+        $this->assertTrue($this->tableExists($this->leftoverTables()['order_items']));
+        $this->assertTrue($this->tableExists($this->canonicalTables()['order_items']));
+    }
+
+    /**
+     * @test-id IT-370
+     */
+    public function test_IT_370_migrate_leaves_both_tables_when_leftover_is_empty(): void
+    {
+        $this->installLeftoverCustomTables();
+        $this->createEmptyCanonicalOrderItemTables();
+        $this->flushLive();
+
+        $result = ppcart_migrate_custom_tables();
+        $this->flushLive();
+
+        $this->assertSame('leftover_empty', $result['skipped']['order_items']);
+        $this->assertArrayNotHasKey('order_items', $result['errors']);
+        $this->assertArrayNotHasKey('order_items', $result['renamed']);
+        $this->assertTrue($this->tableExists($this->leftoverTables()['order_items']));
+        $this->assertTrue($this->tableExists($this->canonicalTables()['order_items']));
+    }
+
+    /**
+     * @test-id IT-370
+     */
+    public function test_IT_370_cart_schema_setup_does_not_alter_live_leftover_tables(): void
+    {
+        global $wpdb;
+
+        $this->installLeftoverCustomTables();
+        $this->insertLeftoverMarkers();
+        $wpdb->insert(
+            $this->leftoverTables()['order_itemmeta'],
+            [
+                'ncs_order_item_id' => 42,
+                'meta_key'          => 'unit_price',
+                'meta_value'        => '9.99',
+            ]
+        );
+        $this->createEmptyCanonicalOrderItemTables();
+        $this->flushLive();
+        $this->assertSame($this->leftoverTables()['order_itemmeta'], ppcart_live_table('order_itemmeta'));
+
+        PPCart_Activator::setup_tax_table();
+        PPCart_Upgrade::setup_tax_table();
+        (new PPCart_Order_Items())->setup_items_table();
+        (new PPCart_Files())->setup_download_table();
+        $this->flushLive();
+
+        $this->assertTrue($this->columnExists($this->leftoverTables()['order_itemmeta'], 'ncs_order_item_id'));
+        $this->assertFalse($this->columnExists($this->leftoverTables()['order_itemmeta'], 'ppcart_order_item_id'));
+        $this->assertSame('slice16-tax', $this->getTaxTitle($this->leftoverTables()['tax_rate']));
+        $this->assertSame($this->leftoverTables()['order_items'], ppcart_live_table('order_items'));
+        $this->assertSame(
+            '0',
+            $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i', $this->canonicalTables()['order_items']))
+        );
+    }
+
+    /**
+     * Cart activation without this plugin creates empty canonical tables.
+     *
+     * @return void
+     */
+    private function createEmptyCanonicalOrderItemTables(): void
+    {
+        global $wpdb;
+
+        $leftover  = $this->leftoverTables();
+        $canonical = $this->canonicalTables();
+
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Test fixture.
+        $wpdb->query('CREATE TABLE `' . $canonical['order_items'] . '` LIKE `' . $leftover['order_items'] . '`');
+        $wpdb->query('CREATE TABLE `' . $canonical['order_itemmeta'] . '` LIKE `' . $leftover['order_itemmeta'] . '`');
+        $wpdb->query('ALTER TABLE `' . $canonical['order_itemmeta'] . '` CHANGE `ncs_order_item_id` `ppcart_order_item_id` bigint(20) NOT NULL');
+        // phpcs:enable
+    }
+
     private function flushLive(): void
     {
         ppcart_flush_live_table_cache();
@@ -358,8 +510,10 @@ class CustomTableMigrationTest extends NoTransactionWPTestCase
         global $wpdb;
 
         foreach (array_merge($this->leftoverTables(), $this->canonicalTables()) as $table) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Test isolation.
-            $wpdb->query('DROP TABLE IF EXISTS `' . str_replace('`', '', $table) . '`');
+            foreach ([ $table, $table . '_replaced' ] as $drop) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Test isolation.
+                $wpdb->query('DROP TABLE IF EXISTS `' . str_replace('`', '', $drop) . '`');
+            }
         }
         $this->flushLive();
     }

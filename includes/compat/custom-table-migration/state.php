@@ -22,6 +22,7 @@ function ppcart_custom_table_migration_option()
 function ppcart_flush_live_table_cache()
 {
     unset($GLOBALS['ppcart_custom_table_list_cache']);
+    unset($GLOBALS['ppcart_custom_table_rows_cache']);
     unset($GLOBALS['ppcart_live_table_cache']);
     unset($GLOBALS['ppcart_legacy_custom_table_rewrite_pairs_cache']);
 }
@@ -105,7 +106,73 @@ function ppcart_custom_table_column_exists($table, $column)
 }
 
 /**
- * Families that still have a leftover table and no canonical table.
+ * Whether a table has at least one row.
+ *
+ * Unknown (no $wpdb->get_var, or a failed query) counts as having rows so
+ * callers keep the table.
+ *
+ * @param string $table Prefixed table name.
+ * @return bool
+ */
+function ppcart_custom_table_has_rows($table)
+{
+    global $wpdb;
+
+    $table = (string) $table;
+
+    if (isset($GLOBALS['ppcart_custom_table_rows_cache'][ $table ])) {
+        return $GLOBALS['ppcart_custom_table_rows_cache'][ $table ];
+    }
+
+    if (! ppcart_custom_table_exists($table)) {
+        return false;
+    }
+
+    if (! isset($wpdb) || ! is_object($wpdb) || ! method_exists($wpdb, 'get_var') || ! method_exists($wpdb, 'prepare')) {
+        return true;
+    }
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cached per request; empty-table check on a plugin-owned table.
+    $has_rows = null !== $wpdb->get_var($wpdb->prepare('SELECT 1 FROM %i LIMIT 1', $table));
+    if (! empty($wpdb->last_error)) {
+        return true;
+    }
+
+    if (! isset($GLOBALS['ppcart_custom_table_rows_cache']) || ! is_array($GLOBALS['ppcart_custom_table_rows_cache'])) {
+        $GLOBALS['ppcart_custom_table_rows_cache'] = [];
+    }
+    $GLOBALS['ppcart_custom_table_rows_cache'][ $table ] = $has_rows;
+
+    return $has_rows;
+}
+
+/**
+ * Whether the leftover table is still the live table for a family.
+ *
+ * Cart activation can create an empty canonical table beside a leftover
+ * table that holds the store's rows. The leftover table stays live until
+ * Data migration replaces the empty canonical table.
+ *
+ * @param string $family Family key.
+ * @return bool
+ */
+function ppcart_custom_table_leftover_is_live($family)
+{
+    $names = ppcart_custom_table_prefixed_names($family);
+    if (! $names || ! ppcart_custom_table_exists($names['leftover'])) {
+        return false;
+    }
+
+    if (! ppcart_custom_table_exists($names['canonical'])) {
+        return true;
+    }
+
+    return ! ppcart_custom_table_has_rows($names['canonical'])
+        && ppcart_custom_table_has_rows($names['leftover']);
+}
+
+/**
+ * Families whose leftover table is still live.
  *
  * @return string[]
  */
@@ -114,12 +181,7 @@ function ppcart_custom_table_pending_families()
     $pending = [];
 
     foreach (array_keys(ppcart_custom_table_family_map()) as $family) {
-        $names = ppcart_custom_table_prefixed_names($family);
-        if (! $names) {
-            continue;
-        }
-
-        if (ppcart_custom_table_exists($names['leftover']) && ! ppcart_custom_table_exists($names['canonical'])) {
+        if (ppcart_custom_table_leftover_is_live($family)) {
             $pending[] = $family;
         }
     }
