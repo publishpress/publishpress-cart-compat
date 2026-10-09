@@ -115,14 +115,15 @@ class PPCartComp_Shortcode_Tag_Migrator
     }
 
     /**
-     * @return array{posts: int, options: int, postmeta: int}
+     * @return array{posts: int, options: int, postmeta: int, elementor: int}
      */
     public static function count_remaining()
     {
         return [
-            'posts'    => self::count_leftover_posts(),
-            'options'  => self::count_leftover_options(),
-            'postmeta' => self::count_leftover_notification_meta(),
+            'posts'     => self::count_leftover_posts(),
+            'options'   => self::count_leftover_options(),
+            'postmeta'  => self::count_leftover_notification_meta(),
+            'elementor' => PPCartComp_Shortcode_Tag_Elementor::count_remaining(),
         ];
     }
 
@@ -141,7 +142,12 @@ class PPCartComp_Shortcode_Tag_Migrator
             return $moved;
         }
 
-        return self::migrate_notification_meta_chunk();
+        $moved = self::migrate_notification_meta_chunk();
+        if ($moved > 0) {
+            return $moved;
+        }
+
+        return PPCartComp_Shortcode_Tag_Elementor::migrate_chunk();
     }
 
     /**
@@ -392,7 +398,7 @@ class PPCartComp_Shortcode_Tag_Migrator
      * @param string $new_value Marker.
      * @return void
      */
-    private static function insert_backup($kind, $object_id, $old_value, $new_value)
+    public static function insert_backup($kind, $object_id, $old_value, $new_value)
     {
         global $wpdb;
 
@@ -427,10 +433,11 @@ class PPCartComp_Shortcode_Tag_Migrator
 
         ppcart_shortcode_tag_migration_save_state(
             [
-                'step1'          => 'idle',
-                'mode'           => 'legacy',
-                'stop_requested' => false,
-                'cursor'         => null,
+                'step1'            => 'idle',
+                'mode'             => 'legacy',
+                'stop_requested'   => false,
+                'cursor'           => null,
+                'elementor_cursor' => 0,
             ]
         );
 
@@ -471,6 +478,11 @@ class PPCartComp_Shortcode_Tag_Migrator
 
             if ('option' === $kind) {
                 update_option($id, $old, false);
+                continue;
+            }
+
+            if (PPCartComp_Shortcode_Tag_Elementor::BACKUP_KIND === $kind) {
+                PPCartComp_Shortcode_Tag_Elementor::restore_row($id, $old);
                 continue;
             }
 

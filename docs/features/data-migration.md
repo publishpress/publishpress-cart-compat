@@ -49,7 +49,7 @@ drops only the three reverse-map backup tables on uninstall.
 | CPT slugs | `includes/compat/cpt-slug-migration/` | Rename leftover CPT/taxonomy/capability slugs; backup + restore |
 | Roles | (same CPT package, step 2) | Rename leftover roles |
 | Meta keys | `includes/compat/meta-key-migration/` | Rewrite leftover `_sc_*` post/user meta names |
-| Shortcodes | `includes/compat/shortcode-tag-migration/` | Rewrite leftover shortcode tags in post and email HTML |
+| Shortcodes | `includes/compat/shortcode-tag-migration/` | Rewrite leftover shortcode tags in post, Elementor (`_elementor_data`), and email HTML |
 | Option keys | `includes/compat/option-key-migration/` | Copy leftover option/transient rows onto canonical keys |
 | Custom tables | `includes/compat/custom-table-migration/` | `RENAME TABLE` leftover `ncs_*` tables; alter order-item meta column |
 

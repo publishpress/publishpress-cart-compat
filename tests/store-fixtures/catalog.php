@@ -342,6 +342,77 @@ class Catalog
     }
 
     /**
+     * Elementor section > column > widgets tree, as stored in `_elementor_data`.
+     *
+     * @param array<int, array<string, mixed>> $widgets Widgets.
+     * @return array<int, array<string, mixed>>
+     */
+    public static function elementor_data(array $widgets)
+    {
+        foreach ($widgets as $index => $widget) {
+            $widgets[ $index ] = array_merge(
+                [
+                    'id'       => 'seedw' . $index,
+                    'elType'   => 'widget',
+                    'elements' => [],
+                ],
+                $widget
+            );
+        }
+
+        return [
+            [
+                'id'       => 'seeds0',
+                'elType'   => 'section',
+                'settings' => [],
+                'elements' => [
+                    [
+                        'id'       => 'seedc0',
+                        'elType'   => 'column',
+                        'settings' => [ '_column_size' => 100 ],
+                        'elements' => $widgets,
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function elementor_account_widgets()
+    {
+        return [
+            [
+                'widgetType' => 'heading',
+                'settings'   => [ 'title' => 'Your account' ],
+            ],
+            [
+                'widgetType' => 'shortcode',
+                'settings'   => [ 'shortcode' => '[' . self::ACCOUNT_SHORTCODE . ']' ],
+            ],
+        ];
+    }
+
+    /**
+     * @param int $product_id Product ID.
+     * @return array<int, array<string, mixed>>
+     */
+    public static function elementor_checkout_widgets($product_id)
+    {
+        return [
+            [
+                'widgetType' => 'text-editor',
+                'settings'   => [ 'editor' => '<p>Get started today.</p><p>' . self::checkout_shortcode($product_id) . '</p>' ],
+            ],
+            [
+                'widgetType' => 'shortcode',
+                'settings'   => [ 'shortcode' => '[' . self::RECEIPT_SHORTCODE . ']' ],
+            ],
+        ];
+    }
+
+    /**
      * Spread an index across the last 30 days (promo cluster in week 2).
      *
      * @param int $index Zero-based.

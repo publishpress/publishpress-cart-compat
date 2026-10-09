@@ -23,7 +23,7 @@ composer site:backup
 
 ## Full leftover store (`seed:store`)
 
-Plants `sc_*` CPTs, `_sc_*` post/option/user meta, leftover shortcodes, COD settings, checkout pages, and ~one month of dated orders.
+Plants `sc_*` CPTs, `_sc_*` post/option/user meta, leftover shortcodes, COD settings, checkout pages, Elementor-built pages, and ~one month of dated orders.
 
 ```bash
 composer seed:store
@@ -48,6 +48,7 @@ What you can migrate after seeding:
 - Role slugs
 - Post-meta and **user-meta** (phone, address_1/2, city, state, zip, country, customer ids)
 - Shortcode tags in posts and email options
+- Shortcode tags in Elementor data (`seed-elementor-account`, `seed-elementor-checkout`: tags only in `_elementor_data`; activate Elementor to see them render)
 - Option keys (`_sc_*` / `sc_*` / `ncs_*`)
 - Custom tables when present
 

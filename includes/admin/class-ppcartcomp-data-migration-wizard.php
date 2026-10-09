@@ -390,7 +390,7 @@ class PPCartComp_Data_Migration_Wizard
             $meta = PPCartComp_Meta_Key_Migrator::count_remaining();
         }
 
-        $shortcodes = [ 'posts' => 0, 'options' => 0, 'postmeta' => 0 ];
+        $shortcodes = [ 'posts' => 0, 'options' => 0, 'postmeta' => 0, 'elementor' => 0 ];
         if (class_exists('PPCartComp_Shortcode_Tag_Migrator', false) && isset($GLOBALS['wpdb'])) {
             $shortcodes = PPCartComp_Shortcode_Tag_Migrator::count_remaining();
         }
