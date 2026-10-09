@@ -370,6 +370,62 @@ class CustomTableMigrationTest extends NoTransactionWPTestCase
     }
 
     /**
+     * @test-id IT-370
+     */
+    public function test_IT_370_migrate_leaves_both_tables_when_leftover_is_empty(): void
+    {
+        $this->installLeftoverCustomTables();
+        $this->createEmptyCanonicalOrderItemTables();
+        $this->flushLive();
+
+        $result = ppcart_migrate_custom_tables();
+        $this->flushLive();
+
+        $this->assertSame('leftover_empty', $result['skipped']['order_items']);
+        $this->assertArrayNotHasKey('order_items', $result['errors']);
+        $this->assertArrayNotHasKey('order_items', $result['renamed']);
+        $this->assertTrue($this->tableExists($this->leftoverTables()['order_items']));
+        $this->assertTrue($this->tableExists($this->canonicalTables()['order_items']));
+    }
+
+    /**
+     * @test-id IT-370
+     */
+    public function test_IT_370_cart_schema_setup_does_not_alter_live_leftover_tables(): void
+    {
+        global $wpdb;
+
+        $this->installLeftoverCustomTables();
+        $this->insertLeftoverMarkers();
+        $wpdb->insert(
+            $this->leftoverTables()['order_itemmeta'],
+            [
+                'ncs_order_item_id' => 42,
+                'meta_key'          => 'unit_price',
+                'meta_value'        => '9.99',
+            ]
+        );
+        $this->createEmptyCanonicalOrderItemTables();
+        $this->flushLive();
+        $this->assertSame($this->leftoverTables()['order_itemmeta'], ppcart_live_table('order_itemmeta'));
+
+        PPCart_Activator::setup_tax_table();
+        PPCart_Upgrade::setup_tax_table();
+        (new PPCart_Order_Items())->setup_items_table();
+        (new PPCart_Files())->setup_download_table();
+        $this->flushLive();
+
+        $this->assertTrue($this->columnExists($this->leftoverTables()['order_itemmeta'], 'ncs_order_item_id'));
+        $this->assertFalse($this->columnExists($this->leftoverTables()['order_itemmeta'], 'ppcart_order_item_id'));
+        $this->assertSame('slice16-tax', $this->getTaxTitle($this->leftoverTables()['tax_rate']));
+        $this->assertSame($this->leftoverTables()['order_items'], ppcart_live_table('order_items'));
+        $this->assertSame(
+            '0',
+            $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i', $this->canonicalTables()['order_items']))
+        );
+    }
+
+    /**
      * Cart activation without this plugin creates empty canonical tables.
      *
      * @return void

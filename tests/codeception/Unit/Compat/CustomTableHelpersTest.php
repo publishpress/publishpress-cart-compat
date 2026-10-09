@@ -241,8 +241,26 @@ class CustomTableHelpersTest extends Unit
     }
 
     /**
+     * @test-id UT-317
+     */
+    public function test_UT_317_failed_row_probe_counts_as_rows(): void
+    {
+        $this->setTables(
+            [ 'wp_ncs_order_items', 'wp_ppcart_order_items' ],
+            [
+                'wp_ncs_order_items'    => true,
+                'wp_ppcart_order_items' => 'error',
+            ]
+        );
+
+        $this->assertTrue(ppcart_custom_table_has_rows('wp_ppcart_order_items'));
+        $this->assertSame('wp_ppcart_order_items', ppcart_live_table('order_items'));
+        $this->assertSame([], ppcart_custom_table_pending_families());
+    }
+
+    /**
      * @param string[] $tables
-     * @param array<string, bool>|null $rows Tables with rows. Null leaves get_var() off.
+     * @param array<string, bool|string>|null $rows Tables with rows ('error' fails the probe). Null leaves get_var() off.
      * @return void
      */
     private function setTables(array $tables, ?array $rows = null): void
@@ -307,13 +325,18 @@ class CustomTableHelpersTest extends Unit
             public $tables;
 
             /**
-             * @var array<string, bool>
+             * @var array<string, bool|string>
              */
             public $rows;
 
             /**
-             * @param string[]            $tables
-             * @param array<string, bool> $rows
+             * @var string
+             */
+            public $last_error = '';
+
+            /**
+             * @param string[]                   $tables
+             * @param array<string, bool|string> $rows
              */
             public function __construct(array $tables, array $rows)
             {
@@ -345,11 +368,17 @@ class CustomTableHelpersTest extends Unit
              */
             public function get_var($query)
             {
-                if (preg_match('/FROM (\S+)/', $query, $match) && ! empty($this->rows[ $match[1] ])) {
-                    return '1';
+                $this->last_error = '';
+                if (! preg_match('/FROM (\S+)/', $query, $match) || empty($this->rows[ $match[1] ])) {
+                    return null;
+                }
+                if ('error' === $this->rows[ $match[1] ]) {
+                    $this->last_error = 'probe failed';
+
+                    return null;
                 }
 
-                return null;
+                return '1';
             }
 
             /**

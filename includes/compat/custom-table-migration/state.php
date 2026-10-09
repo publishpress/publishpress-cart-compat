@@ -108,7 +108,8 @@ function ppcart_custom_table_column_exists($table, $column)
 /**
  * Whether a table has at least one row.
  *
- * Unknown (no $wpdb->get_var) counts as having rows so callers keep the table.
+ * Unknown (no $wpdb->get_var, or a failed query) counts as having rows so
+ * callers keep the table.
  *
  * @param string $table Prefixed table name.
  * @return bool
@@ -133,6 +134,9 @@ function ppcart_custom_table_has_rows($table)
 
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cached per request; empty-table check on a plugin-owned table.
     $has_rows = null !== $wpdb->get_var($wpdb->prepare('SELECT 1 FROM %i LIMIT 1', $table));
+    if (! empty($wpdb->last_error)) {
+        return true;
+    }
 
     if (! isset($GLOBALS['ppcart_custom_table_rows_cache']) || ! is_array($GLOBALS['ppcart_custom_table_rows_cache'])) {
         $GLOBALS['ppcart_custom_table_rows_cache'] = [];

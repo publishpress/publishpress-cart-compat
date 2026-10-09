@@ -36,20 +36,9 @@ function ppcart_migrate_custom_tables()
             continue;
         }
 
-        if ($canonical_exists && ppcart_custom_table_has_rows($canonical)) {
-            $skipped[ $family ] = 'conflict_both_exist';
-            $errors[ $family ]  = sprintf(
-                /* translators: 1: leftover table, 2: canonical table. */
-                __('Skipped %1$s because %2$s already exists.', 'publishpress-cart'),
-                $leftover,
-                $canonical
-            );
-            continue;
-        }
-
-        if ($canonical_exists) {
+        if ($canonical_exists && ppcart_custom_table_leftover_is_live($family)) {
             $result = ppcart_custom_table_replace_empty_canonical($leftover, $canonical);
-            if (is_wp_error($result)) {
+            if (is_wp_error($result) && 'ppcart_custom_table_replaced_has_rows' !== $result->get_error_code()) {
                 $errors[ $family ] = $result->get_error_message();
                 continue;
             }
@@ -59,6 +48,25 @@ function ppcart_migrate_custom_tables()
                 'to'             => $canonical,
                 'replaced_empty' => true,
             ];
+            if (is_wp_error($result)) {
+                $errors[ $family ] = $result->get_error_message();
+            }
+            continue;
+        }
+
+        if ($canonical_exists && ppcart_custom_table_has_rows($canonical) && ppcart_custom_table_has_rows($leftover)) {
+            $skipped[ $family ] = 'conflict_both_exist';
+            $errors[ $family ]  = sprintf(
+                /* translators: 1: leftover table, 2: canonical table. */
+                __('Skipped %1$s because %2$s already has rows.', 'publishpress-cart'),
+                $leftover,
+                $canonical
+            );
+            continue;
+        }
+
+        if ($canonical_exists) {
+            $skipped[ $family ] = 'leftover_empty';
             continue;
         }
 
@@ -113,7 +121,8 @@ function ppcart_migrate_custom_tables()
  *
  * @param string $leftover  Prefixed leftover table name.
  * @param string $canonical Prefixed canonical table name.
- * @return true|WP_Error
+ * @return true|WP_Error `ppcart_custom_table_replaced_has_rows` means the swap
+ *                       ran but `*_replaced` was kept.
  */
 function ppcart_custom_table_replace_empty_canonical($leftover, $canonical)
 {
@@ -150,10 +159,19 @@ function ppcart_custom_table_replace_empty_canonical($leftover, $canonical)
     }
 
     ppcart_flush_live_table_cache();
-    if (! ppcart_custom_table_has_rows($replaced)) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Drops the empty canonical table this step just swapped out.
-        $wpdb->query('DROP TABLE ' . $replaced_sql);
+    if (ppcart_custom_table_has_rows($replaced)) {
+        return new WP_Error(
+            'ppcart_custom_table_replaced_has_rows',
+            sprintf(
+                /* translators: %s: table name. */
+                __('Kept %s because it has rows. Check it before you drop it.', 'publishpress-cart'),
+                $replaced
+            )
+        );
     }
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Drops the empty canonical table this step just swapped out.
+    $wpdb->query('DROP TABLE ' . $replaced_sql);
 
     return true;
 }
