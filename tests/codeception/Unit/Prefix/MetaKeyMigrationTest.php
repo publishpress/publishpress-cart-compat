@@ -189,13 +189,56 @@ class MetaKeyMigrationTest extends Unit
         $expanded = ppcart_expand_meta_query_keys($query);
 
         $this->assertSame('_thumbnail_id', $expanded[0]['key']);
-        if (isset($expanded[1]['key'])) {
-            $this->assertSame('_ppcart_amount', $expanded[1]['key']);
-        } else {
-            $this->assertSame('OR', $expanded[1]['relation']);
-            $this->assertSame('_ppcart_amount', $expanded[1][0]['key']);
-            $this->assertSame('_sc_amount', $expanded[1][1]['key']);
+        $this->assertContains($expanded[1]['key'], [ '_ppcart_amount', [ '_ppcart_amount', '_sc_amount' ] ]);
+        $this->assertSame('10', $expanded[1]['value']);
+    }
+
+    /**
+     * @test-id UT-203
+     */
+    public function test_UT_203_meta_query_expander_uses_one_clause_per_key_family(): void
+    {
+        if (PPCartComp_Studiocart_Compatibility_Mode::is_wp_config_forced() && ! PPCartComp_Studiocart_Compatibility_Mode::is_enabled()) {
+            $this->markTestSkipped('Compatibility Mode is forced off via wp-config in this process.');
         }
+
+        WordPressStubContext::set('add_action', static function () {
+            return true;
+        });
+        WordPressStubContext::set('add_filter', static function () {
+            return true;
+        });
+        WordPressStubContext::set('has_filter', static function () {
+            return false;
+        });
+        WordPressStubContext::setState(
+            'options',
+            [
+                PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME => '1',
+            ]
+        );
+
+        if (! function_exists('ppcart_expand_meta_query_keys')) {
+            require_once PPCARTCOMP_PLUGIN_ROOT . 'includes/compat/meta-key-migration/index.php';
+        }
+
+        $expanded = ppcart_expand_meta_query_keys([
+            'relation' => 'OR',
+            [
+                'key'     => '_ppcart_amount',
+                'compare' => 'EXISTS',
+            ],
+            [
+                'key'     => '_ppcart_amount',
+                'compare' => 'NOT EXISTS',
+            ],
+        ]);
+
+        $this->assertSame([ '_ppcart_amount', '_sc_amount' ], $expanded[0]['key']);
+        $this->assertSame('EXISTS', $expanded[0]['compare']);
+        $this->assertSame('OR', $expanded[1]['relation']);
+        $this->assertSame('_ppcart_amount', $expanded[1][0]['key']);
+        $this->assertSame('_sc_amount', $expanded[1][1]['key']);
     }
 
     /**

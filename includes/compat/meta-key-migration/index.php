@@ -90,6 +90,15 @@ function ppcart_expand_meta_query_keys(array $meta_query)
                 continue;
             }
             $keys = ppcart_query_meta_keys($clause['key']);
+            // One clause with a key array is one join on `meta_key IN (...)`. An OR group of copies
+            // joins postmeta once per key, which multiplies rows per product until queries take minutes.
+            // NOT EXISTS and an explicit compare_key need a single string key, so they keep the group.
+            $compare = strtoupper((string) ($clause['compare'] ?? '='));
+            if (count($keys) > 1 && 'NOT EXISTS' !== $compare && ! isset($clause['compare_key'])) {
+                $clause['key']    = $keys;
+                $expanded[ $key ] = $clause;
+                continue;
+            }
             if (count($keys) > 1) {
                 $group = [ 'relation' => 'OR' ];
                 foreach ($keys as $meta_key) {
