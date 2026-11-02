@@ -73,7 +73,7 @@ class HookBridgesTest extends WPTestCase
         PPCartComp_Studiocart_Compatibility_Mode::maybe_register_hooks();
 
         $legacy_ran = false;
-        $extra_legacy_ran = false;
+        $checkout_complete_ran = false;
 
         add_action(
             'sc_after_order_paid',
@@ -85,8 +85,8 @@ class HookBridgesTest extends WPTestCase
         );
         add_action(
             'studiocart_checkout_complete',
-            static function () use (&$extra_legacy_ran) {
-                $extra_legacy_ran = true;
+            static function () use (&$checkout_complete_ran) {
+                $checkout_complete_ran = true;
             },
             10,
             0
@@ -95,7 +95,29 @@ class HookBridgesTest extends WPTestCase
         do_action('ppcart_after_order_paid');
 
         $this->assertTrue($legacy_ran);
-        $this->assertTrue($extra_legacy_ran);
+        $this->assertFalse($checkout_complete_ran);
+    }
+
+    public function test_IT_259_checkout_complete_reaches_legacy_listeners_with_the_same_arguments(): void
+    {
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+        PPCartComp_Studiocart_Compatibility_Mode::maybe_register_hooks();
+
+        $received = null;
+
+        add_action(
+            'studiocart_checkout_complete',
+            static function ($order_id, $product) use (&$received) {
+                $received = [$order_id, $product];
+            },
+            10,
+            2
+        );
+
+        $product = (object) ['ID' => 77];
+        do_action('ppcart_checkout_complete', 42, $product);
+
+        $this->assertSame([42, $product], $received);
     }
 
     public function test_IT_259_reverse_bridge_reaches_canonical_listeners_from_legacy_hook(): void
