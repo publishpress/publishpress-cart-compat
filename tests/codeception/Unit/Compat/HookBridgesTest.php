@@ -74,7 +74,14 @@ class HookBridgesTest extends Unit
             ncs_cart_canonical_to_legacy_hook_names('ppcart_supports_feature')
         );
         $this->assertSame('ppcart_daily_events', ncs_cart_legacy_to_canonical_hook_name('studiocart_daily_events'));
-        $this->assertSame('ppcart_after_order_paid', ncs_cart_legacy_to_canonical_hook_name('studiocart_checkout_complete'));
+        $this->assertSame('ppcart_checkout_complete', ncs_cart_legacy_to_canonical_hook_name('studiocart_checkout_complete'));
+        $this->assertSame(
+            'ppcart_checkout_form_validation_messages',
+            ncs_cart_legacy_to_canonical_hook_name('sc_checkout_form_validation_messafes')
+        );
+        $this->assertSame('ppcart_default_fields_html', ncs_cart_legacy_to_canonical_hook_name('sc_defualt_fields_html'));
+        $this->assertSame('ppcart_transaction_id', ncs_cart_legacy_to_canonical_hook_name('studiocart_transaction_id'));
+        $this->assertSame('ppcart_after_order_created', ncs_cart_legacy_to_canonical_hook_name('studiocart_after_order_created'));
         $this->assertSame('ppcart_page_metabox', ncs_cart_legacy_to_canonical_hook_name('studiocart_page_metabox'));
         $this->assertSame('ppcart_currencies', ncs_cart_legacy_to_canonical_hook_name('ncs-cart-currencies'));
         $this->assertSame(
@@ -97,7 +104,13 @@ class HookBridgesTest extends Unit
 
         $legacy_names = ncs_cart_canonical_to_legacy_hook_names('ppcart_after_order_paid');
         $this->assertContains('sc_after_order_paid', $legacy_names);
-        $this->assertContains('studiocart_checkout_complete', $legacy_names);
+        $this->assertNotContains('studiocart_checkout_complete', $legacy_names);
+        $this->assertContains('studiocart_checkout_complete', ncs_cart_canonical_to_legacy_hook_names('ppcart_checkout_complete'));
+        $this->assertContains(
+            'sc_checkout_form_validation_messafes',
+            ncs_cart_canonical_to_legacy_hook_names('ppcart_checkout_form_validation_messages')
+        );
+        $this->assertContains('sc_defualt_fields_html', ncs_cart_canonical_to_legacy_hook_names('ppcart_default_fields_html'));
         $this->assertContains(
             'ncs-cart-currency-symbols',
             ncs_cart_canonical_to_legacy_hook_names('ppcart_currency_symbols')
