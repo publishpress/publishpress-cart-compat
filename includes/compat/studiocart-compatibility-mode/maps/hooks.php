@@ -29,8 +29,6 @@ return [
         'option_',
         'default_option_',
     ],
-    // studiocart_checkout_complete has no override: it passes ($order_id, $product),
-    // like ppcart_checkout_complete, so the mechanical rule maps it.
     'override' => [
         'studiocart_page_metabox'          => 'ppcart_page_metabox',
         'ncs-cart-currencies'               => 'ppcart_currencies',
@@ -45,7 +43,6 @@ return [
         'sc_cart_loaded'                       => 'ppcart_loaded',
         'ncs_cart_loaded'                      => 'ppcart_loaded',
         'sc_cart_supports_feature'             => 'ppcart_supports_feature',
-        // StudioCart shipped these names with typos; Cart 1.1.0 fires the corrected names.
         'sc_checkout_form_validation_messafes' => 'ppcart_checkout_form_validation_messages',
         'sc_defualt_fields_html'               => 'ppcart_default_fields_html',
     ],

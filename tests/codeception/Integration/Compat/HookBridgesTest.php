@@ -95,8 +95,6 @@ class HookBridgesTest extends WPTestCase
         do_action('ppcart_after_order_paid');
 
         $this->assertTrue($legacy_ran);
-        // ppcart_after_order_paid passes ($status, $order_data, $event_type), so it
-        // must not reach studiocart_checkout_complete listeners.
         $this->assertFalse($checkout_complete_ran);
     }
 
