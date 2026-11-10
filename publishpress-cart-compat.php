@@ -11,7 +11,7 @@
  * Plugin Name:       PublishPress Cart Migrations
  * Plugin URI:        https://publishpress.com/publishpress-cart/
  * Description:       This plugin helps you migrate your store to PublishPress Cart.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            PublishPress
  * Author URI:        https://publishpress.com/
  * License:           GPL-2.0-or-later
@@ -88,7 +88,7 @@ if (PPCartComp_Studiocart_Conflict::is_active()) {
 define('PPCARTCOMP_LOADED', true);
 
 if (! defined('PPCARTCOMP_VERSION')) {
-    define('PPCARTCOMP_VERSION', '1.0.0');
+    define('PPCARTCOMP_VERSION', '1.1.0');
 }
 
 if (! defined('PPCARTCOMP_BASE_URL')) {

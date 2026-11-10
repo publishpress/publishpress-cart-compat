@@ -4,7 +4,7 @@ Contributors: andergmartins, rizaardiyanto, ojopaul, stevejburge, publishpress
 Tags: ecommerce, studiocart, migration, compatibility, publishpress cart
 Requires at least: 6.7
 Tested up to: 7.0
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 Requires PHP: 7.4
 Requires Plugins: publishpress-cart
 License: GPL-2.0-or-later
@@ -27,6 +27,13 @@ This plugin does not replace PublishPress Cart and is not a live StudioCart inte
 3. Activate the plugin through the Plugins screen.
 
 == Changelog ==
+
+= 1.1.0 =
+* Renamed the plugin to PublishPress Cart Migrations.
+* Rewrote the migration notice, landing, and wizard in plain language, with a large completion message.
+* Steps with no StudioCart data now show "Nothing to migrate" instead of "Completed" before the migration starts.
+* One backup reminder and one confirm before the first run. Removed the extra custom-tables confirm and the Backup & restore step.
+* Explained Compatibility Mode with concrete examples and removed the Migration backups box.
 
 = 1.0.0 =
 * StudioCart Compatibility Mode: optional PHP shims for leftover functions, hooks, classes, constants, and public URLs.
