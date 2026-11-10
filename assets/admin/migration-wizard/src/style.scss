@@ -1,10 +1,16 @@
+$ppcartcomp-green: #00a32a;
+$ppcartcomp-green-dark: #008a20;
+$ppcartcomp-green-tint: #edfaef;
+$ppcartcomp-muted: #646970;
+$ppcartcomp-border: #dcdcde;
+
 /* Keep Compatibility visible; only soft-lock it while a chunk runs. */
 .ppcartcomp-studiocart-page.is-chunk-running > form[action="options.php"] {
 	opacity: 0.45;
 	pointer-events: none;
 }
 
-/* WP admin .card defaults to ~520px — StudioCart panels use the content column. */
+/* WP admin .card defaults to ~520px. StudioCart panels use the content column. */
 .ppcartcomp-studiocart-page > form[action="options.php"] > .card,
 .ppcartcomp-studiocart-page .ppcartcomp-migration-wizard-card {
 	max-width: none;
@@ -12,52 +18,172 @@
 	box-sizing: border-box;
 }
 
-.ppcartcomp-migration-wizard-card #ppcartcomp-migration-wizard-root,
-.ppcartcomp-migration-landing,
-.ppcartcomp-migration-wizard {
+.ppcartcomp-migration-wizard-card {
+	padding: 24px 28px;
+}
+
+.ppcartcomp-migration-landing > h2,
+.ppcartcomp-migration-wizard__chrome > h2 {
+	margin-top: 0;
+	font-size: 1.4em;
+}
+
+.ppcartcomp-compat-examples {
+	list-style: disc;
+	margin-left: 1.5em;
+}
+
+.ppcartcomp-migration-backup-tip {
+	margin: 16px 0;
+	padding: 12px 16px;
+	border-left: 4px solid #dba617;
+	background: #fcf9e8;
+}
+
+.ppcartcomp-migration-steps {
+	list-style: none;
+	margin: 16px 0;
+	padding: 0;
+	max-width: 640px;
+	border: 1px solid $ppcartcomp-border;
+	border-radius: 4px;
+
+	li {
+		margin: 0;
+		border-top: 1px solid $ppcartcomp-border;
+
+		&:first-child {
+			border-top: 0;
+		}
+	}
+}
+
+.ppcartcomp-migration-steps__row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
 	width: 100%;
-	max-width: none;
+	padding: 12px 16px;
 	box-sizing: border-box;
+	background: none;
+	border: 0;
+	color: inherit;
+	font: inherit;
+	text-align: left;
 }
 
-.ppcartcomp-migration-landing__steps,
-.ppcartcomp-migration-wizard__steps {
-	margin: 12px 0;
-	padding-left: 1.25em;
+button.ppcartcomp-migration-steps__row {
+	cursor: pointer;
+
+	&:hover:not(:disabled) {
+		background: #f6f7f7;
+	}
+
+	&:disabled {
+		cursor: default;
+	}
 }
 
-.ppcartcomp-migration-landing__steps li,
-.ppcartcomp-migration-wizard__steps li {
-	margin: 0.35em 0;
+.ppcartcomp-migration-steps li.is-active .ppcartcomp-migration-steps__row {
+	background: #f0f6fc;
+	box-shadow: inset 3px 0 0 #2271b1;
+	font-weight: 600;
 }
 
-.ppcartcomp-migration-landing__step-status,
-.ppcartcomp-migration-wizard__step-status {
-	display: block;
-	margin-left: 1.6em;
+.ppcartcomp-migration-steps__icon {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border: 2px solid #c3c4c7;
+	border-radius: 50%;
+	box-sizing: border-box;
 	font-size: 12px;
-	color: #646970;
+	font-weight: 700;
+	line-height: 1;
 }
 
-.ppcartcomp-migration-wizard__steps li[data-status="done"] .ppcartcomp-migration-wizard__step-status,
-.ppcartcomp-migration-landing__steps li[data-status="done"] .ppcartcomp-migration-landing__step-status,
-.ppcartcomp-migration-wizard__steps li[data-status="skipped"] .ppcartcomp-migration-wizard__step-status,
-.ppcartcomp-migration-landing__steps li[data-status="skipped"] .ppcartcomp-migration-landing__step-status {
-	color: #1e7e34;
+.ppcartcomp-migration-steps__label {
+	flex: 1 1 auto;
 }
 
-.ppcartcomp-migration-wizard__steps li[data-status="running"] .ppcartcomp-migration-wizard__step-status,
-.ppcartcomp-migration-landing__steps li[data-status="running"] .ppcartcomp-migration-landing__step-status {
-	color: #996800;
+.ppcartcomp-migration-steps__status {
+	flex: 0 0 auto;
+	font-size: 12px;
+	font-weight: 400;
+	color: $ppcartcomp-muted;
 }
 
-.ppcartcomp-migration-mark {
-	display: inline-block;
-	width: 1.25em;
-	margin-right: 0.35em;
+.ppcartcomp-migration-steps li[data-status="done"] {
+	.ppcartcomp-migration-steps__icon {
+		border-color: $ppcartcomp-green;
+		background: $ppcartcomp-green;
+		color: #fff;
+
+		&::before {
+			content: "✓";
+		}
+	}
+
+	.ppcartcomp-migration-steps__status {
+		color: $ppcartcomp-green-dark;
+		font-weight: 600;
+	}
 }
 
-.ppcartcomp-migration-landing__actions,
+.ppcartcomp-migration-steps li[data-status="skipped"] .ppcartcomp-migration-steps__icon {
+	border-color: #c3c4c7;
+	color: $ppcartcomp-muted;
+
+	&::before {
+		content: "–";
+	}
+}
+
+.ppcartcomp-migration-steps li[data-status="running"] .ppcartcomp-migration-steps__icon,
+.ppcartcomp-migration-steps li[data-status="paused"] .ppcartcomp-migration-steps__icon {
+	border-color: #2271b1;
+	border-right-color: transparent;
+}
+
+.ppcartcomp-migration-steps li[data-status="running"] .ppcartcomp-migration-steps__icon {
+	animation: ppcartcomp-spin 0.9s linear infinite;
+}
+
+.ppcartcomp-migration-steps li[data-status="running"] .ppcartcomp-migration-steps__status {
+	color: #2271b1;
+}
+
+.ppcartcomp-migration-steps li[data-status="failed"] {
+	.ppcartcomp-migration-steps__icon {
+		border-color: #d63638;
+		color: #d63638;
+
+		&::before {
+			content: "!";
+		}
+	}
+
+	.ppcartcomp-migration-steps__status {
+		color: #d63638;
+	}
+}
+
+@keyframes ppcartcomp-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ppcartcomp-migration-steps li[data-status="running"] .ppcartcomp-migration-steps__icon {
+		animation: none;
+	}
+}
+
+.ppcartcomp-migration-actions,
 .ppcartcomp-migration-wizard__nav {
 	display: flex;
 	gap: 8px;
@@ -65,28 +191,108 @@
 	margin-top: 16px;
 }
 
+.components-button.is-primary.ppcartcomp-migration-go {
+	background: $ppcartcomp-green;
+	color: #fff;
+
+	&:hover:not(:disabled),
+	&:active:not(:disabled) {
+		background: $ppcartcomp-green-dark;
+		color: #fff;
+	}
+
+	&:focus:not(:disabled) {
+		box-shadow: 0 0 0 1px #fff, 0 0 0 3px $ppcartcomp-green-dark;
+	}
+}
+
+.ppcartcomp-migration-landing .ppcartcomp-migration-go {
+	height: auto;
+	padding: 10px 20px;
+	font-size: 14px;
+}
+
+.ppcartcomp-migration-complete {
+	padding: 32px 24px;
+	text-align: center;
+	background: $ppcartcomp-green-tint;
+	border: 1px solid #b8e6bf;
+	border-radius: 6px;
+
+	h2 {
+		margin: 12px 0 8px;
+		font-size: 1.8em;
+		line-height: 1.3;
+		color: #1d2327;
+	}
+
+	> p {
+		max-width: 560px;
+		margin: 0 auto;
+		font-size: 15px;
+	}
+
+	.ppcartcomp-migration-steps {
+		margin: 24px auto 0;
+		background: #fff;
+		text-align: left;
+	}
+}
+
+.ppcartcomp-migration-complete__badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	background: $ppcartcomp-green;
+	color: #fff;
+	font-size: 34px;
+	font-weight: 700;
+}
+
 .ppcartcomp-migration-wizard {
 	display: grid;
-	grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
+	grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
 	grid-template-areas:
 		"chrome panel"
 		"nav nav";
-	gap: 20px 28px;
+	gap: 20px 32px;
 	align-items: start;
 }
 
 .ppcartcomp-migration-wizard__chrome {
 	grid-area: chrome;
 	min-width: 0;
+
+	.ppcartcomp-migration-steps {
+		margin-top: 12px;
+	}
 }
 
 .ppcartcomp-migration-wizard__panel {
 	grid-area: panel;
 	min-width: 0;
-	width: 100%;
-	margin-top: 0;
-	padding: 0;
-	border-top: 0;
+	padding-top: 44px;
+
+	h3 {
+		margin-top: 0;
+		font-size: 1.2em;
+	}
+}
+
+.ppcartcomp-migration-wizard__state {
+	font-weight: 600;
+	color: $ppcartcomp-muted;
+
+	&[data-status="done"] {
+		color: $ppcartcomp-green-dark;
+	}
+
+	&[data-status="running"] {
+		color: #2271b1;
+	}
 }
 
 .ppcartcomp-migration-wizard__nav {
@@ -94,32 +300,8 @@
 	margin-top: 0;
 }
 
-.ppcartcomp-migration-wizard__step-btn {
-	background: none;
-	border: 0;
-	padding: 0;
-	color: inherit;
-	cursor: pointer;
-	text-align: left;
-}
-
-.ppcartcomp-migration-wizard__steps li.is-active .ppcartcomp-migration-wizard__step-btn {
-	font-weight: 600;
-}
-
 .ppcartcomp-migration-wizard__message {
 	margin-top: 12px;
-}
-
-.ppcartcomp-migration-backup__group {
-	margin: 16px 0;
-	padding-top: 8px;
-	border-top: 1px solid #dcdcde;
-}
-
-.ppcartcomp-migration-backup__group:first-of-type {
-	border-top: 0;
-	padding-top: 0;
 }
 
 .ppcartcomp-migration-confirm__message {
@@ -145,6 +327,6 @@
 
 	.ppcartcomp-migration-wizard__panel {
 		padding-top: 12px;
-		border-top: 1px solid #dcdcde;
+		border-top: 1px solid $ppcartcomp-border;
 	}
 }

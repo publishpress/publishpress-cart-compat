@@ -4,9 +4,10 @@ import { post } from './api';
 import { fetchStatus } from './status';
 import { createChunkLoop } from './chunkLoop';
 import { readQuery, writeQuery } from './url';
-import { renameTablesConfirmOptions, startMigrationConfirmOptions, useConfirm } from './ConfirmDialog';
+import { startMigrationConfirmOptions, useConfirm } from './ConfirmDialog';
 import Landing from './Landing';
-import Wizard, { wizardSteps } from './Wizard';
+import Wizard from './Wizard';
+import { hasStarted } from './steps';
 
 /**
  * @param {object} props
@@ -199,10 +200,6 @@ export default function App({ config }) {
                     return { ok: false };
                 }
                 currentPkgRef.current = 'tables';
-                const agreed = await confirm(renameTablesConfirmOptions());
-                if (!agreed || abortRef.current) {
-                    return { ok: true, skipped: true, cancelled: true };
-                }
                 setMessage(statusText('running'));
                 const tablesResult = await ajaxPost({
                     action: actions.run,
@@ -216,7 +213,7 @@ export default function App({ config }) {
 
             return { ok: true, skipped: true };
         },
-        [ajaxPost, confirm, loop, packageFromStatus, showStep]
+        [ajaxPost, loop, packageFromStatus, showStep]
     );
 
     const runPipeline = useCallback(async () => {
@@ -224,8 +221,7 @@ export default function App({ config }) {
             return;
         }
 
-        const agreed = await confirm(startMigrationConfirmOptions());
-        if (!agreed) {
+        if (!hasStarted(statusRef.current) && !(await confirm(startMigrationConfirmOptions()))) {
             return;
         }
 
@@ -279,14 +275,12 @@ export default function App({ config }) {
 
         latest = await refreshStatus();
         if (!stopped && !(latest.progress && latest.progress.firstIncomplete)) {
-            showStep('backup');
-            setMessage(
-                __('Migration finished. You can review or delete backups below.', 'publishpress-cart-compat')
-            );
+            setMessage('');
+            go('landing', '');
         } else if (!stopped && latest.progress && latest.progress.firstIncomplete) {
             showStep(latest.progress.firstIncomplete);
         }
-    }, [busy, confirm, loop, refreshStatus, runOneStep, showStep]);
+    }, [busy, confirm, go, loop, refreshStatus, runOneStep, showStep]);
 
     const onStop = useCallback(async () => {
         abortRef.current = true;
@@ -301,49 +295,7 @@ export default function App({ config }) {
         setMessage(statusText('paused'));
     }, [loop, packageFromStatus]);
 
-    const onRestore = useCallback(
-        async (pkg, restoreStep) => {
-            const actions = packageFromStatus(statusRef.current, pkg);
-            if (!actions || !actions.restore) {
-                return;
-            }
-            setBusy(true);
-            const extra = restoreStep ? { step: restoreStep } : {};
-            await ajaxPost(Object.assign({ action: actions.restore, nonce: actions.nonce }, extra));
-            await refreshStatus();
-            setBusy(false);
-            setMessage(__('Restore finished.', 'publishpress-cart-compat'));
-        },
-        [ajaxPost, packageFromStatus, refreshStatus]
-    );
-
-    const onDelete = useCallback(
-        async (pkg) => {
-            const actions = packageFromStatus(statusRef.current, pkg);
-            if (!actions || !actions.delete) {
-                return;
-            }
-            setBusy(true);
-            await ajaxPost({ action: actions.delete, nonce: actions.nonce });
-            await refreshStatus();
-            setBusy(false);
-            setMessage(__('Backup deleted.', 'publishpress-cart-compat'));
-        },
-        [ajaxPost, packageFromStatus, refreshStatus]
-    );
-
-    const includeOptions = !!(status.options && (status.options.needsMigration || status.options.completedAt));
-    const includeTables = !!(status.tables && (status.tables.needsMigration || status.tables.completedAt));
-    const steps = wizardSteps(includeOptions, includeTables);
     const hasWork = !!(status.progress && status.progress.firstIncomplete);
-
-    const startWizard = () => {
-        const first = (status.progress && status.progress.firstIncomplete) || 'cpt';
-        showStep(first);
-        runPipeline();
-    };
-
-    const openBackup = () => go('wizard', 'backup');
 
     const onSelectStep = (slug) => {
         if (busy) {
@@ -358,7 +310,7 @@ export default function App({ config }) {
 
     if (view !== 'wizard') {
         return (
-            <Landing status={status} onStart={startWizard} onBackup={openBackup} />
+            <Landing status={status} onStart={runPipeline} />
         );
     }
 
@@ -374,9 +326,6 @@ export default function App({ config }) {
             onContinue={runPipeline}
             onStop={onStop}
             onExit={() => go('landing', '')}
-            onRestore={onRestore}
-            onDelete={onDelete}
-            steps={steps}
         />
     );
 }
@@ -387,16 +336,16 @@ export default function App({ config }) {
  */
 function statusText(code) {
     if (code === 'running') {
-        return __('Running…', 'publishpress-cart-compat');
+        return __('Migrating… Keep this page open until it finishes.', 'publishpress-cart-compat');
     }
     if (code === 'paused') {
-        return __('Paused. Use Continue to resume from the first incomplete step.', 'publishpress-cart-compat');
+        return __('Paused. Click Continue your migration to pick up where you left off.', 'publishpress-cart-compat');
     }
     if (code === 'done') {
-        return __('Completed', 'publishpress-cart-compat');
+        return __('Done.', 'publishpress-cart-compat');
     }
     if (code === 'error') {
-        return __('The migration request failed.', 'publishpress-cart-compat');
+        return __('Something went wrong. Click Continue your migration to try again.', 'publishpress-cart-compat');
     }
     return '';
 }

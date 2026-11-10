@@ -21,7 +21,7 @@ export function ConfirmProvider({ children }) {
                 message: opts.message || '',
                 confirmText: opts.confirmText || __('Continue', 'publishpress-cart-compat'),
                 cancelText: opts.cancelText || __('Cancel', 'publishpress-cart-compat'),
-                isDestructive: !!opts.isDestructive,
+                confirmClassName: opts.confirmClassName || '',
                 resolve,
             });
         });
@@ -46,7 +46,6 @@ export function ConfirmProvider({ children }) {
                     title={dialog.title}
                     onRequestClose={() => finish(false)}
                     className="ppcartcomp-migration-confirm"
-                    shouldCloseOnClickOutside={!dialog.isDestructive}
                 >
                     <p className="ppcartcomp-migration-confirm__message">{dialog.message}</p>
                     <div className="ppcartcomp-migration-confirm__actions">
@@ -55,7 +54,7 @@ export function ConfirmProvider({ children }) {
                         </Button>
                         <Button
                             variant="primary"
-                            isDestructive={dialog.isDestructive}
+                            className={dialog.confirmClassName}
                             onClick={() => finish(true)}
                         >
                             {dialog.confirmText}
@@ -68,7 +67,7 @@ export function ConfirmProvider({ children }) {
 }
 
 /**
- * @return {(options: string|{ title?: string, message: string, confirmText?: string, cancelText?: string, isDestructive?: boolean }) => Promise<boolean>}
+ * @return {(options: string|{ title?: string, message: string, confirmText?: string, cancelText?: string, confirmClassName?: string }) => Promise<boolean>}
  */
 export function useConfirm() {
     const confirm = useContext(ConfirmContext);
@@ -79,61 +78,19 @@ export function useConfirm() {
 }
 
 /**
- * Shared copy for restore confirms.
+ * The one confirm before the first run. Later runs resume without asking.
  *
- * @return {{ title: string, message: string, confirmText: string }}
- */
-export function restoreConfirmOptions() {
-    return {
-        title: __('Restore backup', 'publishpress-cart-compat'),
-        message: __('Restore only undoes completed chunks. Continue?', 'publishpress-cart-compat'),
-        confirmText: __('Restore', 'publishpress-cart-compat'),
-    };
-}
-
-/**
- * @return {{ title: string, message: string, confirmText: string, isDestructive: boolean }}
- */
-export function deleteBackupConfirmOptions() {
-    return {
-        title: __('Delete backup', 'publishpress-cart-compat'),
-        message: __(
-            'Delete the reverse-map backup? Restore will no longer be possible from Cart.',
-            'publishpress-cart-compat'
-        ),
-        confirmText: __('Delete backup', 'publishpress-cart-compat'),
-        isDestructive: true,
-    };
-}
-
-/**
- * @return {{ title: string, message: string, confirmText: string, isDestructive: boolean }}
- */
-export function renameTablesConfirmOptions() {
-    return {
-        title: __('Rename custom tables', 'publishpress-cart-compat'),
-        message: __(
-            'Rename leftover custom tables to ppcart_* names? Take a backup first and run this during a maintenance window.',
-            'publishpress-cart-compat'
-        ),
-        confirmText: __('Rename tables', 'publishpress-cart-compat'),
-        isDestructive: true,
-    };
-}
-
-/**
- * General confirm before Start / Continue runs the migration pipeline.
- *
- * @return {{ title: string, message: string, confirmText: string, isDestructive: boolean }}
+ * @return {{ title: string, message: string, confirmText: string, cancelText: string, confirmClassName: string }}
  */
 export function startMigrationConfirmOptions() {
     return {
-        title: __('Run data migration', 'publishpress-cart-compat'),
+        title: __('Start your migration', 'publishpress-cart-compat'),
         message: __(
-            'Run every incomplete migration step now? Take a site backup first and prefer a maintenance window. Leftover StudioCart data will be renamed to PublishPress Cart names.',
+            'Have you backed up your site? The migration moves your StudioCart data to PublishPress Cart. It can take a few minutes. Keep this page open until it finishes.',
             'publishpress-cart-compat'
         ),
-        confirmText: __('Run migration', 'publishpress-cart-compat'),
-        isDestructive: true,
+        confirmText: __('Yes, start my migration', 'publishpress-cart-compat'),
+        cancelText: __('Not yet', 'publishpress-cart-compat'),
+        confirmClassName: 'ppcartcomp-migration-go',
     };
 }

@@ -348,15 +348,15 @@ class PPCartComp_Data_Migration_Wizard
 
         $tables  = self::tables_payload();
         $options = self::options_payload();
+        $ran     = self::backup_exists_map();
 
         return [
-            'cpt'        => self::map_state_status(isset($cpt_state['step1']) ? $cpt_state['step1'] : 'idle', $cpt_done),
-            'roles'      => self::map_state_status(isset($cpt_state['step2']) ? $cpt_state['step2'] : 'idle', $role_done),
-            'meta'       => self::map_state_status(isset($meta_state['step1']) ? $meta_state['step1'] : 'idle', $meta_done),
-            'shortcodes' => self::map_state_status(isset($sc_state['step1']) ? $sc_state['step1'] : 'idle', $sc_done),
+            'cpt'        => self::step_status(isset($cpt_state['step1']) ? $cpt_state['step1'] : 'idle', $cpt_done, $ran['cpt']),
+            'roles'      => self::step_status(isset($cpt_state['step2']) ? $cpt_state['step2'] : 'idle', $role_done, $ran['cpt']),
+            'meta'       => self::step_status(isset($meta_state['step1']) ? $meta_state['step1'] : 'idle', $meta_done, $ran['meta']),
+            'shortcodes' => self::step_status(isset($sc_state['step1']) ? $sc_state['step1'] : 'idle', $sc_done, $ran['shortcode']),
             'options'    => self::options_status($options),
             'tables'     => self::tables_status($tables),
-            'backup'     => 'idle',
         ];
     }
 
@@ -493,14 +493,19 @@ class PPCartComp_Data_Migration_Wizard
     }
 
     /**
+     * Activation seeds a step as complete when the site has nothing to migrate.
+     * Only a real run creates the package's backup table, so a complete step
+     * without one reports `skipped` instead of `done`.
+     *
      * @param mixed $raw      Raw state value.
      * @param bool  $complete Whether the step helper reports complete.
+     * @param bool  $ran      Whether the package's backup table exists.
      * @return string
      */
-    private static function map_state_status($raw, $complete)
+    public static function step_status($raw, $complete, $ran)
     {
         if ($complete) {
-            return 'done';
+            return $ran ? 'done' : 'skipped';
         }
 
         $raw = is_string($raw) ? $raw : 'idle';
@@ -551,7 +556,7 @@ class PPCartComp_Data_Migration_Wizard
      */
     private static function requested_step($fallback)
     {
-        $allowed = [ 'cpt', 'roles', 'meta', 'shortcodes', 'options', 'tables', 'backup' ];
+        $allowed = [ 'cpt', 'roles', 'meta', 'shortcodes', 'options', 'tables' ];
         if (isset($_GET[ self::STEP_QUERY ]) && is_string($_GET[ self::STEP_QUERY ])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only step key.
             $step = sanitize_key(wp_unslash($_GET[ self::STEP_QUERY ])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only step key.
             if (in_array($step, $allowed, true)) {

@@ -122,7 +122,7 @@ class PPCartComp_Studiocart_Conflict
 
         echo '<div class="notice notice-error"><p>';
         echo esc_html__(
-            'PublishPress Cart and PublishPress Cart Compatibility cannot run while Studiocart is active. Deactivate Studiocart to start those plugins.',
+            'PublishPress Cart and PublishPress Cart Migrations cannot run while Studiocart is active. Deactivate Studiocart to start those plugins.',
             'publishpress-cart-compat'
         );
         echo '</p></div>';

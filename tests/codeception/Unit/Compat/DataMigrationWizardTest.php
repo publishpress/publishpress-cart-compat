@@ -253,4 +253,26 @@ class DataMigrationWizardTest extends Unit
             PPCartComp_Data_Migration_Wizard::wizard_url('cpt')
         );
     }
+
+    /**
+     * @test-id UT-318
+     */
+    public function test_UT_318_seeded_complete_step_reports_nothing_to_migrate_until_it_runs(): void
+    {
+        update_option(
+            'ppcart_meta_key_migration',
+            [ 'mode' => 'canonical', 'step1' => 'complete', 'ack' => 'later' ]
+        );
+
+        $payload = PPCartComp_Data_Migration_Wizard::build_bootstrap();
+
+        $this->assertSame('skipped', $payload['statuses']['meta']);
+        $this->assertTrue($payload['completion']['meta']);
+        $this->assertSame('idle', $payload['statuses']['cpt']);
+
+        $this->assertSame('done', PPCartComp_Data_Migration_Wizard::step_status('complete', true, true));
+        $this->assertSame('skipped', PPCartComp_Data_Migration_Wizard::step_status('complete', true, false));
+        $this->assertSame('paused', PPCartComp_Data_Migration_Wizard::step_status('paused', false, true));
+        $this->assertSame('idle', PPCartComp_Data_Migration_Wizard::step_status('idle', false, false));
+    }
 }
