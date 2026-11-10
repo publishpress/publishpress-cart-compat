@@ -8,9 +8,9 @@
  * @package PPCartComp
  *
  * @wordpress-plugin
- * Plugin Name:       PublishPress Cart Compatibility
+ * Plugin Name:       PublishPress Cart Migrations
  * Plugin URI:        https://publishpress.com/publishpress-cart/
- * Description:       StudioCart shims and data migration for PublishPress Cart.
+ * Description:       This plugin helps you migrate your store to PublishPress Cart.
  * Version:           1.0.0
  * Author:            PublishPress
  * Author URI:        https://publishpress.com/
@@ -122,7 +122,7 @@ if (! function_exists('ppcartcomp_missing_cart_notice')) {
 
         echo '<div class="notice notice-error"><p>';
         echo esc_html__(
-            'PublishPress Cart Compatibility requires PublishPress Cart. Activate Cart Free or Cart Pro, then activate this plugin.',
+            'PublishPress Cart Migrations requires PublishPress Cart. Activate Cart Free or Cart Pro, then activate this plugin.',
             'publishpress-cart-compat'
         );
         echo '</p></div>';

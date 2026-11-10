@@ -195,13 +195,13 @@ class PPCartComp_Cpt_Slug_Migration_Admin
         ?>
         <div class="notice notice-warning ppcart-cpt-migration-notice">
             <p>
-                <strong><?php esc_html_e('PublishPress Cart needs a data migration', 'publishpress-cart'); ?></strong>
+                <strong><?php esc_html_e('Migrate from StudioCart to PublishPress Cart', 'publishpress-cart-compat'); ?></strong>
             </p>
             <p>
-                <?php esc_html_e('This site still stores products, orders, or subscriptions with StudioCart post type names. That is separate from StudioCart Compatibility Mode, which only keeps old PHP APIs. Migrating writes a restore map, then renames rows. It will not run until you start it.', 'publishpress-cart'); ?>
+                <?php esc_html_e('This process will help you migrate StudioCart to PublishPress Cart.', 'publishpress-cart-compat'); ?>
             </p>
             <p>
-                <a class="button button-primary" href="<?php echo esc_url($url); ?>"><?php esc_html_e('Open data migration', 'publishpress-cart'); ?></a>
+                <a class="button button-primary" href="<?php echo esc_url($url); ?>"><?php esc_html_e('Start your migration', 'publishpress-cart-compat'); ?></a>
                 <button type="button" class="button ppcart-cpt-migration-later" data-nonce="<?php echo esc_attr($nonce); ?>"><?php esc_html_e('I’ll do it later', 'publishpress-cart'); ?></button>
             </p>
         </div>

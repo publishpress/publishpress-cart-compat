@@ -349,18 +349,12 @@ class StudiocartCompatibilityModeTest extends Unit
     /**
      * @test-id UT-246
      */
-    public function test_UT_246_drop_migration_backups_option_defaults_off_and_registers(): void
+    public function test_UT_246_saving_the_studiocart_page_leaves_drop_backups_option_alone(): void
     {
         $this->assertSame(
             'ppcartcomp_drop_migration_backups_on_uninstall',
             PPCartComp_Studiocart_Admin::DROP_BACKUPS_OPTION
         );
-        $this->assertSame('0', PPCartComp_Studiocart_Admin::sanitize_drop_backups(null));
-        $this->assertSame('0', PPCartComp_Studiocart_Admin::sanitize_drop_backups('0'));
-        $this->assertSame('0', PPCartComp_Studiocart_Admin::sanitize_drop_backups(false));
-        $this->assertSame('0', PPCartComp_Studiocart_Admin::sanitize_drop_backups(''));
-        $this->assertSame('1', PPCartComp_Studiocart_Admin::sanitize_drop_backups('1'));
-        $this->assertSame('1', PPCartComp_Studiocart_Admin::sanitize_drop_backups(1));
 
         WordPressStubContext::setState('registered_settings', array());
         WordPressStubContext::set(
@@ -370,7 +364,6 @@ class StudiocartCompatibilityModeTest extends Unit
                 $registered[] = array(
                     'group' => $group,
                     'name'  => $name,
-                    'args'  => $args,
                 );
                 WordPressStubContext::setState('registered_settings', $registered);
             }
@@ -378,22 +371,9 @@ class StudiocartCompatibilityModeTest extends Unit
 
         PPCartComp_Studiocart_Admin::register_setting();
 
-        $registered = WordPressStubContext::getState('registered_settings', array());
-        $drop       = null;
-        foreach ($registered as $row) {
-            if (PPCartComp_Studiocart_Admin::DROP_BACKUPS_OPTION === $row['name']) {
-                $drop = $row;
-                break;
-            }
-        }
+        $names = array_column(WordPressStubContext::getState('registered_settings', array()), 'name');
 
-        $this->assertNotNull($drop);
-        $this->assertSame(PPCartComp_Studiocart_Admin::OPTION_GROUP, $drop['group']);
-        $this->assertSame('ppcartcomp_studiocart', $drop['group']);
-        $this->assertSame('0', $drop['args']['default']);
-        $this->assertSame(
-            array(PPCartComp_Studiocart_Admin::class, 'sanitize_drop_backups'),
-            $drop['args']['sanitize_callback']
-        );
+        $this->assertContains(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, $names);
+        $this->assertNotContains(PPCartComp_Studiocart_Admin::DROP_BACKUPS_OPTION, $names);
     }
 }

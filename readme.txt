@@ -1,4 +1,4 @@
-=== PublishPress Cart Compatibility ===
+=== PublishPress Cart Migrations ===
 
 Contributors: andergmartins, rizaardiyanto, ojopaul, stevejburge, publishpress
 Tags: ecommerce, studiocart, migration, compatibility, publishpress cart
@@ -10,11 +10,11 @@ Requires Plugins: publishpress-cart
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-StudioCart shims and data migration for PublishPress Cart.
+This plugin helps you migrate your store to PublishPress Cart.
 
 == Description ==
 
-PublishPress Cart Compatibility is a companion plugin for [PublishPress Cart](https://publishpress.com/publishpress-cart/). It keeps StudioCart PHP names, hooks, and related surfaces available for existing extensions, and provides merchant-run data migration tools.
+PublishPress Cart Migrations is a companion plugin for [PublishPress Cart](https://publishpress.com/publishpress-cart/). It keeps StudioCart PHP names, hooks, and related surfaces available for existing extensions, and provides merchant-run data migration tools.
 
 This plugin does not replace PublishPress Cart and is not a live StudioCart integration. Install it only on sites that need leftover StudioCart compatibility or data migration.
 

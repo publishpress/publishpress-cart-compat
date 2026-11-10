@@ -94,16 +94,6 @@ class PPCartComp_Studiocart_Admin
                 'default'           => '0',
             ]
         );
-
-        register_setting(
-            self::OPTION_GROUP,
-            self::DROP_BACKUPS_OPTION,
-            [
-                'type'              => 'string',
-                'sanitize_callback' => [ self::class, 'sanitize_drop_backups' ],
-                'default'           => '0',
-            ]
-        );
     }
 
     /**
@@ -121,15 +111,6 @@ class PPCartComp_Studiocart_Admin
             return '1' === (string) $current ? '1' : '0';
         }
 
-        return '1' === (string) $value ? '1' : '0';
-    }
-
-    /**
-     * @param mixed $value Submitted value.
-     * @return string
-     */
-    public static function sanitize_drop_backups($value)
-    {
         return '1' === (string) $value ? '1' : '0';
     }
 
