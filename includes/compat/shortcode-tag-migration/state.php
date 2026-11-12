@@ -98,24 +98,20 @@ function ppcart_shortcode_tag_migration_maybe_seed_state()
         $has_saved = false !== get_option(ppcart_shortcode_tag_migration_option_name(), false);
     }
 
-    $state = ppcart_shortcode_tag_migration_get_state();
-
-    if ($has_saved && 'canonical' === $state['mode']) {
+    // The leftover scan reads every post's content, so it must run once, not on every request.
+    if ($has_saved) {
         return;
     }
 
-    if ($has_saved && in_array($state['step1'], [ 'complete', 'running', 'paused' ], true)) {
-        return;
-    }
+    // Save first so concurrent requests skip the scan while it runs.
+    ppcart_shortcode_tag_migration_save_state(
+        [
+            'mode'  => 'legacy',
+            'step1' => 'idle',
+        ]
+    );
 
     if (ppcart_shortcode_tag_migration_has_leftover_rows()) {
-        ppcart_shortcode_tag_migration_save_state(
-            [
-                'mode'  => 'legacy',
-                'step1' => 'idle',
-            ]
-        );
-
         return;
     }
 
