@@ -130,11 +130,14 @@ class PPCartComp_CLI_Seed_Migration
         if (function_exists('ppcart_shortcode_tag_migration_save_state')) {
             ppcart_shortcode_tag_migration_save_state(
                 [
-                    'ack'            => '',
-                    'mode'           => 'legacy',
-                    'step1'          => 'idle',
-                    'stop_requested' => false,
-                    'cursor'         => null,
+                    'ack'                    => '',
+                    'mode'                   => 'legacy',
+                    'step1'                  => 'idle',
+                    'stop_requested'         => false,
+                    'cursor'                 => null,
+                    'elementor_cursor'       => 0,
+                    'posts_done'             => false,
+                    'notification_meta_done' => false,
                 ]
             );
         }
