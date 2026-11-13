@@ -10,6 +10,6 @@
     "start:admin": "wp-scripts start assets/admin/migration-wizard/src/index.js --output-path=assets/admin/migration-wizard/build"
   },
   "devDependencies": {
-    "@wordpress/scripts": "^32.1.0"
+    "@wordpress/scripts": "^37.1.0"
   }
 }
