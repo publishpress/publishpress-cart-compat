@@ -4,7 +4,7 @@ Contributors: andergmartins, rizaardiyanto, ojopaul, stevejburge, publishpress
 Tags: ecommerce, studiocart, migration, compatibility, publishpress cart
 Requires at least: 6.7
 Tested up to: 7.0
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 Requires PHP: 7.4
 Requires Plugins: publishpress-cart
 License: GPL-2.0-or-later
@@ -27,6 +27,10 @@ This plugin does not replace PublishPress Cart and is not a live StudioCart inte
 3. Activate the plugin through the Plugins screen.
 
 == Changelog ==
+
+= 1.1.1 =
+* Fixed: the leftover shortcode check no longer scans all post content on every page load. It now runs once. Large sites could slow down or overload the database.
+* Improved: the shortcode migration skips finished post and notification scans on later batches, so large sites finish much faster.
 
 = 1.1.0 =
 * Renamed the plugin to PublishPress Cart Migrations.
