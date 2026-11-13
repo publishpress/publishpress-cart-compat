@@ -132,9 +132,15 @@ class PPCartComp_Shortcode_Tag_Migrator
      */
     private static function migrate_chunk()
     {
-        $moved = self::migrate_post_chunk();
-        if ($moved > 0) {
-            return $moved;
+        $state = ppcart_shortcode_tag_migration_get_state();
+
+        // The posts and notification-meta lookups scan whole tables, so skip them once they are done.
+        if (empty($state['posts_done'])) {
+            $moved = self::migrate_post_chunk();
+            if ($moved > 0) {
+                return $moved;
+            }
+            ppcart_shortcode_tag_migration_save_state([ 'posts_done' => true ]);
         }
 
         $moved = self::migrate_email_options();
@@ -142,9 +148,12 @@ class PPCartComp_Shortcode_Tag_Migrator
             return $moved;
         }
 
-        $moved = self::migrate_notification_meta_chunk();
-        if ($moved > 0) {
-            return $moved;
+        if (empty($state['notification_meta_done'])) {
+            $moved = self::migrate_notification_meta_chunk();
+            if ($moved > 0) {
+                return $moved;
+            }
+            ppcart_shortcode_tag_migration_save_state([ 'notification_meta_done' => true ]);
         }
 
         return PPCartComp_Shortcode_Tag_Elementor::migrate_chunk();
@@ -433,11 +442,13 @@ class PPCartComp_Shortcode_Tag_Migrator
 
         ppcart_shortcode_tag_migration_save_state(
             [
-                'step1'            => 'idle',
-                'mode'             => 'legacy',
-                'stop_requested'   => false,
-                'cursor'           => null,
-                'elementor_cursor' => 0,
+                'step1'                  => 'idle',
+                'mode'                   => 'legacy',
+                'stop_requested'         => false,
+                'cursor'                 => null,
+                'elementor_cursor'       => 0,
+                'posts_done'             => false,
+                'notification_meta_done' => false,
             ]
         );
 

@@ -18,12 +18,14 @@ function ppcart_shortcode_tag_migration_option_name()
 function ppcart_shortcode_tag_migration_default_state()
 {
     return [
-        'ack'              => '',
-        'mode'             => 'legacy',
-        'step1'            => 'idle',
-        'stop_requested'   => false,
-        'cursor'           => null,
-        'elementor_cursor' => 0,
+        'ack'                    => '',
+        'mode'                   => 'legacy',
+        'step1'                  => 'idle',
+        'stop_requested'         => false,
+        'cursor'                 => null,
+        'elementor_cursor'       => 0,
+        'posts_done'             => false,
+        'notification_meta_done' => false,
     ];
 }
 
