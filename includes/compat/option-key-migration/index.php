@@ -133,6 +133,10 @@ function ppcart_copy_leftover_option_row($legacy, $canonical)
         wp_cache_delete('notoptions', 'options');
     }
 
+    if (function_exists('ppcartcomp_flush_option_storage_bridge_memo')) {
+        ppcartcomp_flush_option_storage_bridge_memo();
+    }
+
     return true;
 }
 

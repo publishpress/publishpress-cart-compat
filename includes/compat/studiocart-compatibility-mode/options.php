@@ -315,6 +315,10 @@ if (! function_exists('ppcart_write_option_to_db')) {
         wp_cache_delete('alloptions', 'options');
         wp_cache_delete('notoptions', 'options');
 
+        if (function_exists('ppcartcomp_flush_option_storage_bridge_memo')) {
+            ppcartcomp_flush_option_storage_bridge_memo();
+        }
+
         return true;
     }
 }
@@ -333,7 +337,13 @@ if (! function_exists('ppcart_delete_option_from_db')) {
         }
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bridge deletes the legacy storage row without filter recursion.
-        return (bool) $wpdb->delete($wpdb->options, [ 'option_name' => $option ], [ '%s' ]);
+        $deleted = (bool) $wpdb->delete($wpdb->options, [ 'option_name' => $option ], [ '%s' ]);
+
+        if (function_exists('ppcartcomp_flush_option_storage_bridge_memo')) {
+            ppcartcomp_flush_option_storage_bridge_memo();
+        }
+
+        return $deleted;
     }
 }
 
@@ -354,6 +364,10 @@ if (! function_exists('ppcart_register_option_storage_bridges')) {
         }
 
         add_filter('pre_option', 'ppcart_option_storage_bridge_pre_option', 5, 3);
+
+        foreach ([ 'added_option', 'updated_option', 'deleted_option', 'switch_blog' ] as $hook) {
+            add_action($hook, 'ppcartcomp_flush_option_storage_bridge_memo', 1, 0);
+        }
 
         $registered = true;
     }
@@ -408,7 +422,17 @@ if (! function_exists('ppcart_option_storage_bridge_pre_option')) {
             return $pre_option;
         }
 
+        // Compatibility Mode reads some bridged options thousands of times per
+        // request, so remember each lookup until an option row changes.
+        $memo = &ppcartcomp_option_storage_bridge_memo();
+
+        if (array_key_exists($option, $memo)) {
+            return $memo[ $option ];
+        }
+
         if (function_exists('ppcart_get_option_storage_row') && null !== ppcart_get_option_storage_row($option)) {
+            $memo[ $option ] = $pre_option;
+
             return $pre_option;
         }
 
@@ -416,7 +440,36 @@ if (! function_exists('ppcart_option_storage_bridge_pre_option')) {
         $value = ppcart_read_option_from_db($legacy);
         ncs_cart_option_bridge_leave();
 
+        $memo[ $option ] = $value;
+
         return $value;
+    }
+}
+
+if (! function_exists('ppcartcomp_option_storage_bridge_memo')) {
+    /**
+     * Per-request results of ppcart_option_storage_bridge_pre_option().
+     *
+     * @return array<string, mixed>
+     */
+    function &ppcartcomp_option_storage_bridge_memo()
+    {
+        static $memo = [];
+
+        return $memo;
+    }
+}
+
+if (! function_exists('ppcartcomp_flush_option_storage_bridge_memo')) {
+    /**
+     * Forget remembered bridge lookups after any option row changes.
+     *
+     * @return void
+     */
+    function ppcartcomp_flush_option_storage_bridge_memo()
+    {
+        $memo = &ppcartcomp_option_storage_bridge_memo();
+        $memo = [];
     }
 }
 
