@@ -22,4 +22,5 @@ function ppcart_shortcode_tag_migration_init()
 }
 
 add_action('init', 'ppcart_shortcode_tag_migration_maybe_seed_state', -1);
+add_action('admin_init', 'ppcart_shortcode_tag_migration_maybe_reopen_for_elementor_widgets');
 add_action('plugins_loaded', 'ppcart_shortcode_tag_migration_init', 5);
