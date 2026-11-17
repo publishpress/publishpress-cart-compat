@@ -4,7 +4,7 @@ Contributors: andergmartins, rizaardiyanto, ojopaul, stevejburge, publishpress
 Tags: ecommerce, studiocart, migration, compatibility, publishpress cart
 Requires at least: 6.7
 Tested up to: 7.0
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 Requires PHP: 7.4
 Requires Plugins: publishpress-cart
 License: GPL-2.0-or-later
@@ -27,6 +27,12 @@ This plugin does not replace PublishPress Cart and is not a live StudioCart inte
 3. Activate the plugin through the Plugins screen.
 
 == Changelog ==
+
+= 1.1.2 =
+* Fixed: the Elementor editor no longer stays on its loading screen when Compatibility Mode is on. The plugin repeated the same database query thousands of times on each page load.
+* Fixed: the "Shortcodes in your content" step now updates StudioCart Elementor widgets, so Elementor order forms keep working after you remove this plugin.
+* Added: if your site already finished that step and still has StudioCart Elementor widgets, the step reopens and a notice asks you to run it again.
+* Fixed: the "Shortcodes in your content" step now counts Elementor layouts in its items to migrate.
 
 = 1.1.1 =
 * Fixed: the leftover shortcode check no longer scans all post content on every page load. It now runs once. Large sites could slow down or overload the database.
