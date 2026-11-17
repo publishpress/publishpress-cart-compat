@@ -27,6 +27,7 @@ function ppcart_shortcode_tag_migration_default_state()
         'posts_done'             => false,
         'notification_meta_done' => false,
         'elementor_widgets_checked' => false,
+        'elementor_widgets_reopened' => false,
     ];
 }
 
@@ -163,11 +164,31 @@ function ppcart_shortcode_tag_migration_maybe_reopen_for_elementor_widgets()
 
     ppcart_shortcode_tag_migration_save_state(
         [
-            'step1'                  => 'idle',
-            'mode'                   => 'legacy',
-            'elementor_cursor'       => 0,
-            'posts_done'             => true,
-            'notification_meta_done' => true,
+            'step1'                      => 'idle',
+            'mode'                       => 'legacy',
+            'elementor_cursor'           => 0,
+            'posts_done'                 => true,
+            'notification_meta_done'     => true,
+            'elementor_widgets_reopened' => true,
         ]
     );
+}
+
+/**
+ * Whether the step was reopened for Elementor widgets and the merchant has
+ * not run it again yet.
+ *
+ * @param array<string, mixed> $state Shortcode step state.
+ * @return bool
+ */
+function ppcartcomp_shortcode_step_awaits_elementor_widgets(array $state)
+{
+    if (empty($state['elementor_widgets_reopened'])) {
+        return false;
+    }
+
+    $mode  = isset($state['mode']) ? $state['mode'] : '';
+    $step1 = isset($state['step1']) ? $state['step1'] : '';
+
+    return 'canonical' !== $mode && 'complete' !== $step1;
 }
