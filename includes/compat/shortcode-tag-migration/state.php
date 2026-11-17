@@ -26,6 +26,7 @@ function ppcart_shortcode_tag_migration_default_state()
         'elementor_cursor'       => 0,
         'posts_done'             => false,
         'notification_meta_done' => false,
+        'elementor_widgets_checked' => false,
     ];
 }
 
@@ -122,6 +123,51 @@ function ppcart_shortcode_tag_migration_maybe_seed_state()
             'mode'  => 'canonical',
             'step1' => 'complete',
             'ack'   => 'later',
+        ]
+    );
+}
+
+/**
+ * Reopen a finished shortcode step once when Elementor pages still hold
+ * leftover StudioCart widgets.
+ *
+ * Earlier releases rewrote shortcodes inside Elementor data but not the
+ * StudioCart widgets themselves, so those pages only render with
+ * Compatibility Mode on. This only resets the step state; the merchant
+ * still runs the step from the Data migration screen. Posts, options and
+ * notification meta were already handled, so only Elementor rows rescan.
+ *
+ * @return void
+ */
+function ppcart_shortcode_tag_migration_maybe_reopen_for_elementor_widgets()
+{
+    if (! function_exists('get_option') || false === get_option(ppcart_shortcode_tag_migration_option_name(), false)) {
+        return;
+    }
+
+    $state = ppcart_shortcode_tag_migration_get_state();
+    if (! empty($state['elementor_widgets_checked'])) {
+        return;
+    }
+
+    // Save first so concurrent requests skip the check while it runs.
+    ppcart_shortcode_tag_migration_save_state([ 'elementor_widgets_checked' => true ]);
+
+    if ('complete' !== $state['step1'] || ! class_exists('PPCartComp_Shortcode_Tag_Elementor', false)) {
+        return;
+    }
+
+    if (! PPCartComp_Shortcode_Tag_Elementor::site_has_leftover_widgets()) {
+        return;
+    }
+
+    ppcart_shortcode_tag_migration_save_state(
+        [
+            'step1'                  => 'idle',
+            'mode'                   => 'legacy',
+            'elementor_cursor'       => 0,
+            'posts_done'             => true,
+            'notification_meta_done' => true,
         ]
     );
 }

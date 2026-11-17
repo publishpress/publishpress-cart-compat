@@ -35,7 +35,7 @@ class PPCartComp_Shortcode_Tag_Elementor
         foreach ($rows as $row) {
             $meta_id = (int) $row['meta_id'];
             $value   = (string) $row['meta_value'];
-            $next    = ppcart_rewrite_leftover_shortcode_tags($value);
+            $next    = self::rewrite_leftover_widgets(ppcart_rewrite_leftover_shortcode_tags($value));
             $cursor  = $meta_id;
             if ($next === $value) {
                 continue;
@@ -48,6 +48,126 @@ class PPCartComp_Shortcode_Tag_Elementor
         ppcart_shortcode_tag_migration_save_state([ 'elementor_cursor' => $cursor ]);
 
         return count($rows);
+    }
+
+    /**
+     * Rewrite leftover StudioCart widgets (sc-orderform, bump-*, ...) to the
+     * PublishPress Cart widgets, so pages no longer need Compatibility Mode.
+     *
+     * @param string $value Raw `_elementor_data` JSON.
+     * @return string Raw JSON, unchanged when it has no leftover widgets.
+     */
+    public static function rewrite_leftover_widgets($value)
+    {
+        if (! self::has_leftover_widget($value)) {
+            return $value;
+        }
+
+        self::load_widget_helpers();
+        if (! function_exists('ppcartcomp_rewrite_elementor_elements')) {
+            return $value;
+        }
+
+        $elements = json_decode($value, true);
+        if (! is_array($elements)) {
+            return $value;
+        }
+
+        $rewritten = ppcartcomp_rewrite_elementor_elements($elements);
+        if ($rewritten === $elements) {
+            return $value;
+        }
+
+        // Elementor saves this meta with wp_json_encode(); keep the same encoding.
+        $json = function_exists('wp_json_encode') ? wp_json_encode($rewritten) : json_encode($rewritten);
+
+        return is_string($json) ? $json : $value;
+    }
+
+    /**
+     * Whether raw `_elementor_data` JSON holds a leftover StudioCart widget.
+     *
+     * @param string $value Raw JSON.
+     * @return bool
+     */
+    public static function has_leftover_widget($value)
+    {
+        foreach (self::leftover_widget_markers() as $marker) {
+            if (false !== strpos((string) $value, $marker)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * `"widgetType":"<leftover>"` needles for each leftover widget name.
+     *
+     * @return string[]
+     */
+    public static function leftover_widget_markers()
+    {
+        self::load_widget_helpers();
+        if (! function_exists('ncs_cart_get_legacy_elementor_widget_map')) {
+            return [];
+        }
+
+        $markers = [];
+        foreach (ncs_cart_get_legacy_elementor_widget_map() as $legacy) {
+            $markers[] = '"widgetType":"' . $legacy . '"';
+        }
+
+        return $markers;
+    }
+
+    /**
+     * Whether any `_elementor_data` row still holds a leftover widget.
+     *
+     * @return bool
+     */
+    public static function site_has_leftover_widgets()
+    {
+        global $wpdb;
+
+        if (empty($wpdb->postmeta)) {
+            return false;
+        }
+
+        $markers = self::leftover_widget_markers();
+        if ([] === $markers) {
+            return false;
+        }
+
+        $likes = [];
+        $args  = [ self::META_KEY ];
+        foreach ($markers as $marker) {
+            $likes[] = 'meta_value LIKE %s';
+            $args[]  = '%' . $wpdb->esc_like($marker) . '%';
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- One-time check; placeholders are built above.
+        $found = $wpdb->get_var($wpdb->prepare("SELECT meta_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND (" . implode(' OR ', $likes) . ') LIMIT 1', $args));
+
+        return null !== $found;
+    }
+
+    /**
+     * The widget maps and rewrite helpers live with Compatibility Mode, which
+     * may be off while the Data migration runs.
+     *
+     * @return void
+     */
+    private static function load_widget_helpers()
+    {
+        if (function_exists('ppcartcomp_rewrite_elementor_elements')) {
+            return;
+        }
+
+        $file = dirname(__DIR__) . '/studiocart-compatibility-mode/elementor-widgets.php';
+        if (is_readable($file)) {
+            require_once $file;
+        }
     }
 
     /**
@@ -107,8 +227,10 @@ class PPCartComp_Shortcode_Tag_Elementor
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Raw JSON write keeps Elementor's slashes.
         $wpdb->update($wpdb->postmeta, [ 'meta_value' => $value ], [ 'meta_id' => $meta_id ], [ '%s' ], [ '%d' ]);
-        // Elementor caches rendered widget output, including shortcodes.
+        // Elementor caches rendered widget output, including shortcodes, and
+        // per-widget CSS, so both are rebuilt for the new widget names.
         delete_post_meta($post_id, '_elementor_element_cache');
+        delete_post_meta($post_id, '_elementor_css');
         wp_cache_delete($post_id, 'post_meta');
     }
 
