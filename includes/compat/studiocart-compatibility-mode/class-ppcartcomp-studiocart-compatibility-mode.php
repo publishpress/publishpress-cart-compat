@@ -153,6 +153,10 @@ class PPCartComp_Studiocart_Compatibility_Mode
         add_action('wp_enqueue_scripts', [ self::class, 'enqueue_legacy_public_styles' ], 20);
         add_action('ppcart_enqueue_frontend_assets', [ self::class, 'enqueue_legacy_public_styles' ], 11);
 
+        if (function_exists('ppcartcomp_register_legacy_upsell_links')) {
+            ppcartcomp_register_legacy_upsell_links();
+        }
+
         self::maybe_register_option_storage_bridges();
         self::maybe_register_pro_meta_storage_bridges();
         self::maybe_register_metadata_bridges();

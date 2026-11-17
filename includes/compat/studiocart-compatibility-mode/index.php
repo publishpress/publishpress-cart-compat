@@ -30,6 +30,7 @@ require_once __DIR__ . '/shortcodes.php';
 require_once __DIR__ . '/gutenberg-blocks.php';
 require_once __DIR__ . '/rest-namespaces.php';
 require_once __DIR__ . '/elementor-widgets.php';
+require_once __DIR__ . '/upsell-links.php';
 require_once __DIR__ . '/divi-modules.php';
 require_once __DIR__ . '/class-ppcartcomp-studiocart-compatibility-mode.php';
 require_once __DIR__ . '/shortcode-detectors.php';

@@ -35,7 +35,7 @@ class PPCartComp_Shortcode_Tag_Elementor
         foreach ($rows as $row) {
             $meta_id = (int) $row['meta_id'];
             $value   = (string) $row['meta_value'];
-            $next    = self::rewrite_leftover_widgets(ppcart_rewrite_leftover_shortcode_tags($value));
+            $next    = self::rewrite_leftover_widgets(ppcart_rewrite_leftover_page_content($value));
             $cursor  = $meta_id;
             if ($next === $value) {
                 continue;
