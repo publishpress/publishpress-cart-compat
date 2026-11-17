@@ -180,8 +180,8 @@ class PPCartComp_Shortcode_Tag_Migrator
 
             $content = (string) $post->post_content;
             $excerpt = (string) $post->post_excerpt;
-            $next_content = ppcart_rewrite_leftover_shortcode_tags($content);
-            $next_excerpt = ppcart_rewrite_leftover_shortcode_tags($excerpt);
+            $next_content = ppcart_rewrite_leftover_page_content($content);
+            $next_excerpt = ppcart_rewrite_leftover_page_content($excerpt);
 
             if ($next_content === $content && $next_excerpt === $excerpt) {
                 continue;
@@ -281,8 +281,9 @@ class PPCartComp_Shortcode_Tag_Migrator
     {
         global $wpdb;
 
-        $sql = self::leftover_like_sql("{$wpdb->posts}.post_content")
-            . ' OR ' . self::leftover_like_sql("{$wpdb->posts}.post_excerpt");
+        $patterns = ppcart_page_content_migration_like_patterns();
+        $sql      = self::leftover_like_sql("{$wpdb->posts}.post_content", $patterns)
+            . ' OR ' . self::leftover_like_sql("{$wpdb->posts}.post_excerpt", $patterns);
         if ('' === $sql) {
             return [];
         }
@@ -334,8 +335,9 @@ class PPCartComp_Shortcode_Tag_Migrator
     {
         global $wpdb;
 
-        $sql = self::leftover_like_sql("{$wpdb->posts}.post_content")
-            . ' OR ' . self::leftover_like_sql("{$wpdb->posts}.post_excerpt");
+        $patterns = ppcart_page_content_migration_like_patterns();
+        $sql      = self::leftover_like_sql("{$wpdb->posts}.post_content", $patterns)
+            . ' OR ' . self::leftover_like_sql("{$wpdb->posts}.post_excerpt", $patterns);
         if ('' === $sql || ! isset($wpdb->posts)) {
             return 0;
         }

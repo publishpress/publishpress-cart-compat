@@ -25,6 +25,7 @@ class PPCartComp_Shortcode_Tag_Migration_Admin
         add_action('wp_ajax_' . self::AJAX_RESTORE, [ self::class, 'ajax_restore' ]);
         add_action('wp_ajax_' . self::AJAX_DELETE, [ self::class, 'ajax_delete' ]);
         add_action('admin_notices', [ self::class, 'render_elementor_widgets_notice' ]);
+        add_action('admin_notices', [ self::class, 'render_upsell_links_notice' ]);
     }
 
     /**
@@ -60,6 +61,46 @@ class PPCartComp_Shortcode_Tag_Migration_Admin
             </p>
             <p>
                 <a class="button button-primary" href="<?php echo esc_url($url); ?>"><?php esc_html_e('Update Elementor pages', 'publishpress-cart-compat'); ?></a>
+            </p>
+        </div>
+        <?php
+    }
+
+    /**
+     * Tells the merchant that the step was reopened for leftover upsell links.
+     * Skipped while the Elementor widgets notice shows, which points to the
+     * same step.
+     *
+     * @return void
+     */
+    public static function render_upsell_links_notice()
+    {
+        if (! current_user_can('manage_options')) {
+            return;
+        }
+
+        if (class_exists('PPCartComp_Studiocart_Admin', false) && PPCartComp_Studiocart_Admin::is_screen()) {
+            return;
+        }
+
+        $state = ppcart_shortcode_tag_migration_get_state();
+        if (! ppcartcomp_shortcode_step_awaits_upsell_links($state) || ppcartcomp_shortcode_step_awaits_elementor_widgets($state)) {
+            return;
+        }
+
+        $url = class_exists('PPCartComp_Data_Migration_Wizard', false)
+            ? PPCartComp_Data_Migration_Wizard::wizard_url('shortcodes')
+            : admin_url('admin.php?page=ppcart-studiocart');
+        ?>
+        <div class="notice notice-warning ppcartcomp-upsell-links-notice">
+            <p>
+                <strong><?php esc_html_e('Your pages still use StudioCart upsell links', 'publishpress-cart-compat'); ?></strong>
+            </p>
+            <p>
+                <?php esc_html_e('An earlier version of the migration did not update StudioCart upsell accept and decline links. Run the “Shortcodes in your content” step again. Until you do, those links need this plugin and Compatibility Mode to work.', 'publishpress-cart-compat'); ?>
+            </p>
+            <p>
+                <a class="button button-primary" href="<?php echo esc_url($url); ?>"><?php esc_html_e('Update upsell links', 'publishpress-cart-compat'); ?></a>
             </p>
         </div>
         <?php

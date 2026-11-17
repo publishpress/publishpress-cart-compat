@@ -45,6 +45,78 @@ function ppcart_rewrite_leftover_shortcode_tags($text)
 }
 
 /**
+ * Leftover StudioCart upsell link tokens => PublishPress Cart tokens.
+ *
+ * Accept/decline links (`?sc-upsell-offer=yes|no`) and the CSS classes
+ * merchants put on custom buttons. Cart Pro only handles the new names.
+ *
+ * @return array<string, string>
+ */
+function ppcart_upsell_link_migration_pairs()
+{
+    return [
+        'sc-upsell-offer='       => 'ppcart-upsell-offer=',
+        'sc-accept-upsell-link'  => 'ppcart-accept-upsell-link',
+        'sc-decline-upsell-link' => 'ppcart-decline-upsell-link',
+    ];
+}
+
+/**
+ * Whether content holds a leftover StudioCart upsell link or class.
+ *
+ * @param string $text Content.
+ * @return bool
+ */
+function ppcart_content_has_leftover_upsell_links($text)
+{
+    if (! is_string($text) || '' === $text) {
+        return false;
+    }
+
+    return $text !== ppcart_rewrite_leftover_upsell_links($text);
+}
+
+/**
+ * Rewrite leftover StudioCart upsell links and classes to the Cart names.
+ *
+ * Only whole tokens are rewritten: a token must not follow a letter, digit,
+ * `_` or `-`, so `ppcart-upsell-offer=` itself is never touched.
+ *
+ * @param string $text Content.
+ * @return string
+ */
+function ppcart_rewrite_leftover_upsell_links($text)
+{
+    if (! is_string($text) || '' === $text) {
+        return $text;
+    }
+
+    foreach (ppcart_upsell_link_migration_pairs() as $legacy => $canonical) {
+        if (false === strpos($text, $legacy)) {
+            continue;
+        }
+
+        $next = preg_replace('/(?<![A-Za-z0-9_-])' . preg_quote($legacy, '/') . '/', $canonical, $text);
+        if (is_string($next)) {
+            $text = $next;
+        }
+    }
+
+    return $text;
+}
+
+/**
+ * Rewrite leftover shortcode tags and upsell links in page content.
+ *
+ * @param string $text Content.
+ * @return string
+ */
+function ppcart_rewrite_leftover_page_content($text)
+{
+    return ppcart_rewrite_leftover_upsell_links(ppcart_rewrite_leftover_shortcode_tags($text));
+}
+
+/**
  * Rewrite leftover shortcode and merge tags in email content.
  *
  * @param mixed $value Content or nested notification payload.
@@ -178,6 +250,24 @@ function ppcart_shortcode_tag_migration_like_patterns()
     $patterns = [];
     foreach (array_keys(ppcart_shortcode_tag_migration_pairs()) as $legacy) {
         $escaped    = method_exists($wpdb, 'esc_like') ? $wpdb->esc_like('[' . $legacy) : '[' . $legacy;
+        $patterns[] = '%' . $escaped . '%';
+    }
+
+    return $patterns;
+}
+
+/**
+ * SQL LIKE fragments for page content: leftover shortcodes and upsell links.
+ *
+ * @return array<int, string>
+ */
+function ppcart_page_content_migration_like_patterns()
+{
+    global $wpdb;
+
+    $patterns = ppcart_shortcode_tag_migration_like_patterns();
+    foreach (array_keys(ppcart_upsell_link_migration_pairs()) as $legacy) {
+        $escaped    = method_exists($wpdb, 'esc_like') ? $wpdb->esc_like($legacy) : $legacy;
         $patterns[] = '%' . $escaped . '%';
     }
 

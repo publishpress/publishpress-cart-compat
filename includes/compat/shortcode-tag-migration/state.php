@@ -28,6 +28,8 @@ function ppcart_shortcode_tag_migration_default_state()
         'notification_meta_done' => false,
         'elementor_widgets_checked' => false,
         'elementor_widgets_reopened' => false,
+        'upsell_links_checked'       => false,
+        'upsell_links_reopened'      => false,
     ];
 }
 
@@ -192,3 +194,115 @@ function ppcartcomp_shortcode_step_awaits_elementor_widgets(array $state)
 
     return 'canonical' !== $mode && 'complete' !== $step1;
 }
+
+/**
+ * Whether the step was reopened for upsell links and the merchant has not
+ * run it again yet.
+ *
+ * @param array<string, mixed> $state Shortcode step state.
+ * @return bool
+ */
+function ppcartcomp_shortcode_step_awaits_upsell_links(array $state)
+{
+    if (empty($state['upsell_links_reopened'])) {
+        return false;
+    }
+
+    $mode  = isset($state['mode']) ? $state['mode'] : '';
+    $step1 = isset($state['step1']) ? $state['step1'] : '';
+
+    return 'canonical' !== $mode && 'complete' !== $step1;
+}
+
+/**
+ * Reopen a finished shortcode step once when pages still hold leftover
+ * StudioCart upsell links (`?sc-upsell-offer=`) or upsell link classes.
+ *
+ * Earlier releases did not rewrite them, and Cart Pro only handles the new
+ * names. This only resets the step state; the merchant still runs the step
+ * from the Data migration screen. Only the places that hold a leftover link
+ * are rescanned.
+ *
+ * @return void
+ */
+function ppcart_shortcode_tag_migration_maybe_reopen_for_upsell_links()
+{
+    if (! function_exists('get_option') || false === get_option(ppcart_shortcode_tag_migration_option_name(), false)) {
+        return;
+    }
+
+    $state = ppcart_shortcode_tag_migration_get_state();
+    if (! empty($state['upsell_links_checked'])) {
+        return;
+    }
+
+    // Save first so concurrent requests skip the check while it runs.
+    ppcart_shortcode_tag_migration_save_state([ 'upsell_links_checked' => true ]);
+
+    if ('complete' !== $state['step1']) {
+        return;
+    }
+
+    $in_posts     = ppcart_shortcode_tag_migration_has_leftover_upsell_links('posts');
+    $in_elementor = ppcart_shortcode_tag_migration_has_leftover_upsell_links('elementor');
+    if (! $in_posts && ! $in_elementor) {
+        return;
+    }
+
+    $reopen = [
+        'step1'                  => 'idle',
+        'mode'                   => 'legacy',
+        'notification_meta_done' => true,
+        'upsell_links_reopened'  => true,
+    ];
+    $reopen['posts_done'] = ! $in_posts;
+    if ($in_elementor) {
+        $reopen['elementor_cursor'] = 0;
+    }
+
+    ppcart_shortcode_tag_migration_save_state($reopen);
+}
+
+/**
+ * Whether posts or Elementor data still hold a leftover upsell link token.
+ *
+ * @param string $where `posts` or `elementor`.
+ * @return bool
+ */
+function ppcart_shortcode_tag_migration_has_leftover_upsell_links($where)
+{
+    global $wpdb;
+
+    if (! is_object($wpdb) || ! function_exists('ppcart_upsell_link_migration_pairs')) {
+        return false;
+    }
+
+    $columns = 'posts' === $where ? [ 'post_content', 'post_excerpt' ] : [ 'meta_value' ];
+    $likes   = [];
+    $args    = [];
+    foreach (array_keys(ppcart_upsell_link_migration_pairs()) as $legacy) {
+        foreach ($columns as $column) {
+            $likes[] = "{$column} LIKE %s";
+            $args[]  = '%' . $wpdb->esc_like($legacy) . '%';
+        }
+    }
+
+    if ('posts' === $where) {
+        if (empty($wpdb->posts)) {
+            return false;
+        }
+        $sql = "SELECT ID FROM {$wpdb->posts} WHERE (" . implode(' OR ', $likes) . ') LIMIT 1';
+    } else {
+        if (empty($wpdb->postmeta)) {
+            return false;
+        }
+        array_unshift($args, '_elementor_data');
+        $sql = "SELECT meta_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND (" . implode(' OR ', $likes) . ') LIMIT 1';
+    }
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- One-time check; placeholders built above.
+    $found = $wpdb->get_var($wpdb->prepare($sql, $args));
+
+    return null !== $found;
+}
+
