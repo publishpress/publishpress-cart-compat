@@ -46,7 +46,7 @@ const STEPS = [
                 'publishpress-cart-compat'
             ),
         pending: (status) =>
-            sum(status.remaining && status.remaining.shortcodes, [ 'posts', 'options', 'postmeta' ]),
+            sum(status.remaining && status.remaining.shortcodes, [ 'posts', 'options', 'postmeta', 'elementor' ]),
     },
     {
         slug: 'options',
