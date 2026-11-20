@@ -471,6 +471,28 @@ class HookBridgesTest extends WPTestCase
     /**
      * @return array<string, string>
      */
+    public function test_IT_372_a_cron_hook_fired_with_no_arguments_does_not_fatal_in_compat_mode(): void
+    {
+        update_option(PPCartComp_Studiocart_Compatibility_Mode::OPTION_NAME, '1');
+        PPCartComp_Studiocart_Compatibility_Mode::maybe_register_hooks();
+
+        $legacy_ran = false;
+        add_action(
+            'sc_after_order_paid',
+            static function () use (&$legacy_ran) {
+                $legacy_ran = true;
+            },
+            10,
+            0
+        );
+
+        // WP-Cron runs events this way: no arguments at all.
+        do_action_ref_array('ppcart_after_order_paid', []);
+        do_action_ref_array('sc_after_order_paid', []);
+
+        $this->assertTrue($legacy_ran);
+    }
+
     private function pluginIdentityHookMap(): array
     {
         return [
