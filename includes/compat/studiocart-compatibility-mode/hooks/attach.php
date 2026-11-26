@@ -29,9 +29,12 @@ if (! function_exists('ppcart_hook_bridge_maybe_attach')) {
         if (ncs_cart_hook_is_canonical_name($hook)) {
             $priority = PHP_INT_MAX - 1;
 
+            // WP-Cron fires hooks with do_action_ref_array($hook, []), which passes no
+            // arguments. The filter callbacks must accept that, or the cron run fatals.
+
             add_filter(
                 $hook,
-                static function ($value, ...$args) use ($hook) {
+                static function ($value = null, ...$args) use ($hook) {
                     return ppcart_hook_bridge_filter_legacy_from_canonical($value, $hook, ...$args);
                 },
                 $priority,
@@ -56,7 +59,7 @@ if (! function_exists('ppcart_hook_bridge_maybe_attach')) {
 
         add_filter(
             $hook,
-            static function ($value, ...$args) use ($hook) {
+            static function ($value = null, ...$args) use ($hook) {
                 return ppcart_hook_bridge_filter_canonical_from_legacy($value, $hook, ...$args);
             },
             0,
